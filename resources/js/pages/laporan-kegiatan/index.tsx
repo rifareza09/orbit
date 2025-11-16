@@ -11,9 +11,6 @@ export default function LaporanKegiatan() {
           <h1 className="text-2xl font-semibold text-[#0B132B]">
             Laporan Kegiatan
           </h1>
-          <button className="bg-[#0B132B] text-white px-5 py-2 rounded-lg hover:bg-[#1C2541] transition">
-            Buat Laporan Baru
-          </button>
         </div>
 
         {/* === TABEL === */}

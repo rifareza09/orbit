@@ -22,12 +22,23 @@ Route::get('/dashboard', function () {
 
 Route::get('/dashboard', fn() => Inertia::render('dashboard/index'))->name('dashboard');
 Route::get('/program-kerja', fn() => Inertia::render('program-kerja/index'))->name('program.kerja');
+
 Route::get('/pengajuan-kegiatan', fn() => Inertia::render('pengajuan-kegiatan/index'))->name('pengajuan.kegiatan');
+Route::get('/pengajuan-kegiatan/detail', fn() => Inertia::render('pengajuan-kegiatan/detail'))->name('pengajuan.kegiatan.detail');
+Route::get('/pengajuan-kegiatan/buatProposal', fn() => Inertia::render('pengajuan-kegiatan/buatProposal'))->name('pengajuan.kegiatan.buatProposal');
+
+
 Route::get('/laporan-kegiatan', action: fn() => Inertia::render('laporan-kegiatan/index'))->name('laporan.kegiatan');
+
 Route::get('/dokumentasi', fn() => Inertia::render('dokumentasi/index'))->name('dokumentasi');
+
 Route::get('/prestasi', action: fn() => Inertia::render('prestasi/index'))->name('prestasi');
+
 Route::get('/program-kerja', fn() => Inertia::render('program-kerja/index'))->name('program.kerja');
 Route::get('/program-kerja/tambah', fn() => Inertia::render('program-kerja/tambah'))->name('program.kerja.tambah');
+Route::get('/program-kerja/detail', fn() => Inertia::render('program-kerja/detail'))->name('program.kerja.detail');
+Route::get('/program-kerja/editProgramKerja', fn() => Inertia::render('program-kerja/editProgramKerja'))->name('program.kerja.editProgramKerja');
+
 
 
 require __DIR__.'/settings.php';

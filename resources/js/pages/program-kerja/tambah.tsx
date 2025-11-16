@@ -1,6 +1,5 @@
 import React from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { Calendar, Info } from "lucide-react";
 import { router } from "@inertiajs/react";
 
 export default function TambahProgramKerja() {
@@ -10,90 +9,105 @@ export default function TambahProgramKerja() {
 
   return (
     <DashboardLayout>
-      <div className="p-8">
+      <div className="p-10">
+
         {/* === HEADER === */}
-        <h1 className="text-2xl font-semibold text-[#0B132B] mb-8">
+        <h1 className="text-2xl font-semibold text-[#0B132B] mb-10">
           Tambah Program Kerja
         </h1>
 
-        {/* === FORM === */}
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
-          {/* Nama Program */}
-          <div>
-            <label className="block font-medium text-[#0B132B] mb-2">
-              Nama Program
-            </label>
-            <select className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none">
-              <option value="">Pilih Program</option>
-              <option value="open-recruitment">Open Recruitment</option>
-              <option value="workshop">Workshop</option>
-              <option value="event">Event</option>
-              <option value="lainnya">Lainnya</option>
-            </select>
-          </div>
+        {/* === FORM GRID === */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl">
 
-          {/* Jenis Program */}
-          <div>
-            <label className="block font-medium text-[#0B132B] mb-2">
-              Jenis Program
-            </label>
-            <select className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none">
-              <option value="">Pilih Jenis</option>
-              <option value="akademik">Akademik</option>
-              <option value="non-akademik">Non-Akademik</option>
-            </select>
-          </div>
+          {/* ========= KIRI ========= */}
+          <div className="space-y-6">
 
-          {/* Tanggal Pelaksanaan */}
-          <div>
-            <label className="block font-medium text-[#0B132B] mb-2">
-              Tanggal Pelaksanaan
-            </label>
-            <div className="relative">
-              <input
-                type="date"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none"
-              />
-              <Calendar
-                className="absolute right-3 top-2.5 text-gray-500"
-                size={20}
-              />
-            </div>
-          </div>
-
-          {/* Program Divisi */}
-          <div>
-            <label className="block font-medium text-[#0B132B] mb-2">
-              Program Divisi
-            </label>
-            <div className="relative">
+            {/* Nama Program Kerja */}
+            <div>
+              <label className="block font-semibold text-[#0B132B] mb-2">
+                Nama Program Kerja
+              </label>
               <input
                 type="text"
-                placeholder="Masukkan divisi program"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none"
-              />
-              <Info
-                className="absolute right-3 top-2.5 text-gray-500"
-                size={20}
+                placeholder="Nama Program Kerja"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none"
               />
             </div>
+
+            {/* Deskripsi Kegiatan */}
+            <div>
+              <label className="block font-semibold text-[#0B132B] mb-2">
+                Deskripsi Kegiatan
+              </label>
+              <textarea
+                rows={2}
+                placeholder="Tuliskan deskripsi kegiatan..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none resize-none"
+              ></textarea>
+            </div>
+
+            {/* Estimasi Anggaran */}
+            <div>
+              <label className="block font-semibold text-[#0B132B] mb-2">
+                Estimasi Anggaran
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-2 text-gray-600">Rp</span>
+                <input
+                 
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
           </div>
 
-          {/* Deskripsi Program */}
-          <div className="md:col-span-2">
-            <label className="block font-medium text-[#0B132B] mb-2">
-              Deskripsi Program
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Tuliskan deskripsi singkat program kerja..."
-              className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none resize-none"
-            ></textarea>
+
+          {/* ========= KANAN ========= */}
+          <div className="space-y-6">
+
+            {/* Nama Kegiatan */}
+            <div>
+              <label className="block font-semibold text-[#0B132B] mb-2">
+                Nama Kegiatan
+              </label>
+              <input
+                type="text"
+                placeholder="Masukkan nama kegiatan"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none"
+              />
+            </div>
+
+            {/* Jenis Kegiatan */}
+            <div>
+              <label className="block font-semibold text-[#0B132B] mb-2">
+                Jenis Kegiatan
+              </label>
+
+              {/* Custom simple dropdown */}
+              <select
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 focus:ring-2 focus:ring-[#0B132B] focus:outline-none"
+              >
+                <option value="">Pilih</option>
+                <option value="sumber-daya">Pengembangan Sumber Daya Mahasiswa</option>
+                <option value="akademik">Akademik dan Prestasi</option>
+                <option value="minat-bakat">Minat dan Bakat</option>
+                <option value="sosial">Sosial dan Pengabdian Masyarakat</option>
+                <option value="kesejahteraan">Kesejahteraan Masyarakat</option>
+                <option value="kolaborasi">Kolaborasi dan Hubungan Eksternal</option>
+                <option value="advokasi">Advokasi dan Kebijakan</option>
+                <option value="teknologi">Teknologi dan Inovasi</option>
+                <option value="internal">Internal Ormawa</option>
+                <option value="keagamaan">Keagamaan dan Spiritual</option>
+              </select>
+            </div>
+
           </div>
-        </form>
+        </div>
 
         {/* === BUTTONS === */}
-        <div className="flex gap-4 mt-8">
+        <div className="flex gap-4 mt-10">
           <button
             type="button"
             onClick={handleBatal}
@@ -101,6 +115,7 @@ export default function TambahProgramKerja() {
           >
             Batalkan
           </button>
+
           <button
             type="submit"
             className="bg-[#0B132B] text-white px-6 py-2 rounded-md hover:bg-[#1C2541] transition"
@@ -110,9 +125,10 @@ export default function TambahProgramKerja() {
         </div>
 
         {/* === FOOTER === */}
-        <div className="text-center text-gray-500 text-sm mt-12">
+        <div className="text-center text-gray-500 text-sm mt-20">
           ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
         </div>
+
       </div>
     </DashboardLayout>
   );
