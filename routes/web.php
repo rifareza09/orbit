@@ -3,42 +3,71 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\ProgramKerjaController;
 
+/*
+|--------------------------------------------------------------------------
+| Public Route
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () {
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| Dashboard
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
-});
-// Laravel: Lewatkan sementara middleware auth
-Route::get('/dashboard', function () {
-    return Inertia::render('dashboard/index');
+    Route::get('/dashboard', fn () => Inertia::render('dashboard/index'))->name('dashboard');
 });
 
-Route::get('/dashboard', fn() => Inertia::render('dashboard/index'))->name('dashboard');
-Route::get('/program-kerja', fn() => Inertia::render('program-kerja/index'))->name('program.kerja');
+/*
+|--------------------------------------------------------------------------
+| Program Kerja
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('program-kerja')->group(function () {
+    // Route untuk menampilkan daftar program kerja
+    Route::get('/', [ProgramKerjaController::class, 'index'])->name('program-kerja.index');
 
-Route::get('/pengajuan-kegiatan', fn() => Inertia::render('pengajuan-kegiatan/index'))->name('pengajuan.kegiatan');
-Route::get('/pengajuan-kegiatan/detail', fn() => Inertia::render('pengajuan-kegiatan/detail'))->name('pengajuan.kegiatan.detail');
-Route::get('/pengajuan-kegiatan/buatProposal', fn() => Inertia::render('pengajuan-kegiatan/buatProposal'))->name('pengajuan.kegiatan.buatProposal');
+    // Route untuk menambahkan program kerja
+    Route::get('/tambah', [ProgramKerjaController::class, 'create'])->name('program-kerja.tambah');
+    Route::post('/', [ProgramKerjaController::class, 'store'])->name('program-kerja.store');
 
+    // Route untuk menampilkan detail program kerja
+    Route::get('/detail/{id}', [ProgramKerjaController::class, 'show'])->name('program-kerja.detail');
 
-Route::get('/laporan-kegiatan', action: fn() => Inertia::render('laporan-kegiatan/index'))->name('laporan.kegiatan');
+    // Route untuk edit program kerja
+    Route::get('/edit/{id}', [ProgramKerjaController::class, 'edit'])->name('program-kerja.edit');
+    Route::put('/{id}', [ProgramKerjaController::class, 'update'])->name('program-kerja.update');
 
-Route::get('/dokumentasi', fn() => Inertia::render('dokumentasi/index'))->name('dokumentasi');
+    // Route untuk menghapus program kerja
+    Route::delete('/{id}', [ProgramKerjaController::class, 'destroy'])->name('program-kerja.destroy');
+});
 
-Route::get('/prestasi', action: fn() => Inertia::render('prestasi/index'))->name('prestasi');
+/*
+|--------------------------------------------------------------------------
+| Routes Lain (Jika perlu ditutup auth, silakan dipindah)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/pengajuan-kegiatan', fn() => Inertia::render('pengajuan-kegiatan/index'))->name('pengajuan.kegiatan');
+    Route::get('/pengajuan-kegiatan/detail', fn() => Inertia::render('pengajuan-kegiatan/detail'))->name('pengajuan.kegiatan.detail');
+    Route::get('/pengajuan-kegiatan/buatProposal', fn() => Inertia::render('pengajuan-kegiatan/buatProposal'))->name('pengajuan.kegiatan.buatProposal');
 
-Route::get('/program-kerja', fn() => Inertia::render('program-kerja/index'))->name('program.kerja');
-Route::get('/program-kerja/tambah', fn() => Inertia::render('program-kerja/tambah'))->name('program.kerja.tambah');
-Route::get('/program-kerja/detail', fn() => Inertia::render('program-kerja/detail'))->name('program.kerja.detail');
-Route::get('/program-kerja/editProgramKerja', fn() => Inertia::render('program-kerja/editProgramKerja'))->name('program.kerja.editProgramKerja');
+    Route::get('/laporan-kegiatan', fn() => Inertia::render('laporan-kegiatan/index'))->name('laporan.kegiatan');
 
+    Route::get('/dokumentasi', fn() => Inertia::render('dokumentasi/index'))->name('dokumentasi');
+    Route::get('/prestasi', fn() => Inertia::render('prestasi/index'))->name('prestasi');
+});
 
-
+/*
+|--------------------------------------------------------------------------
+| Settings
+|--------------------------------------------------------------------------
+*/
 require __DIR__.'/settings.php';

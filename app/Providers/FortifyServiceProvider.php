@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use App\Actions\Fortify\AttemptToAuthenticate;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Fortify::authenticateUsing(function ($request) {
+    return app(AttemptToAuthenticate::class)($request);
+});
+
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();

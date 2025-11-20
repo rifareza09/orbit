@@ -8,11 +8,16 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCircle2,
+  Power
 } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+
+  // Ambil user dari props Inertia
+  const { auth }: any = usePage().props;
+  const user = auth?.user;
 
   const menuItems = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/dashboard' },
@@ -22,6 +27,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Dokumentasi', icon: <Image size={20} />, href: '/dokumentasi' },
     { name: 'Prestasi', icon: <Trophy size={20} />, href: '/prestasi' },
   ];
+
+  const handleLogout = () => {
+    router.post('');
+  };
 
   return (
     <div className="flex h-screen">
@@ -63,27 +72,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         {/* Footer Sidebar */}
-        <div className="p-4 border-t border-white/10 text-center text-sm opacity-75">
-          {!collapsed && '© 2025 Orbit'}
+        <div className="p-4 border-t border-white/10">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-3 py-2 bg-red-600 hover:bg-red-700 transition rounded-lg"
+          >
+            <Power size={18} />
+            {!collapsed && <span>Logout</span>}
+          </button>
+
+          {!collapsed && (
+            <p className="text-center text-xs mt-3 opacity-70">© 2025 Orbit</p>
+          )}
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
-        {/* NAVBAR di atas main */}
+        {/* NAVBAR */}
         <div className="w-full bg-white shadow-sm flex items-center justify-between px-8 py-3 border-b">
-          {/* Logo YARSI */}
           <img
             src="/images/LogoYARSI.png"
             alt="Logo YARSI"
             className="h-10 object-contain"
           />
 
-          {/* Profil baru */}
+          {/* User Profile Dynamic */}
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition">
             <div className="text-right">
-              <p className="font-medium text-[#0B132B] leading-tight">LDK</p>
-              <p className="text-sm text-gray-500 leading-tight">UKM</p>
+              <p className="font-medium text-[#0B132B] leading-tight">
+                {user?.name ?? "User"}
+              </p>
+              <p className="text-sm text-gray-500 leading-tight">
+                {(user?.role ?? "Role")?.toUpperCase()}
+              </p>
             </div>
             <UserCircle2 size={40} className="text-[#0B132B]" />
           </div>
