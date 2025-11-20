@@ -24,30 +24,31 @@ class ProgramKerjaController extends Controller
         return Inertia::render('program-kerja/tambah');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'program_kerja'        => 'required|string|max:255',
-            'kegiatan'             => 'required|string|max:255',
-            'deskripsi_kegiatan'   => 'required|string',
-            'jenis_kegiatan'       => 'required|string',
-            'estimasi_anggaran'    => 'required|numeric|min:0',
-        ]);
+   public function store(Request $request)
+{
+    $validated = $request->validate([
+        'program_kerja'        => 'required|string|max:255',
+        'kegiatan'             => 'required|string|max:255',
+        'deskripsi_kegiatan'   => 'required|string',
+        'jenis_kegiatan'       => 'required|string',
+        'estimasi_anggaran'    => 'required|numeric|min:0',
+    ]);
 
-        ProgramKerja::create([
-            'user_id'             => Auth::id(),
-            'program_kerja'       => $validated['program_kerja'],
-            'kegiatan'            => $validated['kegiatan'],
-            'deskripsi_kegiatan'  => $validated['deskripsi_kegiatan'],
-            'jenis_kegiatan'      => $validated['jenis_kegiatan'],
-            'estimasi_anggaran'   => $validated['estimasi_anggaran'],
-            'status'              => 'Diajukan',
-        ]);
+    ProgramKerja::create([
+        'user_id'             => Auth::id(),
+        'program_kerja'       => $validated['program_kerja'],
+        'kegiatan'            => $validated['kegiatan'],
+        'deskripsi_kegiatan'  => $validated['deskripsi_kegiatan'],
+        'jenis_kegiatan'      => $validated['jenis_kegiatan'],
+        'estimasi_anggaran'   => $validated['estimasi_anggaran'],
+        'status'              => 'Belum Diajukan',  // Set status default ke "Belum Diajukan"
+    ]);
 
-        return redirect()
-            ->route('program-kerja.index')
-            ->with('success', 'Program Kerja berhasil dibuat!');
-    }
+    return redirect()
+        ->route('program-kerja.index')
+        ->with('success', 'Program Kerja berhasil dibuat!');
+}
+
    public function show($id)
     {
         // Menampilkan detail program kerja berdasarkan ID
@@ -121,6 +122,14 @@ Log::info('Updated Program Kerja:', $program->toArray()); // Pastikan objek menj
             ->with('success', 'Program Kerja berhasil diperbarui!');
     }
 
+public function ajukan($id)
+{
+    $program = ProgramKerja::findOrFail($id);
+    $program->status = 'Diajukan';  // Mengubah status menjadi Diajukan
+    $program->save();
+
+    return redirect()->route('program-kerja.index')->with('success', 'Program Kerja berhasil diajukan!');
+}
 
 public function destroy($id)
 {

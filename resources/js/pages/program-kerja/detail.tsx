@@ -93,6 +93,15 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
     Edit
 </Link>
 
+        <button
+  onClick={() => {
+    router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' });
+  }}
+  className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
+>
+  Ajukan
+</button>
+
                 </div>
 
                 <div className="text-center text-gray-500 text-sm mt-8">

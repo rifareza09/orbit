@@ -44,6 +44,8 @@ Route::middleware(['auth', 'verified'])->prefix('program-kerja')->group(function
     // Route untuk edit program kerja
     Route::get('/edit/{id}', [ProgramKerjaController::class, 'edit'])->name('program-kerja.edit');
     Route::put('/{id}', [ProgramKerjaController::class, 'update'])->name('program-kerja.update');
+    // Menambahkan route untuk tombol ajukan
+Route::put('/ajukan/{id}', [ProgramKerjaController::class, 'ajukan'])->name('program-kerja.ajukan');
 
     // Route untuk menghapus program kerja
     Route::delete('/{id}', [ProgramKerjaController::class, 'destroy'])->name('program-kerja.destroy');
