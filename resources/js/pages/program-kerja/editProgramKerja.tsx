@@ -143,20 +143,6 @@ export default function EditProgramKerja() {
                 <option value="Teknologi dan Inovasi">Teknologi dan Inovasi</option>
               </select>
 
-              <label className="block font-semibold text-[#0B132B] mb-2 mt-4">
-                Status
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              >
-                <option value="Belum Diajukan">Belum Diajukan</option>
-                <option value="Diajukan">Diajukan</option>
-                <option value="Disetujui">Disetujui</option>
-                <option value="Ditolak">Ditolak</option>
-              </select>
             </div>
           </div>
 

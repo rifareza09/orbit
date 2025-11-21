@@ -6,12 +6,14 @@ export default function PengajuanKegiatan() {
   const data = [
     {
       id: 1,
-      nama: "Open Recruitment Anggota Baru",
-      program: "Pengembangan Minat Bakat",
-      jenis: "Non-Akademik",
-      tanggal: "2 November 2025",
-      penanggung: "Rifa Reza Pahlevi",
-      anggaran: "Rp. 3.000.000",
+      nama_kegiatan: "Open Recruitment dan Pelatihan Dasar Sinematografi",
+      ketua_pelaksana: "Muhammad Raihan",
+      tempat_pelaksanaan: "Universitas YARSI",
+      tanggal_pelaksanaan: "29/12/2025",
+        anggaran_dana: "Rp. 5.000.000",
+        status: "Belum Diajukan",
+
+
     },
   ];
 
@@ -31,12 +33,12 @@ export default function PengajuanKegiatan() {
               <tr>
                 <th className="px-4 py-3 w-[5%]">No.</th>
                 <th className="px-4 py-3 w-[25%]">Nama Kegiatan</th>
-                <th className="px-4 py-3 w-[25%]">Program</th>
-                <th className="px-4 py-3 w-[10%]">Jenis</th>
+                <th className="px-4 py-3 w-[25%]">Ketua Pelaksana</th>
+                <th className="px-4 py-3 w-[15%]">Tempat Pelaksanaan</th>
                 <th className="px-4 py-3 w-[15%]">Tanggal Pelaksanaan</th>
-                <th className="px-4 py-3 w-[15%]">Penanggung Jawab</th>
                 <th className="px-4 py-3 w-[10%]">Anggaran Dana</th>
-                <th className="px-4 py-3 w-[10%]">Buat Proposal Kegiatan</th>
+                <th className="px-4 py-3 w-[10%]">Status</th>
+                <th className="px-4 py-3 w-[10%] text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -46,13 +48,13 @@ export default function PengajuanKegiatan() {
                   className="border-b hover:bg-gray-50 transition"
                 >
                   <td className="px-4 py-3">{index + 1}.</td>
-                  <td className="px-4 py-3">{item.nama}</td>
-                  <td className="px-4 py-3">{item.program}</td>
-                  <td className="px-4 py-3">{item.jenis}</td>
-                  <td className="px-4 py-3">{item.tanggal}</td>
-                  <td className="px-4 py-3">{item.penanggung}</td>
-                  <td className="px-4 py-3">{item.anggaran}</td>
-                  <td className="px-4 py-3"><span onClick={() => router.visit('/pengajuan-kegiatan/detail')} className="text-blue-600  cursor-pointer underline">Buat</span></td>
+                  <td className="px-4 py-3">{item.nama_kegiatan}</td>
+                  <td className="px-4 py-3">{}</td>
+                  <td className="px-4 py-3">{}</td>
+                <td className="px-4 py-3">{}</td>
+                  <td className="px-4 py-3">{}</td>
+                  <td className="px-4 py-3">{item.status}</td>
+                  <td className="px-4 py-3"><span onClick={() => router.visit('/pengajuan-kegiatan/detail')} className="text-blue-600  cursor-pointer underline">Detail</span></td>
                 </tr>
               ))}
 

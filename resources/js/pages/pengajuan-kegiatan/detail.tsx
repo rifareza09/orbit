@@ -122,7 +122,7 @@ export default function DetailPengajuanKegiatan({ item }: { item: ProgramKerjaIt
                     </div>
                 </div>
 
-                {/* BUTTONS */}
+                {/* BUTTONS */} 
                 <div className="flex justify-center gap-8 mt-8">
 
                     <Link

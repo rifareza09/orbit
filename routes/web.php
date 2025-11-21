@@ -44,11 +44,13 @@ Route::middleware(['auth', 'verified'])->prefix('program-kerja')->group(function
     // Route untuk edit program kerja
     Route::get('/edit/{id}', [ProgramKerjaController::class, 'edit'])->name('program-kerja.edit');
     Route::put('/{id}', [ProgramKerjaController::class, 'update'])->name('program-kerja.update');
+
     // Menambahkan route untuk tombol ajukan
 Route::put('/ajukan/{id}', [ProgramKerjaController::class, 'ajukan'])->name('program-kerja.ajukan');
 
     // Route untuk menghapus program kerja
     Route::delete('/{id}', [ProgramKerjaController::class, 'destroy'])->name('program-kerja.destroy');
+
 });
 
 /*
@@ -62,6 +64,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pengajuan-kegiatan/buatProposal', fn() => Inertia::render('pengajuan-kegiatan/buatProposal'))->name('pengajuan.kegiatan.buatProposal');
 
     Route::get('/laporan-kegiatan', fn() => Inertia::render('laporan-kegiatan/index'))->name('laporan.kegiatan');
+
+    Route::get('/laporan-kegiatan/buatLaporanKegiatan', fn() => Inertia::render('laporan-kegiatan/buatLaporanKegiatan'))->name('laporan.kegiatan.buatLaporanKegiatan');
 
     Route::get('/dokumentasi', fn() => Inertia::render('dokumentasi/index'))->name('dokumentasi');
     Route::get('/prestasi', fn() => Inertia::render('prestasi/index'))->name('prestasi');
