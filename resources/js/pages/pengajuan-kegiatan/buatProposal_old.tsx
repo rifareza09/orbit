@@ -2,15 +2,6 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { router, usePage } from "@inertiajs/react";
 import { Plus } from "lucide-react";
-import { formatCurrency, formatCurrencyInput, parseCurrency } from "@/utils/currency";
-
-interface ProgramKerja {
-  id: number;
-  program_kerja: string;
-  kegiatan: string;
-  estimasi_anggaran: number;
-  status: string;
-}
 
 interface ItemPengajuanDana {
   id?: number;
@@ -21,37 +12,26 @@ interface ItemPengajuanDana {
 }
 
 interface PengajuanKegiatan {
-  id?: number;
-  program_kerja_id?: number;
+  id: number;
   nama_kegiatan: string;
   ketua_pelaksana: string;
   tempat_pelaksanaan: string;
   tanggal_pelaksanaan: string;
   deskripsi: string;
-  proposal_path?: string;
-  status?: string;
-  program_kerja?: ProgramKerja;
   item_pengajuan_dana: ItemPengajuanDana[];
 }
 
 export default function BuatProposal() {
-    const { pengajuan, programKerjasDiajukan } = usePage<{
-        pengajuan?: PengajuanKegiatan;
-        programKerjasDiajukan: ProgramKerja[];
-    }>().props;
-
+    const { pengajuan } = usePage<{ pengajuan?: PengajuanKegiatan }>().props;
     const isEdit = Boolean(pengajuan);
 
     const [form, setForm] = useState({
-        program_kerja_id: "",
         nama_kegiatan: "",
         ketua_pelaksana: "",
         tempat_pelaksanaan: "",
         tanggal_pelaksanaan: "",
         deskripsi: "",
     });
-
-    const [proposalFile, setProposalFile] = useState<File | null>(null);
 
     const [items, setItems] = useState<ItemPengajuanDana[]>([
         { nama_item: "", deskripsi_item: "", quantity: 1, harga_satuan: 0 },
@@ -60,7 +40,6 @@ export default function BuatProposal() {
     useEffect(() => {
         if (pengajuan) {
             setForm({
-                program_kerja_id: pengajuan.program_kerja_id?.toString() || "",
                 nama_kegiatan: pengajuan.nama_kegiatan,
                 ketua_pelaksana: pengajuan.ketua_pelaksana,
                 tempat_pelaksanaan: pengajuan.tempat_pelaksanaan,
@@ -74,24 +53,8 @@ export default function BuatProposal() {
         }
     }, [pengajuan]);
 
-    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
-
-        // Auto-fill nama kegiatan when program kerja is selected
-        if (name === 'program_kerja_id') {
-            const selectedProgram = programKerjasDiajukan.find(p => p.id.toString() === value);
-            if (selectedProgram) {
-                setForm(prev => ({ ...prev, nama_kegiatan: selectedProgram.kegiatan }));
-            }
-        }
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setProposalFile(file);
-        }
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
 
     const addItem = () => {
@@ -108,12 +71,9 @@ export default function BuatProposal() {
     };
 
     const updateItem = (index: number, field: keyof ItemPengajuanDana, value: string | number) => {
-        setItems(items.map((item, i) => {
-            if (i === index) {
-                return { ...item, [field]: value };
-            }
-            return item;
-        }));
+        setItems(items.map((item, i) =>
+            i === index ? { ...item, [field]: value } : item
+        ));
     };
 
     const calculateTotal = () => {
@@ -121,7 +81,7 @@ export default function BuatProposal() {
     };
 
     const validateForm = () => {
-        if (!form.program_kerja_id || !form.ketua_pelaksana || !form.tempat_pelaksanaan || !form.tanggal_pelaksanaan) {
+        if (!form.nama_kegiatan || !form.ketua_pelaksana || !form.tempat_pelaksanaan || !form.tanggal_pelaksanaan) {
             alert('Mohon lengkapi semua field yang wajib diisi');
             return false;
         }
@@ -137,30 +97,19 @@ export default function BuatProposal() {
     const handleSubmit = () => {
         if (!validateForm()) return;
 
-        const formDataToSend = new FormData();
-
-        // Add form fields
-        Object.entries(form).forEach(([key, value]) => {
-            formDataToSend.append(key, value.toString());
-        });
-
-        // Add proposal file
-        if (proposalFile) {
-            formDataToSend.append('proposal', proposalFile);
-        }
-
-        // Add items as JSON
-        formDataToSend.append('items', JSON.stringify(items));
+        const data = {
+            ...form,
+            items: items as any // Type assertion for complex nested objects
+        };
 
         if (isEdit && pengajuan) {
-            formDataToSend.append('_method', 'PUT');
-            router.post(`/pengajuan-kegiatan/${pengajuan.id}`, formDataToSend as any, {
+            router.put(`/pengajuan-kegiatan/${pengajuan.id}`, data, {
                 onSuccess: () => {
                     router.visit('/pengajuan-kegiatan');
                 }
             });
         } else {
-            router.post('/pengajuan-kegiatan', formDataToSend as any, {
+            router.post('/pengajuan-kegiatan', data, {
                 onSuccess: () => {
                     router.visit('/pengajuan-kegiatan');
                 }
@@ -182,9 +131,7 @@ export default function BuatProposal() {
 
                     {/* HEADER DARK */}
                     <div className="bg-[#0B132B] text-white px-6 py-3">
-                        <h2 className="text-lg font-semibold">
-                            {isEdit ? 'Edit Proposal Kegiatan' : 'Buat Proposal Kegiatan'}
-                        </h2>
+                        <h2 className="text-lg font-semibold">Buat Proposal Kegiatan</h2>
                     </div>
 
                     {/* INNER CONTENT */}
@@ -192,26 +139,7 @@ export default function BuatProposal() {
 
                         <div className="grid grid-cols-2 gap-x-10 gap-y-6">
 
-                            {/* Program Kerja Selection */}
-                            <div className="col-span-2">
-                                <p className="font-semibold text-sm mb-1">Pilih Program Kerja yang Sudah Diajukan*</p>
-                                <select
-                                    name="program_kerja_id"
-                                    value={form.program_kerja_id}
-                                    onChange={handleFormChange}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
-                                    required
-                                >
-                                    <option value="">Pilih Program Kerja</option>
-                                    {programKerjasDiajukan.map((program) => (
-                                        <option key={program.id} value={program.id}>
-                                            {program.kegiatan} - {formatCurrency(program.estimasi_anggaran)}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Nama Kegiatan (Read Only) */}
+                            {/* Nama Kegiatan */}
                             <div>
                                 <p className="font-semibold text-sm mb-1">Nama Kegiatan*</p>
                                 <input
@@ -219,9 +147,8 @@ export default function BuatProposal() {
                                     name="nama_kegiatan"
                                     value={form.nama_kegiatan}
                                     onChange={handleFormChange}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-gray-50"
-                                    placeholder="Akan terisi otomatis setelah memilih program kerja"
-                                    readOnly
+                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                                    required
                                 />
                             </div>
 
@@ -262,27 +189,6 @@ export default function BuatProposal() {
                                     className="w-full p-2 rounded-md border border-gray-300 bg-white"
                                     required
                                 />
-                            </div>
-
-                            {/* Proposal PDF Upload */}
-                            <div className="col-span-2">
-                                <p className="font-semibold text-sm mb-1">Proposal (PDF)</p>
-                                <input
-                                    type="file"
-                                    accept="application/pdf"
-                                    onChange={handleFileChange}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
-                                />
-                                {pengajuan?.proposal_path && (
-                                    <p className="text-sm text-gray-600 mt-1">
-                                        File saat ini: {pengajuan.proposal_path.split('/').pop()}
-                                    </p>
-                                )}
-                                {proposalFile && (
-                                    <p className="text-sm text-green-600 mt-1">
-                                        File baru: {proposalFile.name}
-                                    </p>
-                                )}
                             </div>
 
                             {/* Deskripsi Kegiatan */}
@@ -358,14 +264,13 @@ export default function BuatProposal() {
                                                     value={item.harga_satuan}
                                                     onChange={(e) => updateItem(index, 'harga_satuan', Number.parseFloat(e.target.value) || 0)}
                                                     className="w-full p-2 border border-gray-300 rounded-md"
-                                                    placeholder="0"
                                                     required
                                                 />
                                             </div>
                                             <div>
                                                 <p className="font-medium text-sm mb-1">Total</p>
                                                 <p className="p-2 bg-gray-200 rounded-md font-semibold">
-                                                    {formatCurrency(item.quantity * item.harga_satuan)}
+                                                    Rp {(item.quantity * item.harga_satuan).toLocaleString('id-ID')}
                                                 </p>
                                             </div>
                                             <div>
@@ -386,7 +291,7 @@ export default function BuatProposal() {
 
                             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
                                 <p className="text-lg font-bold text-blue-800">
-                                    Total Keseluruhan: {formatCurrency(calculateTotal())}
+                                    Total Keseluruhan: Rp {calculateTotal().toLocaleString('id-ID')}
                                 </p>
                             </div>
                         </div>

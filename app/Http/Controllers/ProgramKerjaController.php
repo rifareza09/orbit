@@ -41,7 +41,7 @@ class ProgramKerjaController extends Controller
         'deskripsi_kegiatan'  => $validated['deskripsi_kegiatan'],
         'jenis_kegiatan'      => $validated['jenis_kegiatan'],
         'estimasi_anggaran'   => $validated['estimasi_anggaran'],
-        'status'              => 'Belum Diajukan',  // Set status default ke "Belum Diajukan"
+        'status'              => 'Belum Diajukan',  // ✅ default baru
     ]);
 
     return redirect()
@@ -74,26 +74,21 @@ class ProgramKerjaController extends Controller
 
     return Inertia::render('program-kerja/editProgramKerja', [
         'item' => [
-            'id' => $program->id,
-            'programKerja' => $program->program_kerja,
-            'kegiatan' => $program->kegiatan,
+            'id'                => $program->id,
+            'programKerja'      => $program->program_kerja,
+            'kegiatan'          => $program->kegiatan,
             'deskripsiKegiatan' => $program->deskripsi_kegiatan,
-            'jenisKegiatan' => $program->jenis_kegiatan,
-            'estimasiKegiatan' => "Rp. " . number_format($program->estimasi_anggaran, 0, ',', '.'),
-            'status' => $program->status ?? 'Diajukan',
+            'jenisKegiatan'     => $program->jenis_kegiatan,
+            'estimasiKegiatan'  => $program->estimasi_anggaran, // ✅ angka raw (bukan "Rp ...")
+            'status'            => $program->status ?? 'Belum Diajukan',
         ]
     ]);
 }
 
     public function update(Request $request, $id)
     {
-        // Log data yang diterima
-        Log::info('Request Data:', $request->all());
-
-        // Update data program kerja berdasarkan ID
         $program = ProgramKerja::findOrFail($id);
 
-        // Validasi input
         $validated = $request->validate([
             'program_kerja'        => 'required|string|max:255',
             'kegiatan'             => 'required|string|max:255',
@@ -102,20 +97,8 @@ class ProgramKerjaController extends Controller
             'estimasi_anggaran'    => 'required|numeric|min:0',
         ]);
 
-        // Log data setelah validasi
-        Log::info('Validated Data:', $validated);
-
-        $program->update([
-            'program_kerja'       => $validated['program_kerja'],
-            'kegiatan'            => $validated['kegiatan'],
-            'deskripsi_kegiatan'  => $validated['deskripsi_kegiatan'],
-            'jenis_kegiatan'      => $validated['jenis_kegiatan'],
-            'estimasi_anggaran'   => $validated['estimasi_anggaran'],
-            'status'              => 'Diajukan', // status default
-        ]);
-
-        // Log data setelah update
-Log::info('Updated Program Kerja:', $program->toArray()); // Pastikan objek menjadi array
+        // ✅ status tidak disentuh
+        $program->update($validated);
 
         return redirect()
             ->route('program-kerja.index')

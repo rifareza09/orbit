@@ -1,30 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { router, usePage } from "@inertiajs/react";
 
-// Menambahkan tipe untuk item
 interface ProgramKerjaItem {
   id: number;
   programKerja: string;
   kegiatan: string;
   deskripsiKegiatan: string;
   jenisKegiatan: string;
-  estimasiKegiatan: string;
+  estimasiKegiatan: number | string;
   status: string;
 }
 
 export default function EditProgramKerja() {
-  const { item } = usePage().props as { item?: ProgramKerjaItem }; // Pastikan item ada atau tidak
+  const { item } = usePage<{ item: ProgramKerjaItem }>().props;
+
   const [formData, setFormData] = useState({
-    program_kerja: '',
-    kegiatan: '',
-    deskripsi_kegiatan: '',
-    jenis_kegiatan: '',
-    estimasi_anggaran: '',
-    status: 'Diajukan', // Default status
+    program_kerja: "",
+    kegiatan: "",
+    deskripsi_kegiatan: "",
+    jenis_kegiatan: "",
+    estimasi_anggaran: "",
+    status: "Belum Diajukan",
   });
 
-  // Mengisi data form jika item ada
   useEffect(() => {
     if (item) {
       setFormData({
@@ -32,36 +31,24 @@ export default function EditProgramKerja() {
         kegiatan: item.kegiatan,
         deskripsi_kegiatan: item.deskripsiKegiatan,
         jenis_kegiatan: item.jenisKegiatan,
-        estimasi_anggaran: item.estimasiKegiatan,
-        status: item.status || 'Diajukan', // Menangani jika status kosong
+        estimasi_anggaran: String(item.estimasiKegiatan ?? ""),
+        status: item.status ?? "Belum Diajukan",
       });
     }
   }, [item]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: any) => {
-  e.preventDefault();
-
-  const cleaned = {
-    ...formData,
-    // hapus semua karakter non-digit
-    estimasi_anggaran: String(formData.estimasi_anggaran).replace(/[^0-9]/g, ''),
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // ✅ jangan kirim status, biar tidak berubah
+    const { status, ...payload } = formData;
+    router.put(`/program-kerja/${item.id}`, payload, {
+      onSuccess: () => router.visit("/program-kerja"),
+    });
   };
-
-  router.put(`/program-kerja/${item?.id}`, cleaned, {
-    onSuccess: () => {
-      alert("Program kerja berhasil diperbarui!");
-      router.visit("/program-kerja");
-    },
-    onError: (errors) => {
-      console.log(errors);
-      alert("Gagal memperbarui: " + JSON.stringify(errors));
-    },
-  });
-};
 
 
   return (
@@ -72,10 +59,9 @@ export default function EditProgramKerja() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* KIRI */}
             <div>
-              <label className="block font-semibold text-[#0B132B] mb-2">
-                Nama Program Kerja
-              </label>
+              <label htmlFor="program_kerja" className="block font-semibold text-[#0B132B] mb-2">Nama Program Kerja</label>
               <input
+                id="program_kerja"
                 type="text"
                 name="program_kerja"
                 value={formData.program_kerja}
@@ -83,37 +69,30 @@ export default function EditProgramKerja() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
               />
 
-              <label className="block font-semibold text-[#0B132B] mb-2 mt-4">
-                Deskripsi Kegiatan
-              </label>
+              <label htmlFor="deskripsi_kegiatan" className="block font-semibold text-[#0B132B] mb-2 mt-4">Deskripsi Kegiatan</label>
               <textarea
+                id="deskripsi_kegiatan"
                 name="deskripsi_kegiatan"
                 value={formData.deskripsi_kegiatan}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg h-32"
-              ></textarea>
+              />
 
-              <label className="block font-semibold text-[#0B132B] mb-2 mt-4">
-                Estimasi Anggaran
-              </label>
-          <input
-  name="estimasi_anggaran"
-  value={formData.estimasi_anggaran}
-  onChange={(e) => {
-    const raw = e.target.value.replace(/[^0-9]/g, '');
-    setFormData((p) => ({ ...p, estimasi_anggaran: raw }));
-  }}
-/>
-
-
+              <label htmlFor="estimasi_anggaran" className="block font-semibold text-[#0B132B] mb-2 mt-4">Estimasi Anggaran</label>
+              <input
+                id="estimasi_anggaran"
+                type="text"
+                name="estimasi_anggaran"
+                value={formData.estimasi_anggaran}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+              />
             </div>
 
-            {/* KANAN */}
             <div>
-              <label className="block font-semibold text-[#0B132B] mb-2">
-                Nama Kegiatan
-              </label>
+              <label htmlFor="kegiatan" className="block font-semibold text-[#0B132B] mb-2">Nama Kegiatan</label>
               <input
+                id="kegiatan"
                 type="text"
                 name="kegiatan"
                 value={formData.kegiatan}
@@ -121,28 +100,22 @@ export default function EditProgramKerja() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
               />
 
-              <label className="block font-semibold text-[#0B132B] mb-2 mt-4">
-                Jenis Kegiatan
-              </label>
+              <label htmlFor="jenis_kegiatan" className="block font-semibold text-[#0B132B] mb-2 mt-4">Jenis Kegiatan</label>
               <select
+                id="jenis_kegiatan"
                 name="jenis_kegiatan"
                 value={formData.jenis_kegiatan}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
               >
                 <option value="">Pilih</option>
-                <option value="Pengembangan Sumber Daya Mahasiswa">
-                  Pengembangan Sumber Daya Mahasiswa
-                </option>
+                <option value="Pengembangan Sumber Daya Mahasiswa">Pengembangan Sumber Daya Mahasiswa</option>
                 <option value="Akademik dan Prestasi">Akademik dan Prestasi</option>
                 <option value="Minat dan Bakat">Minat dan Bakat</option>
-                <option value="Sosial dan Pengabdian Masyarakat">
-                  Sosial dan Pengabdian Masyarakat
-                </option>
+                <option value="Sosial dan Pengabdian Masyarakat">Sosial dan Pengabdian Masyarakat</option>
                 <option value="Internal Ormawa">Internal Ormawa</option>
                 <option value="Teknologi dan Inovasi">Teknologi dan Inovasi</option>
               </select>
-
             </div>
           </div>
 

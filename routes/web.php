@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ProgramKerjaController;
+use App\Http\Controllers\PengajuanKegiatanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,11 +59,23 @@ Route::put('/ajukan/{id}', [ProgramKerjaController::class, 'ajukan'])->name('pro
 | Routes Lain (Jika perlu ditutup auth, silakan dipindah)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/pengajuan-kegiatan', fn() => Inertia::render('pengajuan-kegiatan/index'))->name('pengajuan.kegiatan');
-    Route::get('/pengajuan-kegiatan/detail', fn() => Inertia::render('pengajuan-kegiatan/detail'))->name('pengajuan.kegiatan.detail');
-    Route::get('/pengajuan-kegiatan/buatProposal', fn() => Inertia::render('pengajuan-kegiatan/buatProposal'))->name('pengajuan.kegiatan.buatProposal');
+/*
+|--------------------------------------------------------------------------
+| Pengajuan Kegiatan
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('pengajuan-kegiatan')->group(function () {
+    Route::get('/', [PengajuanKegiatanController::class, 'index'])->name('pengajuan.kegiatan.index');
+    Route::get('/detail/{id}', [PengajuanKegiatanController::class, 'show'])->name('pengajuan.kegiatan.detail');
+    Route::get('/buatProposal', [PengajuanKegiatanController::class, 'create'])->name('pengajuan.kegiatan.buatProposal');
+    Route::post('/', [PengajuanKegiatanController::class, 'store'])->name('pengajuan.kegiatan.store');
+    Route::get('/edit/{id}', [PengajuanKegiatanController::class, 'edit'])->name('pengajuan.kegiatan.edit');
+    Route::put('/{id}', [PengajuanKegiatanController::class, 'update'])->name('pengajuan.kegiatan.update');
+    Route::put('/ajukan/{id}', [PengajuanKegiatanController::class, 'ajukan'])->name('pengajuan.kegiatan.ajukan');
+    Route::delete('/{id}', [PengajuanKegiatanController::class, 'destroy'])->name('pengajuan.kegiatan.destroy');
+});
 
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/laporan-kegiatan', fn() => Inertia::render('laporan-kegiatan/index'))->name('laporan.kegiatan');
 
     Route::get('/laporan-kegiatan/buatLaporanKegiatan', fn() => Inertia::render('laporan-kegiatan/buatLaporanKegiatan'))->name('laporan.kegiatan.buatLaporanKegiatan');

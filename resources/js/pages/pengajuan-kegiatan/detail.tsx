@@ -1,30 +1,59 @@
 import React from 'react';
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { Link } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+import { formatCurrency } from '@/utils/currency';
 
-interface ProgramKerjaItem {
-    id: number;
-    programKerja: string;
-    kegiatan: string;
-    deskripsiKegiatan: string;
-    jenisKegiatan: string;
-    estimasiKegiatan: string;
-    status: string;
+interface ProgramKerja {
+  id: number;
+  nama_kegiatan: string;
+  anggaran_dana: number;
+  status: string;
 }
 
-export default function DetailPengajuanKegiatan({ item }: { item: ProgramKerjaItem }) {
+interface ItemPengajuanDana {
+  id: number;
+  nama_item: string;
+  deskripsi_item: string;
+  quantity: number;
+  harga_satuan: number;
+  total_harga: number;
+}
 
-    if (!item) {
-        item = {
-            id: 1,
-            programKerja: "Pengembangan Anggota",
-            kegiatan: "Open Recruitment dan Pelatihan Dasar Sinematografi",
-            deskripsiKegiatan: "Menyaring dan melatih anggota baru dalam dasar perfilman (kamera, lighting, audio, editing)",
-            jenisKegiatan: "Pengembangan Sumber Daya Mahasiswa",
-            estimasiKegiatan: "Rp. 5.000.000",
-            status: "Belum Diajukan",
-        };
+interface PengajuanKegiatan {
+  id: number;
+  program_kerja_id?: number;
+  nama_kegiatan: string;
+  ketua_pelaksana: string;
+  tempat_pelaksanaan: string;
+  tanggal_pelaksanaan: string;
+  total_anggaran: number;
+  status: string;
+  deskripsi: string;
+  proposal_path?: string;
+  program_kerja?: ProgramKerja;
+  item_pengajuan_dana: ItemPengajuanDana[];
+}
+
+export default function DetailPengajuanKegiatan() {
+  const { pengajuan } = usePage<{ pengajuan: PengajuanKegiatan }>().props;
+
+  const handleAjukan = () => {
+    router.put(`/pengajuan-kegiatan/ajukan/${pengajuan.id}`, {}, {
+      onSuccess: () => {
+        router.visit('/pengajuan-kegiatan');
+      }
+    });
+  };
+
+  const handleDelete = () => {
+    if (confirm('Apakah Anda yakin ingin menghapus pengajuan kegiatan ini?')) {
+      router.delete(`/pengajuan-kegiatan/${pengajuan.id}`, {
+        onSuccess: () => {
+          router.visit('/pengajuan-kegiatan');
+        }
+      });
     }
+  };
 
     return (
         <DashboardLayout>
@@ -33,10 +62,13 @@ export default function DetailPengajuanKegiatan({ item }: { item: ProgramKerjaIt
                 {/* Header + Tombol Hapus */}
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold text-[#0B132B]">
-                        Pengajuan Kegiatan
+                        Detail Pengajuan Kegiatan
                     </h1>
 
-                    <button className="bg-[#8B0000] text-white px-6 py-2 rounded-md hover:bg-red-900 transition">
+                    <button
+                      onClick={handleDelete}
+                      className="bg-[#8B0000] text-white px-6 py-2 rounded-md hover:bg-red-900 transition"
+                    >
                         Hapus
                     </button>
                 </div>
@@ -46,59 +78,101 @@ export default function DetailPengajuanKegiatan({ item }: { item: ProgramKerjaIt
 
                     {/* Card Header */}
                     <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
-                        Kegiatan
+                        Informasi Kegiatan
                     </div>
 
                     {/* Card Body */}
                     <div className="p-6 grid grid-cols-2 gap-x-10 gap-y-6">
 
-                        {/* Program Kerja */}
-                        <div>
-                            <p className="font-bold text-sm text-gray-800">
-                                Program Kerja
-                            </p>
-                            <p className="mt-1 text-gray-800">
-                                {item.programKerja}
-                            </p>
-                        </div>
-
-                        {/* Kegiatan */}
+                        {/* Nama Kegiatan */}
                         <div>
                             <p className="font-bold text-sm text-gray-800">
                                 Nama Kegiatan
                             </p>
                             <p className="mt-1 text-gray-800">
-                                {item.kegiatan}
+                                {pengajuan.nama_kegiatan}
                             </p>
                         </div>
 
-                        {/* Deskripsi */}
+                        {/* Ketua Pelaksana */}
                         <div>
+                            <p className="font-bold text-sm text-gray-800">
+                                Ketua Pelaksana
+                            </p>
+                            <p className="mt-1 text-gray-800">
+                                {pengajuan.ketua_pelaksana}
+                            </p>
+                        </div>
+
+                        {/* Tempat Pelaksanaan */}
+                        <div>
+                            <p className="font-bold text-sm text-gray-800">
+                                Tempat Pelaksanaan
+                            </p>
+                            <p className="mt-1 text-gray-800">
+                                {pengajuan.tempat_pelaksanaan}
+                            </p>
+                        </div>
+
+                        {/* Tanggal Pelaksanaan */}
+                        <div>
+                            <p className="font-bold text-sm text-gray-800">
+                                Tanggal Pelaksanaan
+                            </p>
+                            <p className="mt-1 text-gray-800">
+                                {new Date(pengajuan.tanggal_pelaksanaan).toLocaleDateString('id-ID')}
+                            </p>
+                        </div>
+
+                        {/* Program Kerja */}
+                        {pengajuan.program_kerja && (
+                            <div>
+                                <p className="font-bold text-sm text-gray-800">
+                                    Program Kerja Terkait
+                                </p>
+                                <p className="mt-1 text-gray-800">
+                                    {pengajuan.program_kerja.nama_kegiatan}
+                                </p>
+                                <span className="inline-block mt-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                    {pengajuan.program_kerja.status}
+                                </span>
+                            </div>
+                        )}
+
+                        {/* Proposal File */}
+                        {pengajuan.proposal_path && (
+                            <div>
+                                <p className="font-bold text-sm text-gray-800">
+                                    Proposal (PDF)
+                                </p>
+                                <a
+                                    href={`/storage/${pengajuan.proposal_path}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-1 inline-block text-blue-600 hover:text-blue-800 underline"
+                                >
+                                    📄 {pengajuan.proposal_path.split('/').pop()}
+                                </a>
+                            </div>
+                        )}
+
+                        {/* Deskripsi */}
+                        <div className="col-span-2">
                             <p className="font-bold text-sm text-gray-800">
                                 Deskripsi Kegiatan
                             </p>
                             <p className="mt-1 leading-relaxed text-gray-800">
-                                {item.deskripsiKegiatan}
+                                {pengajuan.deskripsi || 'Tidak ada deskripsi'}
                             </p>
                         </div>
 
-                        {/* Jenis Kegiatan */}
+                        {/* Total Anggaran */}
                         <div>
                             <p className="font-bold text-sm text-gray-800">
-                                Jenis Kegiatan
+                                Total Anggaran
                             </p>
-                            <p className="mt-1 text-gray-800">
-                                {item.jenisKegiatan}
-                            </p>
-                        </div>
-
-                        {/* Estimasi */}
-                        <div>
-                            <p className="font-bold text-sm text-gray-800">
-                                Estimasi Anggaran
-                            </p>
-                            <p className="mt-1 text-gray-800">
-                                {item.estimasiKegiatan}
+                            <p className="mt-1 text-gray-800 font-semibold text-lg">
+                                {formatCurrency(pengajuan.total_anggaran)}
                             </p>
                         </div>
 
@@ -107,36 +181,81 @@ export default function DetailPengajuanKegiatan({ item }: { item: ProgramKerjaIt
                             <p className="font-bold text-sm text-gray-800">
                                 Status
                             </p>
-                            <span className="
-                                mt-1 inline-block
-                                bg-gray-200
-                                text-gray-700
-                                text-xs
-                                font-medium
-                                px-3 py-1
-                                rounded-full
-                            ">
-                                {item.status}
+                            <span className={`mt-1 inline-block text-xs font-medium px-3 py-1 rounded-full ${
+                              pengajuan.status === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
+                              pengajuan.status === 'Diajukan' ? 'bg-blue-200 text-blue-800' :
+                              pengajuan.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
+                              'bg-red-200 text-red-800'
+                            }`}>
+                                {pengajuan.status}
                             </span>
                         </div>
                     </div>
                 </div>
 
-                {/* BUTTONS */} 
-                <div className="flex justify-center gap-8 mt-8">
+                {/* DETAIL ITEM PENGAJUAN DANA */}
+                {pengajuan.item_pengajuan_dana && pengajuan.item_pengajuan_dana.length > 0 && (
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-6">
+                    <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
+                      Detail Pengajuan Dana
+                    </div>
+                    <div className="p-6">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-2">No</th>
+                              <th className="px-4 py-2">Nama Item</th>
+                              <th className="px-4 py-2">Deskripsi</th>
+                              <th className="px-4 py-2">Quantity</th>
+                              <th className="px-4 py-2">Harga Satuan</th>
+                              <th className="px-4 py-2">Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {pengajuan.item_pengajuan_dana.map((item, index) => (
+                              <tr key={item.id} className="border-b">
+                                <td className="px-4 py-2">{index + 1}</td>
+                                <td className="px-4 py-2">{item.nama_item}</td>
+                                <td className="px-4 py-2">{item.deskripsi_item || '-'}</td>
+                                <td className="px-4 py-2">{item.quantity}</td>
+                                <td className="px-4 py-2">{formatCurrency(item.harga_satuan)}</td>
+                                <td className="px-4 py-2 font-semibold">{formatCurrency(item.total_harga)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-                    <Link
-                        href="/program-kerja"
-                        className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
+                {/* BUTTONS */}
+                <div className="flex justify-center gap-4 mt-8">
+                    <button
+                        onClick={() => router.visit('/pengajuan-kegiatan')}
+                        className="bg-gray-500 text-white px-8 py-2 rounded-lg shadow hover:bg-gray-600 transition"
                     >
-                        Kembali
-                    </Link>
-
-                    <Link href="/pengajuan-kegiatan/buatProposal">
-                    <button className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition">
-                        Buat Proposal Kegiatan
+                        Batal
                     </button>
-                    </Link>
+
+                    {pengajuan.status === 'Belum Diajukan' && (
+                      <>
+                        <button
+                          onClick={() => router.visit(`/pengajuan-kegiatan/edit/${pengajuan.id}`)}
+                          className="bg-yellow-600 text-white px-8 py-2 rounded-lg shadow hover:bg-yellow-700 transition"
+                        >
+                          Edit Proposal
+                        </button>
+
+                        <button
+                          onClick={handleAjukan}
+                          className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
+                        >
+                          Ajukan
+                        </button>
+                      </>
+                    )}
                 </div>
 
                 <div className="text-center text-gray-500 text-sm mt-8">
