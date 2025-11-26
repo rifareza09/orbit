@@ -5,6 +5,9 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ProgramKerjaController;
 use App\Http\Controllers\PengajuanKegiatanController;
+use App\Http\Controllers\LaporanKegiatanController;
+use App\Http\Controllers\DokumentasiController;
+use App\Http\Controllers\PrestasiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,13 +78,54 @@ Route::middleware(['auth', 'verified'])->prefix('pengajuan-kegiatan')->group(fun
     Route::delete('/{id}', [PengajuanKegiatanController::class, 'destroy'])->name('pengajuan.kegiatan.destroy');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/laporan-kegiatan', fn() => Inertia::render('laporan-kegiatan/index'))->name('laporan.kegiatan');
+/*
+|--------------------------------------------------------------------------
+| Laporan Kegiatan
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('laporan-kegiatan')->group(function () {
+    Route::get('/', [LaporanKegiatanController::class, 'index'])->name('laporan.index');
 
-    Route::get('/laporan-kegiatan/buatLaporanKegiatan', fn() => Inertia::render('laporan-kegiatan/buatLaporanKegiatan'))->name('laporan.kegiatan.buatLaporanKegiatan');
+    // Create routes (specific paths first)
+    Route::get('/buatlaporanKegiatan/{pengajuan}', [LaporanKegiatanController::class, 'create'])->name('laporan.create');
+    Route::post('/', [LaporanKegiatanController::class, 'store'])->name('laporan.store');
 
-    Route::get('/dokumentasi', fn() => Inertia::render('dokumentasi/index'))->name('dokumentasi');
-    Route::get('/prestasi', fn() => Inertia::render('prestasi/index'))->name('prestasi');
+    // Detail, Edit, Download routes (specific paths first)
+    Route::get('/detail/{id}', [LaporanKegiatanController::class, 'show'])->name('laporan.detail');
+    Route::get('/edit/{id}', [LaporanKegiatanController::class, 'edit'])->name('laporan.edit');
+    Route::get('/download/{id}/{type}', [LaporanKegiatanController::class, 'download'])->name('laporan.download');
+
+    // Update and Delete routes (general patterns last)
+    Route::put('/update/{id}', [LaporanKegiatanController::class, 'update'])->name('laporan.update');
+    Route::delete('/delete/{id}', [LaporanKegiatanController::class, 'destroy'])->name('laporan.destroy');
+
+    // Ajukan laporan
+    Route::post('/ajukan/{id}', [LaporanKegiatanController::class, 'ajukan'])->name('laporan.ajukan');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Dokumentasi & Prestasi
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('dokumentasi')->group(function () {
+    Route::get('/', [DokumentasiController::class, 'index'])->name('dokumentasi.index');
+    Route::get('/buat', [DokumentasiController::class, 'create'])->name('dokumentasi.create');
+    Route::post('/', [DokumentasiController::class, 'store'])->name('dokumentasi.store');
+    Route::delete('/{id}', [DokumentasiController::class, 'destroy'])->name('dokumentasi.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Prestasi
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('prestasi')->group(function () {
+    Route::get('/', [PrestasiController::class, 'index'])->name('prestasi.index');
+    Route::get('/tambah', [PrestasiController::class, 'create'])->name('prestasi.create');
+    Route::post('/', [PrestasiController::class, 'store'])->name('prestasi.store');
+    Route::delete('/{id}', [PrestasiController::class, 'destroy'])->name('prestasi.destroy');
+    Route::get('/download/{id}', [PrestasiController::class, 'download'])->name('prestasi.download');
 });
 
 /*

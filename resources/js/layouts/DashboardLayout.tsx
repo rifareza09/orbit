@@ -29,7 +29,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   const handleLogout = () => {
-    router.post('');
+    router.post('/logout');
   };
 
   return (

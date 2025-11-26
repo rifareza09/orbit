@@ -26,6 +26,7 @@ interface PengajuanKegiatan {
   nama_kegiatan: string;
   ketua_pelaksana: string;
   tempat_pelaksanaan: string;
+  jumlah_peserta: number;
   tanggal_pelaksanaan: string;
   deskripsi: string;
   proposal_path?: string;
@@ -47,6 +48,7 @@ export default function BuatProposal() {
         nama_kegiatan: "",
         ketua_pelaksana: "",
         tempat_pelaksanaan: "",
+        jumlah_peserta: 1,
         tanggal_pelaksanaan: "",
         deskripsi: "",
     });
@@ -64,6 +66,7 @@ export default function BuatProposal() {
                 nama_kegiatan: pengajuan.nama_kegiatan,
                 ketua_pelaksana: pengajuan.ketua_pelaksana,
                 tempat_pelaksanaan: pengajuan.tempat_pelaksanaan,
+                jumlah_peserta: pengajuan.jumlah_peserta || 1,
                 tanggal_pelaksanaan: pengajuan.tanggal_pelaksanaan,
                 deskripsi: pengajuan.deskripsi || "",
             });
@@ -76,7 +79,13 @@ export default function BuatProposal() {
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
+
+        // Handle numeric fields
+        if (name === 'jumlah_peserta') {
+            setForm({ ...form, [name]: parseInt(value) || 1 });
+        } else {
+            setForm({ ...form, [name]: value });
+        }
 
         // Auto-fill nama kegiatan when program kerja is selected
         if (name === 'program_kerja_id') {
@@ -121,7 +130,7 @@ export default function BuatProposal() {
     };
 
     const validateForm = () => {
-        if (!form.program_kerja_id || !form.ketua_pelaksana || !form.tempat_pelaksanaan || !form.tanggal_pelaksanaan) {
+        if (!form.program_kerja_id || !form.ketua_pelaksana || !form.tempat_pelaksanaan || form.jumlah_peserta < 1 || !form.tanggal_pelaksanaan) {
             alert('Mohon lengkapi semua field yang wajib diisi');
             return false;
         }
@@ -247,6 +256,20 @@ export default function BuatProposal() {
                                     value={form.tempat_pelaksanaan}
                                     onChange={handleFormChange}
                                     className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                                    required
+                                />
+                            </div>
+
+                            {/* Jumlah Peserta */}
+                            <div>
+                                <p className="font-semibold text-sm mb-1">Jumlah Peserta*</p>
+                                <input
+                                    type="number"
+                                    name="jumlah_peserta"
+                                    value={form.jumlah_peserta}
+                                    onChange={handleFormChange}
+                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                                    min="1"
                                     required
                                 />
                             </div>

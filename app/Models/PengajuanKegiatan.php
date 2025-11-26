@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PengajuanKegiatan extends Model
 {
@@ -14,6 +15,7 @@ class PengajuanKegiatan extends Model
         'nama_kegiatan',
         'ketua_pelaksana',
         'tempat_pelaksanaan',
+        'jumlah_peserta',
         'tanggal_pelaksanaan',
         'total_anggaran',
         'status',
@@ -39,6 +41,11 @@ class PengajuanKegiatan extends Model
     public function programKerja(): BelongsTo
     {
         return $this->belongsTo(ProgramKerja::class);
+    }
+
+    public function laporanKegiatan(): HasOne
+    {
+        return $this->hasOne(LaporanKegiatan::class);
     }
 
     public function calculateTotalAnggaran()

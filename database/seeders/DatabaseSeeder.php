@@ -14,14 +14,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $users = [
+            // UKM Role
             ['name' => 'LDK KAHFI', 'username' => 'ldk', 'role' => 'ukm'],
             ['name' => 'VOYAGE', 'username' => 'voyage', 'role' => 'ukm'],
             ['name' => 'HIMASI', 'username' => 'himasi', 'role' => 'ukm'],
             ['name' => 'YBBC', 'username' => 'ybbc', 'role' => 'ukm'],
             ['name' => 'SMAKA', 'username' => 'smaka', 'role' => 'ukm'],
 
+            // BEM Role
             ['name' => 'BEM', 'username' => 'bem', 'role' => 'bem'],
+
+            // Kongres Role
             ['name' => 'KONGRES', 'username' => 'kongres', 'role' => 'kongres'],
+
+            // Admin Role (Puskaka)
+            ['name' => 'PUSKAKA', 'username' => 'puskaka', 'role' => 'puskaka'],
         ];
 
         foreach ($users as $user) {

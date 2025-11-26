@@ -64,6 +64,7 @@ class PengajuanKegiatanController extends Controller
             'program_kerja_id' => 'required|exists:program_kerjas,id',
             'ketua_pelaksana' => 'required|string|max:255',
             'tempat_pelaksanaan' => 'required|string|max:255',
+            'jumlah_peserta' => 'required|integer|min:1',
             'tanggal_pelaksanaan' => 'required|date',
             'deskripsi' => 'nullable|string',
             'proposal' => 'nullable|file|mimes:pdf|max:10000',
@@ -90,6 +91,7 @@ class PengajuanKegiatanController extends Controller
             'nama_kegiatan' => $programKerja->kegiatan, // Mengambil dari field 'kegiatan'
             'ketua_pelaksana' => $validated['ketua_pelaksana'],
             'tempat_pelaksanaan' => $validated['tempat_pelaksanaan'],
+            'jumlah_peserta' => $validated['jumlah_peserta'],
             'tanggal_pelaksanaan' => $validated['tanggal_pelaksanaan'],
             'deskripsi' => $validated['deskripsi'],
             'proposal_path' => $proposalPath,
@@ -141,6 +143,7 @@ class PengajuanKegiatanController extends Controller
             'program_kerja_id' => 'required|exists:program_kerjas,id',
             'ketua_pelaksana' => 'required|string|max:255',
             'tempat_pelaksanaan' => 'required|string|max:255',
+            'jumlah_peserta' => 'required|integer|min:1',
             'tanggal_pelaksanaan' => 'required|date',
             'deskripsi' => 'nullable|string',
             'proposal' => 'nullable|file|mimes:pdf|max:10000',
@@ -170,6 +173,7 @@ class PengajuanKegiatanController extends Controller
             'nama_kegiatan' => $programKerja->kegiatan, // Mengambil dari field 'kegiatan'
             'ketua_pelaksana' => $validated['ketua_pelaksana'],
             'tempat_pelaksanaan' => $validated['tempat_pelaksanaan'],
+            'jumlah_peserta' => $validated['jumlah_peserta'],
             'tanggal_pelaksanaan' => $validated['tanggal_pelaksanaan'],
             'deskripsi' => $validated['deskripsi'],
             ...$updateData

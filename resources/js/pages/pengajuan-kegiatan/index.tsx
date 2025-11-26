@@ -8,6 +8,7 @@ interface PengajuanKegiatan {
   nama_kegiatan: string;
   ketua_pelaksana: string;
   tempat_pelaksanaan: string;
+  jumlah_peserta: number;
   tanggal_pelaksanaan: string;
   total_anggaran: number;
   status: string;
@@ -38,11 +39,12 @@ export default function PengajuanKegiatan() {
           <table className="w-full text-sm text-left border-collapse">
             <thead className="bg-[#0B132B] text-white">
               <tr>
-                <th className="px-4 py-3 w-[5%]">No.</th>
-                <th className="px-4 py-3 w-[25%]">Nama Kegiatan</th>
-                <th className="px-4 py-3 w-[20%]">Ketua Pelaksana</th>
-                <th className="px-4 py-3 w-[15%]">Tempat Pelaksanaan</th>
-                <th className="px-4 py-3 w-[12%]">Tanggal Pelaksanaan</th>
+                <th className="px-4 py-3 w-[4%]">No.</th>
+                <th className="px-4 py-3 w-[22%]">Nama Kegiatan</th>
+                <th className="px-4 py-3 w-[18%]">Ketua Pelaksana</th>
+                <th className="px-4 py-3 w-[14%]">Tempat Pelaksanaan</th>
+                <th className="px-4 py-3 w-[8%]">Jumlah Peserta</th>
+                <th className="px-4 py-3 w-[11%]">Tanggal Pelaksanaan</th>
                 <th className="px-4 py-3 w-[13%]">Anggaran Dana</th>
                 <th className="px-4 py-3 w-[10%]">Status</th>
                 <th className="px-4 py-3 w-[10%] text-center">Aksi</th>
@@ -59,6 +61,7 @@ export default function PengajuanKegiatan() {
                     <td className="px-4 py-3">{item.nama_kegiatan}</td>
                     <td className="px-4 py-3">{item.ketua_pelaksana}</td>
                     <td className="px-4 py-3">{item.tempat_pelaksanaan}</td>
+                    <td className="px-4 py-3 text-center">{item.jumlah_peserta} orang</td>
                     <td className="px-4 py-3">{new Date(item.tanggal_pelaksanaan).toLocaleDateString('id-ID')}</td>
                     <td className="px-4 py-3">{formatCurrency(item.total_anggaran)}</td>
                     <td className="px-4 py-3">
@@ -83,7 +86,7 @@ export default function PengajuanKegiatan() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                     Belum ada pengajuan kegiatan.
                     <button
                       onClick={() => router.visit('/pengajuan-kegiatan/buatProposal')}

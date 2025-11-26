@@ -25,6 +25,7 @@ interface PengajuanKegiatan {
   nama_kegiatan: string;
   ketua_pelaksana: string;
   tempat_pelaksanaan: string;
+  jumlah_peserta: number;
   tanggal_pelaksanaan: string;
   total_anggaran: number;
   status: string;
@@ -111,6 +112,16 @@ export default function DetailPengajuanKegiatan() {
                             </p>
                             <p className="mt-1 text-gray-800">
                                 {pengajuan.tempat_pelaksanaan}
+                            </p>
+                        </div>
+
+                        {/* Jumlah Peserta */}
+                        <div>
+                            <p className="font-bold text-sm text-gray-800">
+                                Jumlah Peserta
+                            </p>
+                            <p className="mt-1 text-gray-800">
+                                {pengajuan.jumlah_peserta} orang
                             </p>
                         </div>
 
