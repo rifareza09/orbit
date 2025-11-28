@@ -8,18 +8,32 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCircle2,
-  Power
+  Power,
+  UsersRound
 } from 'lucide-react';
 import { Link, router, usePage } from '@inertiajs/react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
 
-  // Ambil user dari props Inertia
   const { auth }: any = usePage().props;
   const user = auth?.user;
+  const role = user?.role;
 
-  const menuItems = [
+  // ----------------------------------------------------
+  // MENU KHUSUS ADMIN / PUSKAKA
+  // ----------------------------------------------------
+  const puskakaMenu = [
+    { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/dashboard/puskaka' },
+    { name: 'Manajemen Kegiatan', icon: <FileCheck size={20} />, href: '/manajemen-kegiatan' }, 
+    { name: 'Evaluasi & Laporan', icon: <FileCheck size={20} />, href: '/evaluasi-laporan' },
+{ name: 'Data Ormawa', icon: <UserCircle2 size={20} />, href: '/data-ormawa' },
+  ];
+
+  // ----------------------------------------------------
+  // MENU UNTUK UKM / BEM / KONGRES
+  // ----------------------------------------------------
+  const normalMenu = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/dashboard' },
     { name: 'Program Kerja', icon: <FileText size={20} />, href: '/program-kerja' },
     { name: 'Pengajuan Kegiatan', icon: <FileCheck size={20} />, href: '/pengajuan-kegiatan' },
@@ -28,24 +42,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Prestasi', icon: <Trophy size={20} />, href: '/prestasi' },
   ];
 
+  // Pilih menu berdasarkan role
+  const menuItems = role === 'puskaka' ? puskakaMenu : normalMenu;
+
   const handleLogout = () => {
     router.post('/logout');
   };
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
+
+      {/* SIDEBAR */}
       <div
         className={`bg-[#0B132B] text-white flex flex-col transition-all duration-300 ${
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
-        {/* Header Sidebar */}
+        {/* Header */}
         <div className="relative flex items-center justify-center px-4 py-4 border-b border-white/10">
           <img
             src="/images/logo.png"
             alt="Orbit Logo"
-            className={`transition-all duration-300 object-contain ${
+            className={`transition-all duration-300 ${
               collapsed ? 'w-10' : 'w-32'
             }`}
           />
@@ -57,13 +75,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
         </div>
 
-        {/* Menu Items */}
+        {/* MENU */}
         <nav className="flex-1 mt-4">
           {menuItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 transition-colors"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-white/10 transition"
             >
               {item.icon}
               {!collapsed && <span>{item.name}</span>}
@@ -71,7 +89,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
 
-        {/* Footer Sidebar */}
+        {/* Logout */}
         <div className="p-4 border-t border-white/10">
           <button
             onClick={handleLogout}
@@ -87,9 +105,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col bg-gray-50 overflow-y-auto">
-        {/* NAVBAR */}
+
+        {/* TOP NAVBAR */}
         <div className="w-full bg-white shadow-sm flex items-center justify-between px-8 py-3 border-b">
           <img
             src="/images/LogoYARSI.png"
@@ -97,21 +116,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="h-10 object-contain"
           />
 
-          {/* User Profile Dynamic */}
           <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition">
             <div className="text-right">
-              <p className="font-medium text-[#0B132B] leading-tight">
-                {user?.name ?? "User"}
-              </p>
-              <p className="text-sm text-gray-500 leading-tight">
-                {(user?.role ?? "Role")?.toUpperCase()}
-              </p>
+              <p className="font-medium text-[#0B132B]">{user?.name}</p>
+              <p className="text-sm text-gray-500">{user?.role?.toUpperCase()}</p>
             </div>
             <UserCircle2 size={40} className="text-[#0B132B]" />
           </div>
         </div>
 
-        {/* Isi halaman */}
+        {/* PAGE CONTENT */}
         <main className="flex-1 p-6">{children}</main>
       </div>
     </div>

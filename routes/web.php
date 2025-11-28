@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ProgramKerjaController;
 use App\Http\Controllers\PengajuanKegiatanController;
@@ -26,8 +27,55 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', fn () => Inertia::render('dashboard/index'))->name('dashboard');
+
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        if ($user->role === 'puskaka') {
+            return redirect()->route('dashboard.puskaka');
+        }
+        return Inertia::render('dashboard/index');
+    })->name('dashboard');
+
+    Route::get('/dashboard/puskaka', function () {
+        if (Auth::user()->role !== 'puskaka') abort(403);
+        return Inertia::render('dashboard/puskaka');
+    })->name('dashboard.puskaka');
+
+    // Manajemen Kegiatan (Puskaka Only)
+    Route::get('/manajemen-kegiatan', function () {
+        if (Auth::user()->role !== 'puskaka') abort(403);
+        return Inertia::render('manajemen-kegiatan/index');
+    })->name('manajemen.kegiatan');
+
+    Route::get('/manajemen-kegiatan/detail/{id}', function () {
+    return Inertia::render('manajemen-kegiatan/detail');
+
+    });
+
+    Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan', function () {
+    if (Auth::user()->role !== 'puskaka') abort(403);
+    return Inertia::render('evaluasi-laporan/index');
+})->name('evaluasi.laporan');
+
+
+Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan/detail/{id}', function ($id) {
+    if (Auth::user()->role !== 'puskaka') abort(403);
+
+    return Inertia::render('evaluasi-laporan/detail', [
+        'id' => $id
+    ]);
 });
+
+Route::middleware(['auth', 'verified'])->get('/data-ormawa', function () {
+    if (Auth::user()->role !== 'puskaka') abort(403);
+
+    return Inertia::render('data-ormawa/index');
+})->name('data.ormawa');
+
+
+
+});
+
 
 /*
 |--------------------------------------------------------------------------
