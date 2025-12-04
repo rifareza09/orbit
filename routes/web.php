@@ -16,7 +16,55 @@ use App\Http\Controllers\PrestasiController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    return Inertia::render('welcome', [
+    // Public landing showcasing Ormawa documentation and schedules
+    $ormawaUsers = \App\Models\User::where('role', '!=', 'puskaka')
+        ->orderBy('name')
+        ->limit(8)
+        ->get();
+
+    $showcases = $ormawaUsers->map(function ($user) {
+        $photos = \App\Models\Dokumentasi::where('user_id', $user->id)
+            ->orderBy('tanggal_kegiatan', 'desc')
+            ->limit(4)
+            ->get()
+            ->map(function ($d) {
+                return [
+                    'id' => $d->id,
+                    'nama_kegiatan' => $d->nama_kegiatan,
+                    'tanggal' => optional($d->tanggal_kegiatan)->format('Y-m-d'),
+                    'foto_url' => $d->foto_path ? asset('storage/' . $d->foto_path) : null,
+                ];
+            });
+
+        // Simple schedule: upcoming items from PengajuanKegiatan (if date fields exist), otherwise empty
+        $schedules = \App\Models\PengajuanKegiatan::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'kegiatan' => $p->kegiatan ?? $p->judul ?? 'Kegiatan',
+                    'waktu' => method_exists($p, 'getAttribute') && $p->getAttribute('tanggal_pelaksanaan')
+                        ? optional($p->tanggal_pelaksanaan)->format('Y-m-d')
+                        : (optional($p->created_at)->format('Y-m-d')), 
+                ];
+            });
+
+        return [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'username' => $user->username,
+                'role' => $user->role,
+            ],
+            'photos' => $photos,
+            'schedules' => $schedules,
+        ];
+    });
+
+    return Inertia::render('landing/index', [
+        'showcases' => $showcases,
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
@@ -40,6 +88,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if (Auth::user()->role !== 'puskaka') abort(403);
         return Inertia::render('dashboard/puskaka');
     })->name('dashboard.puskaka');
+
+    // Profil Ormawa (User menu)
+    Route::get('/profil', function () {
+        $user = Auth::user();
+        // Demo data; replace with real fields when available
+        $unit = [
+            'nama' => $user->name ?? 'Unit Kegiatan Mahasiswa',
+            'periode' => '2025/2026',
+        ];
+        $deskripsi = 'Smarakaryadhwani adalah UKM yang berfokus pada pengembangan di bidang seni, memiliki 5 divisi yaitu: Tari, Cinematography, Paduan Suara, Band, dan Perkusi.';
+        $kepengurusan = [
+            ['jabatan' => 'Ketua', 'nama' => 'Dilva Alya', 'prodi' => 'Psikologi', 'npm' => '1608223000'],
+            ['jabatan' => 'Wakil Ketua', 'nama' => 'Yahdillah', 'prodi' => 'Teknik Informatika', 'npm' => '1408223000'],
+            ['jabatan' => 'Sekretaris 1', 'nama' => 'Siti Zahrwa Ramadhani', 'prodi' => 'Perpustakaan dan Sains Informasi', 'npm' => '1508223000'],
+            ['jabatan' => 'Sekretaris 2', 'nama' => 'Vania Al-Zena Salsabila Putri', 'prodi' => 'Perpustakaan dan Sains Informasi', 'npm' => '1008223000'],
+            ['jabatan' => 'Bendahara', 'nama' => 'Naquita Aurora', 'prodi' => 'Ilmu Hukum', 'npm' => '1008223000'],
+        ];
+        $jadwal = [
+            ['divisi' => 'Tari', 'hari' => 'Rabu', 'tempat' => 'Sekre Senam LLS', 'pukul' => '16:00 - 18:00'],
+            ['divisi' => 'Cinematography', 'hari' => 'Kamis', 'tempat' => 'Lab Studio YARSI TV LLS', 'pukul' => '16:00 - 18:00'],
+            ['divisi' => 'Paduan Suara', 'hari' => 'Rabu', 'tempat' => 'Sekre SMAKA LLS', 'pukul' => '16:00 - 18:00'],
+            ['divisi' => 'Band', 'hari' => 'Selasa', 'tempat' => 'Sekre SMAKA LLS', 'pukul' => '16:00 - 18:00'],
+            ['divisi' => 'Perkusi', 'hari' => 'Kamis', 'tempat' => 'Sekre Senam LLS', 'pukul' => '16:00 - 18:00'],
+        ];
+
+        return Inertia::render('profile/ormawa', [
+            'unit' => $unit,
+            'deskripsi' => $deskripsi,
+            'kepengurusan' => $kepengurusan,
+            'jadwal' => $jadwal,
+        ]);
+    })->name('profil.ormawa');
 
     // Manajemen Kegiatan (Puskaka Only)
     Route::get('/manajemen-kegiatan', function () {

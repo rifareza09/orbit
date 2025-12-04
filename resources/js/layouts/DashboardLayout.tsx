@@ -25,7 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // ----------------------------------------------------
   const puskakaMenu = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/dashboard/puskaka' },
-    { name: 'Manajemen Kegiatan', icon: <FileCheck size={20} />, href: '/manajemen-kegiatan' }, 
+    { name: 'Manajemen Kegiatan', icon: <FileCheck size={20} />, href: '/manajemen-kegiatan' },
     { name: 'Evaluasi & Laporan', icon: <FileCheck size={20} />, href: '/evaluasi-laporan' },
 { name: 'Data Ormawa', icon: <UserCircle2 size={20} />, href: '/data-ormawa' },
   ];
@@ -116,13 +116,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             className="h-10 object-contain"
           />
 
-          <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition">
+          <Link href="/profil" prefetch className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition">
             <div className="text-right">
               <p className="font-medium text-[#0B132B]">{user?.name}</p>
               <p className="text-sm text-gray-500">{user?.role?.toUpperCase()}</p>
             </div>
             <UserCircle2 size={40} className="text-[#0B132B]" />
-          </div>
+          </Link>
         </div>
 
         {/* PAGE CONTENT */}
