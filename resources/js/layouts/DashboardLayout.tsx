@@ -25,8 +25,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // ----------------------------------------------------
   const puskakaMenu = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/dashboard/puskaka' },
-    { name: 'Manajemen Kegiatan', icon: <FileCheck size={20} />, href: '/manajemen-kegiatan' },
-    { name: 'Evaluasi & Laporan', icon: <FileCheck size={20} />, href: '/evaluasi-laporan' },
+    { name: 'Program Kerja', icon: <FileText size={20} />, href: '/program-kerja/indexPuskaka' },
+    { name: 'Manajemen Kegiatan', icon: <FileText size={20} />, href: '/manajemen-kegiatan' },
+    { name: 'Evaluasi & Laporan', icon: <FileText size={20} />, href: '/evaluasi-laporan' },
 { name: 'Data Ormawa', icon: <UserCircle2 size={20} />, href: '/data-ormawa' },
   ];
 
