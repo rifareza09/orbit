@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('prestasis', function (Blueprint $table) {
+        Schema::create('jadwal_latihans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('nama_prestasi');
-            $table->string('jenis_prestasi');
-            $table->string('tingkat_kejuaraan');
-            $table->string('nama_peraih');
-            $table->date('tanggal_perolehan');
-            $table->string('bukti_file')->nullable(); // PDF file path
+            $table->string('divisi');
+            $table->string('hari');
+            $table->string('pukul');
+            $table->string('tempat');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('prestasis');
+        Schema::dropIfExists('jadwal_latihans');
     }
 };

@@ -9,6 +9,9 @@ use App\Http\Controllers\PengajuanKegiatanController;
 use App\Http\Controllers\LaporanKegiatanController;
 use App\Http\Controllers\DokumentasiController;
 use App\Http\Controllers\PrestasiController;
+use App\Http\Controllers\KepengurusanController;
+use App\Http\Controllers\JadwalLatihanController;
+use App\Http\Controllers\ProfileOrmawaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +50,7 @@ Route::get('/', function () {
                     'kegiatan' => $p->kegiatan ?? $p->judul ?? 'Kegiatan',
                     'waktu' => method_exists($p, 'getAttribute') && $p->getAttribute('tanggal_pelaksanaan')
                         ? optional($p->tanggal_pelaksanaan)->format('Y-m-d')
-                        : (optional($p->created_at)->format('Y-m-d')), 
+                        : (optional($p->created_at)->format('Y-m-d')),
                 ];
             });
 
@@ -92,34 +95,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Profil Ormawa (User menu)
     Route::get('/profil', function () {
         $user = Auth::user();
-        // Demo data; replace with real fields when available
+
         $unit = [
             'nama' => $user->name ?? 'Unit Kegiatan Mahasiswa',
-            'periode' => '2025/2026',
+            'periode' => $user->periode ?? '2025/2026',
         ];
-        $deskripsi = 'Smarakaryadhwani adalah UKM yang berfokus pada pengembangan di bidang seni, memiliki 5 divisi yaitu: Tari, Cinematography, Paduan Suara, Band, dan Perkusi.';
-        $kepengurusan = [
-            ['jabatan' => 'Ketua', 'nama' => 'Dilva Alya', 'prodi' => 'Psikologi', 'npm' => '1608223000'],
-            ['jabatan' => 'Wakil Ketua', 'nama' => 'Yahdillah', 'prodi' => 'Teknik Informatika', 'npm' => '1408223000'],
-            ['jabatan' => 'Sekretaris 1', 'nama' => 'Siti Zahrwa Ramadhani', 'prodi' => 'Perpustakaan dan Sains Informasi', 'npm' => '1508223000'],
-            ['jabatan' => 'Sekretaris 2', 'nama' => 'Vania Al-Zena Salsabila Putri', 'prodi' => 'Perpustakaan dan Sains Informasi', 'npm' => '1008223000'],
-            ['jabatan' => 'Bendahara', 'nama' => 'Naquita Aurora', 'prodi' => 'Ilmu Hukum', 'npm' => '1008223000'],
-        ];
-        $jadwal = [
-            ['divisi' => 'Tari', 'hari' => 'Rabu', 'tempat' => 'Sekre Senam LLS', 'pukul' => '16:00 - 18:00'],
-            ['divisi' => 'Cinematography', 'hari' => 'Kamis', 'tempat' => 'Lab Studio YARSI TV LLS', 'pukul' => '16:00 - 18:00'],
-            ['divisi' => 'Paduan Suara', 'hari' => 'Rabu', 'tempat' => 'Sekre SMAKA LLS', 'pukul' => '16:00 - 18:00'],
-            ['divisi' => 'Band', 'hari' => 'Selasa', 'tempat' => 'Sekre SMAKA LLS', 'pukul' => '16:00 - 18:00'],
-            ['divisi' => 'Perkusi', 'hari' => 'Kamis', 'tempat' => 'Sekre Senam LLS', 'pukul' => '16:00 - 18:00'],
-        ];
+
+        $deskripsi = $user->deskripsi ?? '';
+
+        // Get kepengurusan dari database
+        $kepengurusan = \App\Models\Kepengurusan::where('user_id', Auth::id())
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Get jadwal latihan dari database
+        $jadwal = \App\Models\JadwalLatihan::where('user_id', Auth::id())
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return Inertia::render('profile/ormawa', [
             'unit' => $unit,
             'deskripsi' => $deskripsi,
             'kepengurusan' => $kepengurusan,
             'jadwal' => $jadwal,
+            'logo_url' => $user->logo_path ? asset('storage/' . $user->logo_path) : null,
         ]);
-    })->name('profil.ormawa');
+    })->name('profile.ormawa');
+
+    // Edit Profil Ormawa
+    Route::get('/profil/edit', [ProfileOrmawaController::class, 'edit'])->name('profile.ormawa.edit');
+    Route::post('/profil/update', [ProfileOrmawaController::class, 'update'])->name('profile.ormawa.update');
 
     // Manajemen Kegiatan (Puskaka Only)
     Route::get('/manajemen-kegiatan', function () {
@@ -258,6 +263,34 @@ Route::middleware(['auth', 'verified'])->prefix('prestasi')->group(function () {
     Route::post('/', [PrestasiController::class, 'store'])->name('prestasi.store');
     Route::delete('/{id}', [PrestasiController::class, 'destroy'])->name('prestasi.destroy');
     Route::get('/download/{id}', [PrestasiController::class, 'download'])->name('prestasi.download');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Kepengurusan
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('profile/kepengurusan')->group(function () {
+    Route::get('/create', [KepengurusanController::class, 'create'])->name('kepengurusan.create');
+    Route::post('/', [KepengurusanController::class, 'store'])->name('kepengurusan.store');
+    Route::get('/{kepengurusan}', [KepengurusanController::class, 'show'])->name('kepengurusan.show');
+    Route::get('/{kepengurusan}/edit', [KepengurusanController::class, 'edit'])->name('kepengurusan.edit');
+    Route::put('/{kepengurusan}', [KepengurusanController::class, 'update'])->name('kepengurusan.update');
+    Route::delete('/{kepengurusan}', [KepengurusanController::class, 'destroy'])->name('kepengurusan.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Jadwal Latihan
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('profile/jadwal-latihan')->group(function () {
+    Route::get('/create', [JadwalLatihanController::class, 'create'])->name('jadwal-latihan.create');
+    Route::post('/', [JadwalLatihanController::class, 'store'])->name('jadwal-latihan.store');
+    Route::get('/{jadwalLatihan}', [JadwalLatihanController::class, 'show'])->name('jadwal-latihan.show');
+    Route::get('/{jadwalLatihan}/edit', [JadwalLatihanController::class, 'edit'])->name('jadwal-latihan.edit');
+    Route::put('/{jadwalLatihan}', [JadwalLatihanController::class, 'update'])->name('jadwal-latihan.update');
+    Route::delete('/{jadwalLatihan}', [JadwalLatihanController::class, 'destroy'])->name('jadwal-latihan.destroy');
 });
 
 /*
