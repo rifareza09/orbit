@@ -157,6 +157,14 @@ Route::middleware(['auth', 'verified'])->get('/data-ormawa', function () {
     return Inertia::render('data-ormawa/index');
 })->name('data.ormawa');
 
+Route::middleware(['auth', 'verified'])->get('/data-ormawa/detail/{id}', function ($id) {
+    if (Auth::user()->role !== 'puskaka') abort(403);
+
+    return Inertia::render('data-ormawa/detail', [
+        'id' => $id
+    ]);
+})->name('data.ormawa.detail');
+
 Route::middleware(['auth', 'verified'])->get('/program-kerja/indexPuskaka', function () {
     if (Auth::user()->role !== 'puskaka') abort(403);
 

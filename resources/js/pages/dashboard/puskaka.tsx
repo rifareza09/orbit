@@ -24,14 +24,16 @@ export default function PuskakaDashboard() {
 
   // Dummy Bar Chart
   const barData = [
-    { name: "Kongres", total: 22 },
+    { name: "KONGRES", total: 22 },
     { name: "BEM", total: 14 },
     { name: "SMAKA", total: 11 },
     { name: "LDK", total: 20 },
-    { name: "Voyage", total: 13 },
-    { name: "YBBC", total: 9 },
-    { name: "IMASI", total: 12 },
-    { name: "LPM", total: 10 },
+    { name: "IMASI", total: 13 },
+    { name: "VOYAGE", total: 9 },
+    { name: "YBBC", total: 12 },
+    { name: "KREASI", total: 10 },
+    { name: "LPM", total: 8 },
+    { name: "TDM", total: 7 },
   ];
 
   // Dummy Pie Chart

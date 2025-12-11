@@ -1,301 +1,189 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import FancyBackground from '@/components/FancyBackground';
-import { Link } from '@inertiajs/react';
+import React from "react";
+import { Link, Head } from "@inertiajs/react";
+import { Image as ImageIcon, Search, Calendar, MapPin, ChevronDown } from "lucide-react";
 
-interface PhotoItem {
-  id: number;
-  nama_kegiatan: string;
-  tanggal?: string | null;
-  foto_url: string | null;
-}
+// ... (Interface Tipe Data tetap sama) ...
+interface ShowcaseItem { user: { id: number; name: string }; logo_url?: string | null; }
+interface ScheduleItem { id: number; kegiatan: string; waktu: string; tempat?: string; ormawa_name: string; }
+interface LandingProps { ormawas: ShowcaseItem[]; schedules: ScheduleItem[]; auth: { user: any }; }
 
-interface ScheduleItem {
-  id: number;
-  kegiatan: string;
-  waktu?: string | null;
-}
+export default function LandingPage({ ormawas = [], schedules = [], auth }: LandingProps) {
 
-interface ShowcaseItem {
-  user: { id: number; name: string; username?: string; role?: string };
-  photos: PhotoItem[];
-  schedules: ScheduleItem[];
-}
-
-const DUMMY_IMAGES = [
-  'https://images.unsplash.com/photo-1515165562835-c4c7b0d93a66?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1509228468518-12fbb85f798f?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1520975922215-cdc962e34f01?q=80&w=800&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1520975592531-dc59e0e63f5e?q=80&w=800&auto=format&fit=crop',
-];
-
-function getPlaceholder(index: number) {
-  return DUMMY_IMAGES[index % DUMMY_IMAGES.length];
-}
-
-export default function LandingPage({ showcases, canRegister }: { showcases: ShowcaseItem[]; canRegister: boolean }) {
-  // Reveal on scroll (IntersectionObserver)
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const root = containerRef.current ?? document;
-    const els = Array.from(
-      (root instanceof Document ? root : root.ownerDocument)!.querySelectorAll('[data-reveal]'),
-    ) as HTMLElement[];
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            (e.target as HTMLElement).classList.add('opacity-100', 'translate-y-0');
-          }
-        });
-      },
-      { threshold: 0.15 },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-
-  // Helper: generate pleasant dummy schedules when none present
-  const withDummySchedules = useMemo(() => {
-    const presets = [
-      { kegiatan: 'Latihan Rutin', waktu: 'Setiap Selasa 19:00' },
-      { kegiatan: 'Briefing Mingguan', waktu: 'Setiap Jumat 16:00' },
-      { kegiatan: 'Sparring/Simulasi', waktu: 'Minggu ke-2 09:00' },
-    ];
-    return showcases.map((sc, idx) => {
-      if (sc.schedules && sc.schedules.length > 0) return sc;
-      const dummy = presets.map((p, i) => ({ id: i + 1, ...p }));
-      return { ...sc, schedules: dummy };
-    });
-  }, [showcases]);
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-white to-gray-50 relative">
-      <FancyBackground className="absolute inset-0 -z-10" />
-      {/* Subtle gradient blobs */}
-      <div className="pointer-events-none absolute -top-10 -left-10 h-56 w-56 rounded-full bg-[#0B132B]/10 blur-3xl animate-pulse" />
-      <div className="pointer-events-none absolute top-40 -right-10 h-56 w-56 rounded-full bg-[#5BC0BE]/10 blur-3xl animate-pulse" />
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-[#0B132B] font-bold text-xl">Orbit</span>
-            <span className="text-sm text-gray-500">Etalase Ormawa</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm text-[#0B132B] hover:underline">Home</Link>
-            <Link href="/ormawa" className="text-sm text-[#0B132B] hover:underline">Daftar Ormawa</Link>
-            <Link href="/kalender" className="text-sm text-[#0B132B] hover:underline">Kalender Kegiatan</Link>
-            <Link href="/tentang" className="text-sm text-[#0B132B] hover:underline">Tentang Orbit</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            {canRegister && (
-              <Link href="/register" className="text-sm px-3 py-2 rounded text-[#0B132B] hover:bg-gray-100">Daftar</Link>
-            )}
-            <Link href="/login" className="bg-[#0B132B] text-white text-sm px-4 py-2 rounded hover:bg-[#1C2541]">Masuk</Link>
-          </div>
-        </div>
-      </header>
+    <>
+      <Head title="Selamat Datang" />
 
-      {/* Hero */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-          <div data-reveal className="opacity-0 translate-y-4 transition-all duration-700 ease-out">
-            <h1 className="text-3xl md:text-4xl font-semibold text-[#0B132B] tracking-tight">Etalase Ormawa Kampus</h1>
-            <p className="text-gray-600 mt-2">Lihat dokumentasi kegiatan dan jadwal latihan terbaru dari setiap Ormawa.</p>
+      {/* --- UPDATE 1: CONTAINER UTAMA (SNAP SCROLL) --- */}
+      <div className="h-screen w-full overflow-y-scroll snap-y snap-mandatory font-sans bg-white text-[#0B132B] scroll-smooth">
+        
+        {/* NAVBAR (Sticky) */}
+        <nav className="bg-[#0B132B] text-white py-4 px-6 md:px-12 flex justify-between items-center fixed top-0 w-full z-50 shadow-md">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('home')}>
+  {/* LOGO IMAGE */}
+  <img 
+    src="/images/Logo.png"
+    alt="Logo ORBIT"
+    className="w-35 h-10"
+  />
+</div>
+
+          <div className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
+            <button onClick={() => scrollToSection('home')} className="hover:text-white transition">Home</button>
+            <button onClick={() => scrollToSection('daftar-ormawa')} className="hover:text-white transition">Daftar Ormawa</button>
+            <button onClick={() => scrollToSection('kegiatan')} className="hover:text-white transition">Kegiatan</button>
+            <button onClick={() => scrollToSection('tentang')} className="hover:text-white transition">Tentang ORBIT</button>
           </div>
-          <div className="flex gap-3">
-            <Link href="/login" className="inline-flex items-center rounded-lg bg-[#0B132B] text-white text-sm px-4 py-2 hover:bg-[#1C2541]">Masuk</Link>
-            {canRegister && (
-              <Link href="/register" className="inline-flex items-center rounded-lg border border-[#0B132B] text-[#0B132B] text-sm px-4 py-2 hover:bg-gray-100">Daftar</Link>
+
+          <div>
+            {auth?.user ? (
+              <Link href="/dashboard" className="bg-[#1C2541] hover:bg-[#2a365c] px-6 py-2 rounded text-sm font-semibold transition border border-gray-600">Dashboard</Link>
+            ) : (
+              <Link href="/login" className="bg-[#1C2541] hover:bg-[#2a365c] px-6 py-2 rounded text-sm font-semibold transition border border-gray-600">Login</Link>
             )}
           </div>
-        </div>
-      </section>
+        </nav>
 
-      {/* Showcases Grid */}
-      <section className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {withDummySchedules.map((sc, idx) => (
-            <TiltCard key={sc.user.id} index={idx}>
-              {/* Card Header */}
-              <div className="px-5 py-4 bg-[#0B132B] text-white flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-base">{sc.user.name}</div>
-                  {sc.user.username && (
-                    <div className="text-xs opacity-80">@{sc.user.username}</div>
-                  )}
+        {/* --- SECTION 1: HERO (FULL SCREEN) --- */}
+        <div 
+            id="home" 
+            className="relative min-h-screen w-full flex items-center justify-center text-center text-white snap-start"
+        >
+          <div 
+            className="absolute inset-0 bg-cover bg-center z-0"
+            style={{ backgroundImage: "url('/images/background.png')", filter: "brightness(0.4)" }}
+          ></div>
+          <div className="relative z-10 px-4 mt-16"> {/* mt-16 kompensasi navbar */}
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight drop-shadow-lg">
+              Selamat Datang di ORBIT!
+            </h1>
+            <p className="text-xl md:text-3xl font-light opacity-90 drop-shadow-md">
+              Ormawa Berbasis Informasi Terpadu
+            </p>
+            <div className="mt-6 text-2xl tracking-[0.2em] font-serif opacity-90">
+              UNIVERSITAS YARSI
+            </div>
+            
+            {/* Scroll Indicator */}
+            <button onClick={() => scrollToSection('daftar-ormawa')} className="mt-16 animate-bounce text-white opacity-70 hover:opacity-100 transition">
+                <ChevronDown size={48} />
+            </button>
+          </div>
+        </div>
+
+        {/* --- SECTION 2: DAFTAR ORMAWA (FULL SCREEN) --- */}
+        <div 
+            id="daftar-ormawa" 
+            className="min-h-screen w-full flex flex-col justify-center items-center bg-gray-50 px-6 md:px-16 pt-20 pb-10 snap-start"
+        >
+          <div className="w-full max-w-7xl">
+            <h2 className="text-center text-3xl md:text-4xl font-bold mb-12 text-[#0B132B]">
+                Daftar Organisasi Mahasiswa Universitas YARSI
+            </h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {ormawas.map((item, idx) => (
+                <div key={idx} className="bg-white rounded-xl p-6 flex flex-col items-center justify-center shadow-sm hover:shadow-xl transition-all cursor-pointer group h-48 border border-gray-200 transform hover:-translate-y-1">
+                    <div className="mb-4 text-gray-400 group-hover:text-[#0B132B] transition">
+                    {item.logo_url ? (
+                        <img src={item.logo_url} alt={item.user.name} className="w-16 h-16 object-contain"/>
+                    ) : (
+                        <ImageIcon size={48} strokeWidth={1} />
+                    )}
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-400 uppercase text-center mb-1 tracking-wider">
+                    UKM
+                    </div>
+                    <div className="text-sm font-bold text-center leading-tight text-[#0B132B] line-clamp-2">
+                    {item.user.name}
+                    </div>
                 </div>
-                {sc.user.role && (
-                  <span className="text-xs bg-white/20 px-2 py-1 rounded">{sc.user.role}</span>
-                )}
-              </div>
-
-              {/* Photos */}
-              <div className="p-5">
-                {/* Interactive slider for documentation */}
-                <DocumentationSlider photos={sc.photos} />
-              </div>
-
-              {/* Schedules */}
-              <div className="px-5 pb-5">
-                <div className="font-medium text-[#0B132B] mb-2">Jadwal Latihan / Kegiatan</div>
-                <ul className="space-y-2">
-                  {sc.schedules.map((s) => (
-                    <li key={s.id} className="flex items-center justify-between border border-gray-200 rounded-lg px-3 py-2">
-                      <span className="text-sm text-gray-700">{s.kegiatan}</span>
-                      <span className="text-xs text-gray-500">{s.waktu || '-'}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Actions */}
-              <div className="px-5 pb-5">
-                <Link
-                  href="/login"
-                  className="w-full inline-flex justify-center items-center rounded-lg bg-[#0B132B] text-white text-sm px-4 py-2 hover:bg-[#1C2541]"
-                >
-                  Masuk untuk melihat detail
-                </Link>
-              </div>
-            </TiltCard>
-          ))}
+                ))}
+                
+                {ormawas.length === 0 && Array(10).fill(0).map((_, i) => (
+                <div key={i} className="bg-[#F3F4F6] rounded-xl p-6 flex flex-col items-center justify-center h-48 border border-gray-200">
+                    <ImageIcon size={48} strokeWidth={1} className="text-gray-400 mb-4"/>
+                    <div className="text-xs text-gray-500">Unit Kegiatan Mahasiswa</div>
+                    <div className="text-sm font-bold text-center">Nama Organisasi</div>
+                </div>
+            ))}
+            </div>
+          </div>
         </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="border-t">
-        <div className="max-w-7xl mx-auto px-6 py-6 text-sm text-gray-500">© {new Date().getFullYear()} Orbit. Dibangun dengan Laravel + React + Inertia.</div>
-      </footer>
-    </div>
-  );
-}
+        {/* --- SECTION 3: KEGIATAN ORGANISASI (FULL SCREEN) --- */}
+        <div 
+            id="kegiatan" 
+            className="min-h-screen w-full flex flex-col justify-center items-center bg-white px-6 md:px-16 pt-20 pb-10 snap-start"
+        >
+          <div className="w-full max-w-5xl">
+            <h2 className="text-center text-3xl md:text-4xl font-bold mb-10 text-[#0B132B]">
+                Kegiatan Terbaru
+            </h2>
 
-function DocumentationSlider({ photos }: { photos: PhotoItem[] }) {
-  const items = photos.length > 0
-    ? photos.map((p, i) => ({
-        key: p.id,
-        src: p.foto_url || getPlaceholder(i),
-        alt: p.nama_kegiatan,
-        caption: p.nama_kegiatan,
-      }))
-    : Array.from({ length: 4 }).map((_, i) => ({
-        key: i,
-        src: getPlaceholder(i),
-        alt: 'Placeholder',
-        caption: 'Kegiatan Ormawa',
-      }));
+            {/* Search Bar */}
+            <div className="flex bg-[#F3F4F6] rounded-full overflow-hidden border border-gray-200 p-1 mb-10 shadow-sm max-w-3xl mx-auto">
+                <div className="flex items-center px-4 text-gray-400"><Search size={20} /></div>
+                <input type="text" placeholder="Cari kegiatan..." className="w-full bg-transparent border-none focus:ring-0 text-sm py-3 px-2 outline-none" />
+                <button className="bg-[#0B132B] text-white px-6 py-1 rounded-full text-xs font-bold hover:bg-black transition mx-1">CARI</button>
+            </div>
 
-  const [index, setIndex] = useState(0);
-
-  // Auto-play every 4 seconds
-  const timerRef = useRef<number | null>(null);
-  const progressRef = useRef<number>(0);
-  const [progress, setProgress] = useState(0); // 0 - 100
-
-  const stop = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
-    timerRef.current = null;
-  };
-
-  const start = () => {
-    stop();
-    progressRef.current = 0;
-    setProgress(0);
-    timerRef.current = window.setInterval(() => {
-      progressRef.current += 100 / 40; // ~4s to reach 100
-      if (progressRef.current >= 100) {
-        progressRef.current = 0;
-        setIndex((prev) => (prev + 1) % items.length);
-      }
-      setProgress(progressRef.current);
-    }, 100);
-  };
-
-  useEffect(() => {
-    start();
-    return stop;
-  }, [items.length, index]);
-
-  const prev = () => setIndex((i) => (i - 1 + items.length) % items.length);
-  const next = () => setIndex((i) => (i + 1) % items.length);
-
-  return (
-    <div className="relative" onMouseEnter={stop} onMouseLeave={start}>
-      {/* Slider viewport */}
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100">
-        {items.map((it, i) => (
-          <img
-            key={it.key}
-            src={it.src}
-            alt={it.alt}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
-          />
-        ))}
-        {/* Caption overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-          <div className="text-white text-sm">{items[index]?.caption}</div>
+            {/* List Kegiatan (Scrollable jika banyak) */}
+            <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                {(schedules.length > 0 ? schedules : [1,2,3,4]).map((item: any, idx) => (
+                <div key={idx} className="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-center gap-6 shadow-sm hover:shadow-md transition duration-300">
+                    <div className="w-full md:w-24 h-24 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 flex-shrink-0">
+                        <ImageIcon size={32} />
+                    </div>
+                    <div className="flex-1 text-center md:text-left w-full">
+                        <h3 className="font-bold text-xl text-[#0B132B] mb-1">
+                            {typeof item === 'object' ? item.kegiatan : "Nama Kegiatan"}
+                        </h3>
+                        <p className="text-sm text-gray-500 font-medium mb-3 uppercase tracking-wide">
+                            {typeof item === 'object' ? item.ormawa_name : "Penyelenggara"}
+                        </p>
+                        <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-500">
+                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                                <Calendar size={16} className="text-[#0B132B]" /> 
+                                {typeof item === 'object' ? item.waktu : "Segera"}
+                            </div>
+                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                                <MapPin size={16} className="text-[#0B132B]" /> 
+                                {typeof item === 'object' ? item.tempat || "Kampus YARSI" : "Kampus YARSI"}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span className="bg-green-100 text-green-700 px-5 py-2 rounded-full text-xs font-bold border border-green-200">
+                            Akan Datang
+                        </span>
+                    </div>
+                </div>
+                ))}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Controls */}
-      <div className="absolute inset-0 flex items-center justify-between px-2">
-        <button onClick={prev} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/40 text-white hover:bg-black/60">‹</button>
-        <button onClick={next} className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-black/40 text-white hover:bg-black/60">›</button>
-      </div>
+        {/* --- FOOTER (Bagian dari snap terakhir atau terpisah) --- */}
+        <footer id="tentang" className="bg-[#0B132B] text-white py-12 text-center text-sm snap-start flex items-center justify-center flex-col">
+            <h3 className="text-2xl font-bold mb-4">TENTANG ORBIT</h3>
+            <p className="max-w-2xl px-6 opacity-80 leading-relaxed mb-8">
+                ORBIT (Ormawa Berbasis Informasi Terpadu) adalah platform digital terintegrasi untuk Universitas YARSI 
+                yang memudahkan pengelolaan, pengajuan kegiatan, dan transparansi informasi bagi seluruh organisasi mahasiswa.
+                Tim Pengembang: Muhammad Raihan, Rifa Reza, Rafli Dika
+            </p>
+            <div className="opacity-50">
+                © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
+            </div>
+        </footer>
 
-      {/* Progress bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
-        <div className="h-1 bg-[#5BC0BE] transition-[width] duration-100" style={{ width: `${progress}%` }} />
       </div>
-
-      {/* Dots */}
-      <div className="mt-3 flex items-center justify-center gap-2">
-        {items.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIndex(i)}
-            className={`h-2 w-2 rounded-full ${i === index ? 'bg-[#0B132B]' : 'bg-gray-300'}`}
-            aria-label={`Slide ${i + 1}`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function TiltCard({ children, index }: { children: React.ReactNode; index: number }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const onMove = (e: React.MouseEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-    const rx = (y - 0.5) * -6; // tilt range
-    const ry = (x - 0.5) * 6;
-    el.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-  };
-  const onLeave = () => {
-    const el = ref.current;
-    if (el) el.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
-  };
-  return (
-    <div
-      data-reveal
-      className="opacity-0 translate-y-4 transition-all duration-700 ease-out"
-      style={{ transitionDelay: `${Math.min(index * 60, 240)}ms` }}
-    >
-      <div
-        ref={ref}
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
-        className="group rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden transition will-change-transform hover:shadow-lg"
-      >
-        {children}
-      </div>
-    </div>
+    </>
   );
 }
