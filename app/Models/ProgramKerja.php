@@ -14,6 +14,8 @@ class ProgramKerja extends Model
         'jenis_kegiatan',
         'estimasi_anggaran',
         'status',
+        'catatan_puskaka',
+        'reviewed_at',
     ];
 
     public function user()

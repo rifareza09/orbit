@@ -20,7 +20,10 @@ class PengajuanKegiatan extends Model
         'total_anggaran',
         'status',
         'deskripsi',
-        'proposal_path'
+        'proposal_path',
+        'catatan_puskaka',
+        'reviewed_at',
+        'status_review',
     ];
 
     protected $casts = [

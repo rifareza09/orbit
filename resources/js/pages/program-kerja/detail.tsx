@@ -10,6 +10,8 @@ interface ProgramKerjaItem {
     jenisKegiatan: string;
     estimasiKegiatan: string;
     status: string;
+    catatan_puskaka?: string | null;
+    reviewed_at?: string | null;
 }
 
 export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem }) {
@@ -70,10 +72,29 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                         </div>
                         <div>
                             <p className="font-bold text-sm text-gray-800">Status</p>
-                            <span className="mt-1 inline-block bg-gray-200 text-gray-700 text-xs font-medium px-3 py-1 rounded-full">
+                            <span className={`mt-1 inline-block text-xs font-medium px-3 py-1 rounded-full ${
+                                item.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
+                                item.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                                item.status === 'Direview' ? 'bg-blue-100 text-blue-700' :
+                                item.status === 'Diajukan' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-gray-200 text-gray-700'
+                            }`}>
                                 {item.status}
                             </span>
                         </div>
+
+                        {/* Catatan dari Puskaka */}
+                        {item.catatan_puskaka && (
+                            <div className="col-span-2">
+                                <p className="font-bold text-sm text-gray-800">Catatan dari Puskaka</p>
+                                <div className="mt-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p className="text-gray-800 whitespace-pre-wrap">{item.catatan_puskaka}</p>
+                                    {item.reviewed_at && (
+                                        <p className="text-xs text-gray-500 mt-2">Direview pada: {item.reviewed_at}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -86,21 +107,29 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                         Kembali
                     </Link>
 
-                   <Link
-    href={`/program-kerja/edit/${item.id}`} // Pastikan URL mengarah ke rute edit dengan ID
-    className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
->
-    Edit
-</Link>
+                   {/* Tombol Edit hanya muncul jika status bukan Disetujui */}
+                   {item.status !== 'Disetujui' && (
+                     <Link
+                       href={`/program-kerja/edit/${item.id}`}
+                       className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
+                     >
+                       Edit
+                     </Link>
+                   )}
 
-        <button
-  onClick={() => {
-    router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' });
-  }}
-  className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
->
-  Ajukan
-</button>
+        {/* Tombol Ajukan hanya muncul jika status Belum Diajukan atau Ditolak */}
+        {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
+          <button
+            onClick={() => {
+              if (confirm('Apakah Anda yakin ingin mengajukan program kerja ini?')) {
+                router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' });
+              }
+            }}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-2 rounded-lg shadow transition font-semibold"
+          >
+            Ajukan ke Puskaka
+          </button>
+        )}
 
                 </div>
 

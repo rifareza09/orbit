@@ -29,6 +29,9 @@ interface PengajuanKegiatan {
   tanggal_pelaksanaan: string;
   total_anggaran: number;
   status: string;
+  status_review: string;
+  catatan_puskaka: string | null;
+  reviewed_at: string | null;
   deskripsi: string;
   proposal_path?: string;
   program_kerja?: ProgramKerja;
@@ -190,19 +193,40 @@ export default function DetailPengajuanKegiatan() {
                         {/* Status */}
                         <div>
                             <p className="font-bold text-sm text-gray-800">
-                                Status
+                                Status Review Puskaka
                             </p>
                             <span className={`mt-1 inline-block text-xs font-medium px-3 py-1 rounded-full ${
-                              pengajuan.status === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
-                              pengajuan.status === 'Diajukan' ? 'bg-blue-200 text-blue-800' :
-                              pengajuan.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
-                              'bg-red-200 text-red-800'
+                              pengajuan.status_review === 'Menunggu Review' ? 'bg-yellow-200 text-yellow-800' :
+                              pengajuan.status_review === 'Direview' ? 'bg-blue-200 text-blue-800' :
+                              pengajuan.status_review === 'Disetujui' ? 'bg-green-200 text-green-800' :
+                              pengajuan.status_review === 'Ditolak' ? 'bg-red-200 text-red-800' :
+                              pengajuan.status_review === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
+                              'bg-gray-200 text-gray-800'
                             }`}>
-                                {pengajuan.status}
+                                {pengajuan.status_review}
                             </span>
+                            {pengajuan.reviewed_at && (
+                              <p className="mt-1 text-xs text-gray-500">
+                                Direview pada: {pengajuan.reviewed_at}
+                              </p>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {/* CATATAN PUSKAKA */}
+                {pengajuan.catatan_puskaka && (
+                  <div className="bg-blue-50 rounded-xl shadow-sm border border-blue-200 overflow-hidden mt-6">
+                    <div className="bg-blue-100 text-blue-900 px-6 py-3 font-semibold border-b border-blue-200">
+                      Catatan dari Puskaka
+                    </div>
+                    <div className="p-6">
+                      <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+                        {pengajuan.catatan_puskaka}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* DETAIL ITEM PENGAJUAN DANA */}
                 {pengajuan.item_pengajuan_dana && pengajuan.item_pengajuan_dana.length > 0 && (
@@ -247,25 +271,27 @@ export default function DetailPengajuanKegiatan() {
                         onClick={() => router.visit('/pengajuan-kegiatan')}
                         className="bg-gray-500 text-white px-8 py-2 rounded-lg shadow hover:bg-gray-600 transition"
                     >
-                        Batal
+                        Kembali
                     </button>
 
-                    {pengajuan.status === 'Belum Diajukan' && (
-                      <>
+                    {/* Show Edit button for Belum Diajukan or Direvisi status */}
+                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status_review === 'Direvisi') && (
                         <button
                           onClick={() => router.visit(`/pengajuan-kegiatan/edit/${pengajuan.id}`)}
                           className="bg-yellow-600 text-white px-8 py-2 rounded-lg shadow hover:bg-yellow-700 transition"
                         >
-                          Edit Proposal
+                          {pengajuan.status_review === 'Direvisi' ? 'Revisi Proposal' : 'Edit Proposal'}
                         </button>
+                    )}
 
+                    {/* Show Ajukan button only for Belum Diajukan */}
+                    {pengajuan.status === 'Belum Diajukan' && (
                         <button
                           onClick={handleAjukan}
                           className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
                         >
                           Ajukan
                         </button>
-                      </>
                     )}
                 </div>
 

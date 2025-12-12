@@ -166,6 +166,8 @@ class LaporanKegiatanController extends Controller
                 'anggaranRealisasi' => $laporan->anggaran_realisasi,
                 'ringkasan' => $laporan->ringkasan,
                 'status' => $laporan->status,
+                'catatan_puskaka' => $laporan->catatan_puskaka,
+                'reviewed_at' => $laporan->reviewed_at ? (is_string($laporan->reviewed_at) ? $laporan->reviewed_at : $laporan->reviewed_at->format('d/m/Y H:i')) : null,
                 'lpjFile' => $laporan->lpj_file,
                 'buktiPengeluaran' => $laporan->bukti_pengeluaran ?? [],
                 'dokumentasi' => $laporan->dokumentasi ?? [],

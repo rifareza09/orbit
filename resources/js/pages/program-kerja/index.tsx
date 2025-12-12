@@ -56,7 +56,17 @@ export default function ProgramKerja() {
                   <td className="px-4 py-3">{item.deskripsi_kegiatan}</td>
                   <td className="px-4 py-3">{item.jenis_kegiatan}</td>
                   <td className="px-4 py-3">{item.estimasi_anggaran}</td>
-                  <td className="px-4 py-3">{item.status ?? "Diajukan"}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      item.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
+                      item.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                      item.status === 'Direview' ? 'bg-blue-100 text-blue-700' :
+                      item.status === 'Diajukan' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-gray-200 text-gray-700'
+                    }`}>
+                      {item.status ?? 'Belum Diajukan'}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       onClick={() => router.visit(`/program-kerja/detail/${item.id}`)}

@@ -16,10 +16,25 @@ class PengajuanKegiatanController extends Controller
         $pengajuan = PengajuanKegiatan::where('user_id', Auth::id())
             ->with(['itemPengajuanDana', 'programKerja'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'nama_kegiatan' => $p->nama_kegiatan,
+                    'ketua_pelaksana' => $p->ketua_pelaksana,
+                    'tempat_pelaksanaan' => $p->tempat_pelaksanaan,
+                    'jumlah_peserta' => $p->jumlah_peserta,
+                    'tanggal_pelaksanaan' => $p->tanggal_pelaksanaan,
+                    'total_anggaran' => $p->total_anggaran,
+                    'status' => $p->status,
+                    'status_review' => $p->status_review,
+                    'catatan_puskaka' => $p->catatan_puskaka,
+                    'reviewed_at' => $p->reviewed_at ? (is_string($p->reviewed_at) ? $p->reviewed_at : $p->reviewed_at->format('d/m/Y H:i')) : null,
+                ];
+            });
 
-        // Ambil program kerja yang sudah diajukan untuk dropdown
-        $programKerjasDiajukan = \App\Models\ProgramKerja::where('status', 'Diajukan')
+        // Ambil program kerja yang sudah disetujui untuk dropdown
+        $programKerjasDiajukan = \App\Models\ProgramKerja::where('status', 'Disetujui')
             ->where('user_id', Auth::id())
             ->select('id', 'program_kerja', 'kegiatan', 'estimasi_anggaran', 'status')
             ->get();
@@ -33,18 +48,34 @@ class PengajuanKegiatanController extends Controller
     public function show($id)
     {
         $pengajuan = PengajuanKegiatan::where('user_id', Auth::id())
-            ->with('itemPengajuanDana')
+            ->with(['itemPengajuanDana', 'programKerja'])
             ->findOrFail($id);
 
         return Inertia::render('pengajuan-kegiatan/detail', [
-            'pengajuan' => $pengajuan
+            'pengajuan' => [
+                'id' => $pengajuan->id,
+                'nama_kegiatan' => $pengajuan->nama_kegiatan,
+                'ketua_pelaksana' => $pengajuan->ketua_pelaksana,
+                'tempat_pelaksanaan' => $pengajuan->tempat_pelaksanaan,
+                'jumlah_peserta' => $pengajuan->jumlah_peserta,
+                'tanggal_pelaksanaan' => $pengajuan->tanggal_pelaksanaan,
+                'total_anggaran' => $pengajuan->total_anggaran,
+                'status' => $pengajuan->status,
+                'status_review' => $pengajuan->status_review,
+                'catatan_puskaka' => $pengajuan->catatan_puskaka,
+                'reviewed_at' => $pengajuan->reviewed_at ? (is_string($pengajuan->reviewed_at) ? $pengajuan->reviewed_at : $pengajuan->reviewed_at->format('d/m/Y H:i')) : null,
+                'deskripsi' => $pengajuan->deskripsi,
+                'proposal_path' => $pengajuan->proposal_path,
+                'program_kerja' => $pengajuan->programKerja,
+                'item_pengajuan_dana' => $pengajuan->itemPengajuanDana,
+            ]
         ]);
     }
 
     public function create()
     {
-        // Ambil program kerja yang sudah diajukan
-        $programKerjasDiajukan = \App\Models\ProgramKerja::where('status', 'Diajukan')
+        // Ambil program kerja yang sudah disetujui
+        $programKerjasDiajukan = \App\Models\ProgramKerja::where('status', 'Disetujui')
             ->where('user_id', Auth::id())
             ->select('id', 'program_kerja', 'kegiatan', 'estimasi_anggaran', 'status')
             ->get();
@@ -119,8 +150,14 @@ class PengajuanKegiatanController extends Controller
             ->with(['itemPengajuanDana', 'programKerja'])
             ->findOrFail($id);
 
-        // Ambil program kerja yang sudah diajukan
-        $programKerjasDiajukan = \App\Models\ProgramKerja::where('status', 'Diajukan')
+        // Check if pengajuan can be edited (Belum Diajukan or Direvisi)
+        if (!in_array($pengajuan->status, ['Belum Diajukan']) && $pengajuan->status_review !== 'Direvisi') {
+            return redirect('/pengajuan-kegiatan')
+                ->with('error', 'Pengajuan ini tidak dapat diedit.');
+        }
+
+        // Ambil program kerja yang sudah disetujui
+        $programKerjasDiajukan = \App\Models\ProgramKerja::where('status', 'Disetujui')
             ->where('user_id', Auth::id())
             ->select('id', 'program_kerja', 'kegiatan', 'estimasi_anggaran', 'status')
             ->get();
@@ -176,6 +213,9 @@ class PengajuanKegiatanController extends Controller
             'jumlah_peserta' => $validated['jumlah_peserta'],
             'tanggal_pelaksanaan' => $validated['tanggal_pelaksanaan'],
             'deskripsi' => $validated['deskripsi'],
+            'status_review' => 'Menunggu Review', // Reset status review after edit
+            'catatan_puskaka' => null, // Clear previous feedback
+            'reviewed_at' => null, // Clear review timestamp
             ...$updateData
         ]);
 

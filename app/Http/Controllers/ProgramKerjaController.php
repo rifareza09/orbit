@@ -64,6 +64,10 @@ class ProgramKerjaController extends Controller
                 'jenisKegiatan' => $program->jenis_kegiatan,
                 'estimasiKegiatan' => "Rp. " . number_format($program->estimasi_anggaran, 0, ',', '.'),
                 'status' => $program->status ?? 'Belum Diajukan',
+                'catatan_puskaka' => $program->catatan_puskaka,
+                'reviewed_at' => $program->reviewed_at ?
+                    (is_string($program->reviewed_at) ? $program->reviewed_at : $program->reviewed_at->format('d/m/Y H:i'))
+                    : null,
             ]
         ]);
     }
@@ -88,6 +92,13 @@ class ProgramKerjaController extends Controller
     public function update(Request $request, $id)
     {
         $program = ProgramKerja::findOrFail($id);
+
+        // Cek jika program kerja sudah disetujui, tidak boleh diedit
+        if ($program->status === 'Disetujui') {
+            return redirect()
+                ->route('program-kerja.index')
+                ->with('error', 'Program Kerja yang sudah disetujui tidak dapat diedit!');
+        }
 
         $validated = $request->validate([
             'program_kerja'        => 'required|string|max:255',

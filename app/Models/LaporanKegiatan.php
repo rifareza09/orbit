@@ -16,7 +16,9 @@ class LaporanKegiatan extends Model
         'status',
         'lpj_file',
         'bukti_pengeluaran',
-        'dokumentasi'
+        'dokumentasi',
+        'catatan_puskaka',
+        'reviewed_at'
     ];
 
     protected $casts = [

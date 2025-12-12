@@ -1,170 +1,303 @@
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { Link } from "@inertiajs/react";
+import { Link, useForm, usePage } from "@inertiajs/react";
+import { Download } from "lucide-react";
 
-export default function DetailKegiatan() {
-  // -------------------------
-  // DUMMY DATA
-  // -------------------------
-  const data = {
-    nama: "Sesi 1: Dasar-dasar Vocal dan Breathing",
-    jenis: "Akademik",
-    tanggal: "22/11/2025 15:00 WIB",
-    divisi: "Band",
-    deskripsi:
-      "Pelatihan dasar teknik vokal dan pernapasan untuk meningkatkan kualitas suara.",
-    programKerja: "Workshop Teknik Vokal dan Instrument",
-    tempat: "Lt.5 Ruang 504",
-    peserta: 23,
-    dokumen: [
-      "File Pendukung Kegiatan.pdf",
-      "Surat Izin meminjam Ruangan.pdf",
-      "",
-      "",
-    ],
-    status: "Menunggu Review",
+interface ItemPengajuanDana {
+  id: number;
+  nama_item: string;
+  kuantitas: number;
+  harga_satuan: string;
+  total: number;
+}
+
+interface Pengajuan {
+  id: number;
+  nama_kegiatan: string;
+  ormawa: string;
+  program_kerja: string;
+  ketua_pelaksana: string;
+  tempat_pelaksanaan: string;
+  jumlah_peserta: number;
+  tanggal_pelaksanaan: string;
+  deskripsi: string;
+  total_anggaran: string;
+  status_review: string;
+  catatan_puskaka: string | null;
+  proposal_path: string | null;
+  created_at: string;
+  item_pengajuan_dana: ItemPengajuanDana[];
+}
+
+interface Props {
+  pengajuan: Pengajuan;
+}
+
+export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
+  const { flash } = usePage().props as any;
+
+  const { data, setData, post, processing, errors } = useForm({
+    status_review: pengajuan.status_review,
+    catatan_puskaka: pengajuan.catatan_puskaka || '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
+      preserveScroll: true,
+    });
   };
-
-  const badgeColor =
-    data.status === "Menunggu Review"
-      ? "bg-yellow-500"
-      : data.status === "Disetujui"
-      ? "bg-green-600"
-      : data.status === "Ditolak"
-      ? "bg-red-600"
-      : "bg-gray-400";
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-[#0B132B]">
-            Manajemen Kegiatan
-          </h1>
-
-          <Link
-            href="/manajemen-kegiatan"
-            className="bg-[#0B132B] text-white px-6 py-2 rounded-lg hover:bg-[#0A1025] transition"
-          >
-            Kembali
-          </Link>
+        <div className="bg-white border-b">
+          <div className="px-8 py-6">
+            <h1 className="text-2xl font-bold text-[#0B132B]">Detail Pengajuan Kegiatan</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Diajukan oleh <span className="font-semibold">{pengajuan.ormawa}</span> pada {pengajuan.created_at}
+            </p>
+          </div>
         </div>
 
-        {/* Container */}
-        <div className="bg-white shadow rounded-xl overflow-hidden">
-          {/* Title Bar */}
-          <div className="bg-[#0B132B] text-white px-6 py-3 flex justify-between items-center">
-            <span className="text-lg font-semibold">Detail Kegiatan</span>
-            <span
-              className={`px-3 py-1 rounded-lg text-sm font-semibold ${badgeColor}`}
-            >
-              {data.status}
-            </span>
-          </div>
+        {/* Content */}
+        <div className="p-8 space-y-6">
+          {/* Success Message */}
+          {flash?.success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+              <span className="block sm:inline">{flash.success}</span>
+            </div>
+          )}
 
-          {/* 2 Columns */}
-          <div className="grid grid-cols-12">
-            {/* LEFT */}
-            <div className="col-span-7 border-r p-6 space-y-4">
-              <div>
-                <p className="font-semibold">Nama Kegiatan</p>
-                <p>{data.nama}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Jenis Kegiatan</p>
-                <p>{data.jenis}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Tanggal & Waktu</p>
-                <p>{data.tanggal}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Program Kerja</p>
-                <p>{data.programKerja}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Tempat</p>
-                <p>{data.tempat}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Jumlah Peserta</p>
-                <p>{data.peserta}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Divisi</p>
-                <p>{data.divisi}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Deskripsi Kegiatan</p>
-                <p>{data.deskripsi}</p>
+          {/* Detail Kegiatan Section */}
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="bg-blue-100 px-6 py-3 border-b border-blue-200">
+              <h2 className="font-bold text-[#0B132B] text-sm">Detail Kegiatan</h2>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Nama Kegiatan
+                  </label>
+                  <input
+                    type="text"
+                    value={pengajuan.nama_kegiatan}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Program Kerja
+                  </label>
+                  <input
+                    type="text"
+                    value={pengajuan.program_kerja}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Ketua Pelaksana
+                  </label>
+                  <input
+                    type="text"
+                    value={pengajuan.ketua_pelaksana}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Tanggal Pelaksanaan
+                  </label>
+                  <input
+                    type="text"
+                    value={pengajuan.tanggal_pelaksanaan}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Tempat Pelaksanaan
+                  </label>
+                  <input
+                    type="text"
+                    value={pengajuan.tempat_pelaksanaan}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Jumlah Peserta
+                  </label>
+                  <input
+                    type="text"
+                    value={pengajuan.jumlah_peserta}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Deskripsi Kegiatan
+                  </label>
+                  <textarea
+                    value={pengajuan.deskripsi}
+                    readOnly
+                    rows={3}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* RIGHT */}
-            <div className="col-span-5 p-6">
-              <p className="font-semibold mb-3 text-lg">Dokumen Pendukung</p>
-
-              <table className="w-full text-sm border rounded-xl overflow-hidden">
-                <thead>
-                  <tr className="bg-[#0B132B] text-white">
-                    <th className="px-4 py-2 text-left">Nama File</th>
+          {/* Rencana Anggaran Section */}
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="bg-yellow-100 px-6 py-3 border-b border-yellow-200">
+              <h2 className="font-bold text-[#0B132B] text-sm">Rencana Anggaran</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-700">No</th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-700">Nama Item</th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-700">Kuantitas</th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-700">Harga Satuan</th>
+                    <th className="px-6 py-3 text-left font-semibold text-gray-700">Total</th>
                   </tr>
                 </thead>
-
-                <tbody>
-                  {data.dokumen.map((file, i) => (
-                    <tr key={i} className="border-b">
-                      <td className="px-4 py-2">{file}</td>
+                <tbody className="divide-y">
+                  {pengajuan.item_pengajuan_dana.length > 0 ? (
+                    pengajuan.item_pengajuan_dana.map((item, index) => (
+                      <tr key={item.id}>
+                        <td className="px-6 py-3 text-gray-600">{index + 1}</td>
+                        <td className="px-6 py-3 text-gray-700">{item.nama_item}</td>
+                        <td className="px-6 py-3 text-gray-700">{item.kuantitas}</td>
+                        <td className="px-6 py-3 text-gray-700 font-mono">
+                          Rp {parseFloat(item.harga_satuan).toLocaleString('id-ID')}
+                        </td>
+                        <td className="px-6 py-3 text-gray-700 font-mono font-semibold">
+                          Rp {item.total.toLocaleString('id-ID')}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="px-6 py-6 text-center text-gray-400 italic">
+                        Tidak ada item anggaran
+                      </td>
                     </tr>
-                  ))}
+                  )}
+                  {pengajuan.item_pengajuan_dana.length > 0 && (
+                    <tr className="bg-gray-50 font-semibold">
+                      <td colSpan={4} className="px-6 py-3 text-right text-gray-700">
+                        Total Anggaran:
+                      </td>
+                      <td className="px-6 py-3 text-gray-900 font-mono text-lg">
+                        Rp {parseFloat(pengajuan.total_anggaran).toLocaleString('id-ID')}
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* Evaluasi */}
-          <div className="border-t px-6 py-6">
-            <h2 className="text-lg font-semibold mb-3">Evaluasi Pengajuan</h2>
-
-            <div className="grid grid-cols-12 gap-6">
-              {/* Catatan */}
-              <div className="col-span-8">
-                <label className="font-semibold">Catatan Pengajuan</label>
-                <textarea
-                  className="w-full mt-2 border rounded-lg p-3 h-32"
-                  placeholder="Berikan catatan..."
-                ></textarea>
+          {/* File Proposal */}
+          {pengajuan.proposal_path && (
+            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+              <div className="px-6 py-3 border-b bg-white">
+                <h2 className="font-bold text-[#0B132B] text-sm">File Proposal</h2>
               </div>
+              <div className="p-6">
+                <a
+                  href={`/storage/${pengajuan.proposal_path}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                >
+                  <Download size={16} />
+                  Download Proposal
+                </a>
+              </div>
+            </div>
+          )}
 
-              {/* Status */}
-              <div className="col-span-4">
-                <label className="font-semibold">Status Pengajuan</label>
-                <input
-                  className="w-full mt-2 border rounded-lg p-3"
-                  placeholder="Contoh: Disetujui / Ditolak"
-                />
+          {/* Form Review */}
+          <form onSubmit={handleSubmit}>
+            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+              <div className="bg-green-100 px-6 py-3 border-b border-green-200">
+                <h2 className="font-bold text-[#0B132B] text-sm">Catatan Pengajuan</h2>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Status Pengajuan
+                  </label>
+                  <select
+                    value={data.status_review}
+                    onChange={(e) => setData('status_review', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                  >
+                    <option value="Menunggu Review">Menunggu Review</option>
+                    <option value="Direview">Direview</option>
+                    <option value="Disetujui">Disetujui</option>
+                    <option value="Ditolak">Ditolak</option>
+                    <option value="Direvisi">Direvisi</option>
+                  </select>
+                  {errors.status_review && (
+                    <p className="text-red-600 text-xs mt-1">{errors.status_review}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Catatan / Masukan
+                  </label>
+                  <textarea
+                    value={data.catatan_puskaka}
+                    onChange={(e) => setData('catatan_puskaka', e.target.value)}
+                    rows={5}
+                    placeholder="Tulis catatan atau masukan untuk ormawa..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                  />
+                  {errors.catatan_puskaka && (
+                    <p className="text-red-600 text-xs mt-1">{errors.catatan_puskaka}</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-end mt-6">
-              <button className="bg-[#0B132B] text-white px-6 py-2 rounded-lg hover:bg-[#0A1025] transition">
-                Simpan Review
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 mt-6 pb-8">
+              <Link
+                href="/manajemen-kegiatan"
+                className="px-6 py-2.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-colors text-sm"
+              >
+                Kembali
+              </Link>
+              <button
+                type="submit"
+                disabled={processing}
+                className="px-6 py-2.5 bg-[#0B132B] hover:bg-[#1C2541] text-white rounded font-semibold transition-colors text-sm disabled:opacity-50"
+              >
+                {processing ? 'Menyimpan...' : 'Simpan Review'}
               </button>
             </div>
-          </div>
+          </form>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-6">
+        {/* Footer */}
+        <div className="text-center text-xs text-gray-500 py-6">
           ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
-        </p>
+        </div>
       </div>
     </DashboardLayout>
   );

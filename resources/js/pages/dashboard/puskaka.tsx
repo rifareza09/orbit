@@ -13,7 +13,23 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function PuskakaDashboard() {
+interface ProgramKerja {
+  id: number;
+  program_kerja: string;
+  kegiatan: string;
+  deskripsi_kegiatan: string;
+  jenis_kegiatan: string;
+  estimasi_anggaran: string;
+  status: string;
+  ormawa: string;
+  created_at: string;
+}
+
+interface Props {
+  programKerjas: ProgramKerja[];
+}
+
+export default function PuskakaDashboard({ programKerjas = [] }: Props) {
   // Dummy Statistik
   const stats = [
     { title: "Program Kerja Terdaftar", value: 100, color: "bg-[#DDF4F4]" },
@@ -184,6 +200,67 @@ export default function PuskakaDashboard() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* TABLE PROGRAM KERJA */}
+        <div className="bg-white shadow rounded-xl overflow-hidden">
+          <div className="bg-[#0B132B] text-white px-6 py-4">
+            <h3 className="text-lg font-bold">Semua Program Kerja Ormawa</h3>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">No</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">Ormawa</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">Program Kerja</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">Kegiatan</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">Jenis</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">Estimasi Anggaran</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">Status</th>
+                  <th className="px-6 py-3 text-left font-semibold text-gray-700">Tanggal</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {programKerjas.length > 0 ? (
+                  programKerjas.map((pk, idx) => (
+                    <tr key={pk.id} className="hover:bg-gray-50 transition">
+                      <td className="px-6 py-4 text-gray-600">{idx + 1}</td>
+                      <td className="px-6 py-4 font-medium text-[#0B132B]">{pk.ormawa}</td>
+                      <td className="px-6 py-4 text-gray-700">{pk.program_kerja}</td>
+                      <td className="px-6 py-4 text-gray-700">{pk.kegiatan}</td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                          {pk.jenis_kegiatan}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-700 font-mono">
+                        Rp {parseInt(pk.estimasi_anggaran).toLocaleString('id-ID')}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          pk.status === 'Diajukan' ? 'bg-yellow-100 text-yellow-700' :
+                          pk.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
+                          pk.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {pk.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 text-xs">{pk.created_at}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-8 text-center text-gray-400 italic">
+                      Belum ada program kerja yang terdaftar
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

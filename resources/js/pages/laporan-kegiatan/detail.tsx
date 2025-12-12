@@ -15,6 +15,8 @@ interface LaporanKegiatanItem {
   anggaranRealisasi: number;
   ringkasan: string;
   status: string;
+  catatan_puskaka: string | null;
+  reviewed_at: string | null;
   lpjFile: string | null;
   buktiPengeluaran: string[];
   dokumentasi: string[];
@@ -172,6 +174,25 @@ export default function DetailLaporanKegiatan() {
             </div>
           </div>
         </div>
+
+        {/* CATATAN PUSKAKA */}
+        {item.catatan_puskaka && (
+          <div className="bg-blue-50 rounded-xl shadow-sm border border-blue-200 overflow-hidden mt-6">
+            <div className="bg-blue-100 text-blue-900 px-6 py-3 font-semibold border-b border-blue-200">
+              Catatan dari Puskaka
+            </div>
+            <div className="p-6">
+              <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+                {item.catatan_puskaka}
+              </p>
+              {item.reviewed_at && (
+                <p className="mt-3 text-xs text-gray-500">
+                  Direview pada: {item.reviewed_at}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Tombol Aksi */}
         <div className="flex justify-center gap-4 mt-8">

@@ -89,7 +89,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard/puskaka', function () {
         if (Auth::user()->role !== 'puskaka') abort(403);
-        return Inertia::render('dashboard/puskaka');
+
+        // Fetch ALL program kerja dari semua ormawa (tidak filter status dulu)
+        $programKerjas = \App\Models\ProgramKerja::with('user')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($pk) {
+                return [
+                    'id' => $pk->id,
+                    'program_kerja' => $pk->program_kerja,
+                    'kegiatan' => $pk->kegiatan,
+                    'deskripsi_kegiatan' => $pk->deskripsi_kegiatan,
+                    'jenis_kegiatan' => $pk->jenis_kegiatan,
+                    'estimasi_anggaran' => $pk->estimasi_anggaran,
+                    'status' => $pk->status,
+                    'ormawa' => $pk->user->name ?? '-',
+                    'created_at' => $pk->created_at->format('d M Y'),
+                ];
+            });
+
+        return Inertia::render('dashboard/puskaka', [
+            'programKerjas' => $programKerjas
+        ]);
     })->name('dashboard.puskaka');
 
     // Profil Ormawa (User menu)
@@ -168,8 +189,93 @@ Route::middleware(['auth', 'verified'])->get('/data-ormawa/detail/{id}', functio
 Route::middleware(['auth', 'verified'])->get('/program-kerja/indexPuskaka', function () {
     if (Auth::user()->role !== 'puskaka') abort(403);
 
-    return Inertia::render('program-kerja/indexPuskaka');
+    // Fetch program kerja dengan status Diajukan
+    $programKerjas = \App\Models\ProgramKerja::with('user')
+        ->where('status', 'Diajukan')
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function ($pk) {
+            return [
+                'id' => $pk->id,
+                'program_kerja' => $pk->program_kerja,
+                'kegiatan' => $pk->kegiatan,
+                'deskripsi_kegiatan' => $pk->deskripsi_kegiatan,
+                'jenis_kegiatan' => $pk->jenis_kegiatan,
+                'estimasi_anggaran' => $pk->estimasi_anggaran,
+                'status' => $pk->status,
+                'ormawa' => $pk->user->name ?? '-',
+                'user_id' => $pk->user_id,
+                'created_at' => $pk->created_at->format('d M Y'),
+            ];
+        });
+
+    return Inertia::render('program-kerja/indexPuskaka', [
+        'programKerjas' => $programKerjas
+    ]);
 })->name('program-kerja.indexPuskaka');
+
+Route::middleware(['auth', 'verified'])->get('/program-kerja/{id}/detail-puskaka', function ($id) {
+    if (Auth::user()->role !== 'puskaka') abort(403);
+
+    $programKerja = \App\Models\ProgramKerja::with('user')->findOrFail($id);
+
+    return Inertia::render('program-kerja/detailPuskaka', [
+        'programKerja' => [
+            'id' => $programKerja->id,
+            'program_kerja' => $programKerja->program_kerja,
+            'kegiatan' => $programKerja->kegiatan,
+            'deskripsi_kegiatan' => $programKerja->deskripsi_kegiatan,
+            'jenis_kegiatan' => $programKerja->jenis_kegiatan,
+            'estimasi_anggaran' => $programKerja->estimasi_anggaran,
+            'status' => $programKerja->status,
+            'catatan_puskaka' => $programKerja->catatan_puskaka,
+            'ormawa' => $programKerja->user->name ?? '-',
+            'user_id' => $programKerja->user_id,
+            'created_at' => $programKerja->created_at->format('d/m/Y H:i'),
+        ]
+    ]);
+})->name('program-kerja.detailPuskaka');
+
+Route::middleware(['auth', 'verified'])->post('/program-kerja/{id}/update-status', [
+    \App\Http\Controllers\PuskakaController::class,
+    'updateStatusProgramKerja'
+])->name('program-kerja.updateStatus');
+
+// Manajemen Kegiatan Routes (Puskaka)
+Route::middleware(['auth', 'verified'])->get('/manajemen-kegiatan', [
+    \App\Http\Controllers\ManajemenKegiatanController::class,
+    'index'
+])->name('manajemen-kegiatan.index');
+
+Route::middleware(['auth', 'verified'])->get('/manajemen-kegiatan/detail/{id}', [
+    \App\Http\Controllers\ManajemenKegiatanController::class,
+    'show'
+])->name('manajemen-kegiatan.detail');
+
+Route::middleware(['auth', 'verified'])->post('/manajemen-kegiatan/{id}/update-review', [
+    \App\Http\Controllers\ManajemenKegiatanController::class,
+    'updateReview'
+])->name('manajemen-kegiatan.updateReview');
+
+/*
+|--------------------------------------------------------------------------
+| Evaluasi & Laporan
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan', [
+    \App\Http\Controllers\EvaluasiLaporanController::class,
+    'index'
+])->name('evaluasi-laporan.index');
+
+Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan/detail/{id}', [
+    \App\Http\Controllers\EvaluasiLaporanController::class,
+    'show'
+])->name('evaluasi-laporan.detail');
+
+Route::middleware(['auth', 'verified'])->post('/evaluasi-laporan/{id}/update-status', [
+    \App\Http\Controllers\EvaluasiLaporanController::class,
+    'updateStatus'
+])->name('evaluasi-laporan.updateStatus');
 
 });
 

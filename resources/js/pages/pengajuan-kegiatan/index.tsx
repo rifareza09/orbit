@@ -12,6 +12,9 @@ interface PengajuanKegiatan {
   tanggal_pelaksanaan: string;
   total_anggaran: number;
   status: string;
+  status_review: string;
+  catatan_puskaka: string | null;
+  reviewed_at: string | null;
 }
 
 export default function PengajuanKegiatan() {
@@ -66,12 +69,14 @@ export default function PengajuanKegiatan() {
                     <td className="px-4 py-3">{formatCurrency(item.total_anggaran)}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded-full text-xs ${
-                        item.status === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
-                        item.status === 'Diajukan' ? 'bg-blue-200 text-blue-800' :
-                        item.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
-                        'bg-red-200 text-red-800'
+                        item.status_review === 'Menunggu Review' ? 'bg-yellow-200 text-yellow-800' :
+                        item.status_review === 'Direview' ? 'bg-blue-200 text-blue-800' :
+                        item.status_review === 'Disetujui' ? 'bg-green-200 text-green-800' :
+                        item.status_review === 'Ditolak' ? 'bg-red-200 text-red-800' :
+                        item.status_review === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
+                        'bg-gray-200 text-gray-800'
                       }`}>
-                        {item.status}
+                        {item.status_review}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">

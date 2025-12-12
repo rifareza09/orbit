@@ -1,160 +1,341 @@
 import React from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { Link } from "@inertiajs/react";
+import { Link, useForm, usePage } from "@inertiajs/react";
+import { Download, FileText, Image } from "lucide-react";
 
-export default function DetailLaporan() {
-  const data = {
-    nama: "Seminar Kesehatan Nasional",
-    jenis: "Akademik",
-    tanggal: "22/11/2025 10:00 WIB",
-    ormawa: "Sema FTI",
-    tempat: "Aula Lt. 6",
-    peserta: 150,
-    deskripsi:
-      "Seminar nasional mengenai kesehatan dan pola hidup sehat yang diadakan oleh Sema FTI.",
-    status: "Direview",
-    dokumen: [
-      "Laporan Kegiatan.pdf",
-      "Foto Dokumentasi.zip",
-      "Lampiran Peserta.pdf",
-    ],
+interface Laporan {
+  id: number;
+  nama_kegiatan: string;
+  ormawa: string;
+  ketua_pelaksana: string;
+  tempat_pelaksanaan: string;
+  jumlah_peserta: number;
+  tanggal_pelaksanaan: string;
+  anggaran_disetujui: number;
+  anggaran_realisasi: number;
+  ringkasan: string;
+  status: string;
+  catatan_puskaka: string | null;
+  reviewed_at: string | null;
+  lpj_file: string | null;
+  bukti_pengeluaran: string[] | null;
+  dokumentasi: string[] | null;
+  created_at: string;
+}
+
+interface Props {
+  laporan: Laporan;
+}
+
+export default function EvaluasiLaporanDetail({ laporan }: Props) {
+  const { flash } = usePage().props as any;
+
+  const { data, setData, post, processing, errors } = useForm({
+    status: laporan.status,
+    catatan: laporan.catatan_puskaka || '',
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    post(`/evaluasi-laporan/${laporan.id}/update-status`, {
+      preserveScroll: true,
+    });
   };
-
-  const badgeColor =
-    data.status === "Menunggu Review"
-      ? "bg-yellow-500"
-      : data.status === "Direview"
-      ? "bg-blue-600"
-      : data.status === "Selesai"
-      ? "bg-green-600"
-      : "bg-gray-400";
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-[#0B132B]">
-            Evaluasi & Laporan
-          </h1>
-
-          <Link
-            href="/evaluasi-laporan"
-            className="bg-[#0B132B] text-white px-6 py-2 rounded-lg hover:bg-[#0A1025] transition"
-          >
-            Kembali
-          </Link>
+        <div className="bg-white border-b">
+          <div className="px-8 py-6">
+            <h1 className="text-2xl font-bold text-[#0B132B]">Detail Laporan Kegiatan</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Dilaporkan oleh <span className="font-semibold">{laporan.ormawa}</span> pada {laporan.created_at}
+            </p>
+          </div>
         </div>
 
-        {/* Container */}
-        <div className="bg-white shadow rounded-xl overflow-hidden">
-          {/* Title */}
-          <div className="bg-[#0B132B] text-white px-6 py-3 flex justify-between items-center">
-            <span className="text-lg font-semibold">Detail Laporan</span>
-            <span
-              className={`px-3 py-1 rounded-lg text-sm font-semibold ${badgeColor}`}
-            >
-              {data.status}
-            </span>
-          </div>
+        {/* Content */}
+        <div className="p-8 space-y-6">
+          {/* Success Message */}
+          {flash?.success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+              <span className="block sm:inline">{flash.success}</span>
+            </div>
+          )}
 
-          {/* Content */}
-          <div className="grid grid-cols-12">
-            {/* LEFT */}
-            <div className="col-span-7 border-r p-6 space-y-4">
-              <div>
-                <p className="font-semibold">Nama Kegiatan</p>
-                <p>{data.nama}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Ormawa</p>
-                <p>{data.ormawa}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Jenis Kegiatan</p>
-                <p>{data.jenis}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Tanggal Pelaksanaan</p>
-                <p>{data.tanggal}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Tempat</p>
-                <p>{data.tempat}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Jumlah Peserta</p>
-                <p>{data.peserta}</p>
-              </div>
-
-              <div>
-                <p className="font-semibold">Deskripsi Kegiatan</p>
-                <p>{data.deskripsi}</p>
+          {/* Detail Kegiatan Section */}
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="bg-blue-100 px-6 py-3 border-b border-blue-200">
+              <h2 className="font-bold text-[#0B132B] text-sm">Informasi Kegiatan</h2>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Nama Kegiatan
+                  </label>
+                  <input
+                    type="text"
+                    value={laporan.nama_kegiatan}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Ketua Pelaksana
+                  </label>
+                  <input
+                    type="text"
+                    value={laporan.ketua_pelaksana}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Tempat Pelaksanaan
+                  </label>
+                  <input
+                    type="text"
+                    value={laporan.tempat_pelaksanaan}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Tanggal Pelaksanaan
+                  </label>
+                  <input
+                    type="text"
+                    value={laporan.tanggal_pelaksanaan}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Jumlah Peserta
+                  </label>
+                  <input
+                    type="text"
+                    value={laporan.jumlah_peserta}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Status
+                  </label>
+                  <span className={`inline-block px-3 py-2 rounded-full text-xs font-semibold ${
+                    laporan.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
+                    laporan.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                    laporan.status === 'Direview' ? 'bg-blue-100 text-blue-700' :
+                    laporan.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
+                    'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {laporan.status}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Ringkasan Kegiatan
+                  </label>
+                  <textarea
+                    value={laporan.ringkasan}
+                    readOnly
+                    rows={4}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* RIGHT */}
-            <div className="col-span-5 p-6">
-              <p className="font-semibold mb-3 text-lg">Dokumen Laporan</p>
+          {/* Anggaran Section */}
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="bg-yellow-100 px-6 py-3 border-b border-yellow-200">
+              <h2 className="font-bold text-[#0B132B] text-sm">Realisasi Anggaran</h2>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-3 gap-6">
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Anggaran Disetujui
+                  </label>
+                  <div className="text-2xl font-bold text-[#0B132B]">
+                    Rp {laporan.anggaran_disetujui.toLocaleString('id-ID')}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Anggaran Realisasi
+                  </label>
+                  <div className="text-2xl font-bold text-blue-600">
+                    Rp {laporan.anggaran_realisasi.toLocaleString('id-ID')}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Selisih
+                  </label>
+                  <div className={`text-2xl font-bold ${
+                    laporan.anggaran_disetujui - laporan.anggaran_realisasi >= 0 
+                      ? 'text-green-600' 
+                      : 'text-red-600'
+                  }`}>
+                    Rp {Math.abs(laporan.anggaran_disetujui - laporan.anggaran_realisasi).toLocaleString('id-ID')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <table className="w-full text-sm border rounded-xl overflow-hidden">
-                <thead>
-                  <tr className="bg-[#0B132B] text-white">
-                    <th className="px-4 py-2 text-left">Nama File</th>
-                  </tr>
-                </thead>
+          {/* Files Section */}
+          <div className="grid grid-cols-3 gap-6">
+            {/* LPJ File */}
+            {laporan.lpj_file && (
+              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                <div className="px-6 py-3 border-b bg-white">
+                  <h2 className="font-bold text-[#0B132B] text-sm">File LPJ</h2>
+                </div>
+                <div className="p-6">
+                  <a
+                    href={`/storage/${laporan.lpj_file}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                  >
+                    <FileText size={16} />
+                    Download LPJ
+                  </a>
+                </div>
+              </div>
+            )}
 
-                <tbody>
-                  {data.dokumen.map((file, i) => (
-                    <tr key={i} className="border-b">
-                      <td className="px-4 py-2">{file}</td>
-                    </tr>
+            {/* Bukti Pengeluaran */}
+            {laporan.bukti_pengeluaran && laporan.bukti_pengeluaran.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                <div className="px-6 py-3 border-b bg-white">
+                  <h2 className="font-bold text-[#0B132B] text-sm">Bukti Pengeluaran</h2>
+                </div>
+                <div className="p-6 space-y-2">
+                  {laporan.bukti_pengeluaran.map((file, index) => (
+                    <a
+                      key={index}
+                      href={`/storage/${file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      <Download size={14} />
+                      Bukti {index + 1}
+                    </a>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              </div>
+            )}
+
+            {/* Dokumentasi */}
+            {laporan.dokumentasi && laporan.dokumentasi.length > 0 && (
+              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+                <div className="px-6 py-3 border-b bg-white">
+                  <h2 className="font-bold text-[#0B132B] text-sm">Dokumentasi</h2>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-2 gap-2">
+                    {laporan.dokumentasi.slice(0, 4).map((foto, index) => (
+                      <a
+                        key={index}
+                        href={`/storage/${foto}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="aspect-square bg-gray-100 rounded-lg overflow-hidden hover:opacity-75 transition"
+                      >
+                        <img
+                          src={`/storage/${foto}`}
+                          alt={`Dokumentasi ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Evaluasi */}
-          <div className="border-t px-6 py-6">
-            <h2 className="text-lg font-semibold mb-3">Evaluasi Laporan</h2>
-
-            <div className="grid grid-cols-12 gap-6">
-              {/* Catatan */}
-              <div className="col-span-8">
-                <label className="font-semibold">Catatan Evaluasi</label>
-                <textarea
-                  className="w-full mt-2 border rounded-lg p-3 h-32"
-                  placeholder="Tambahkan catatan evaluasi..."
-                ></textarea>
+          {/* Form Update Status */}
+          <form onSubmit={handleSubmit}>
+            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+              <div className="bg-green-100 px-6 py-3 border-b border-green-200">
+                <h2 className="font-bold text-[#0B132B] text-sm">Evaluasi Laporan</h2>
               </div>
-
-              {/* Status */}
-              <div className="col-span-4">
-                <label className="font-semibold">Status Laporan</label>
-                <input
-                  className="w-full mt-2 border rounded-lg p-3"
-                  placeholder="Contoh: Selesai / Revisi"
-                />
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Status Laporan
+                  </label>
+                  <select
+                    value={data.status}
+                    onChange={(e) => setData('status', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                  >
+                    <option value="Belum Diajukan">Belum Diajukan</option>
+                    <option value="Diajukan">Diajukan</option>
+                    <option value="Direview">Direview</option>
+                    <option value="Disetujui">Disetujui</option>
+                    <option value="Direvisi">Direvisi</option>
+                    <option value="Ditolak">Ditolak</option>
+                  </select>
+                  {errors.status && (
+                    <p className="text-red-600 text-xs mt-1">{errors.status}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Catatan (Opsional)
+                  </label>
+                  <textarea
+                    value={data.catatan}
+                    onChange={(e) => setData('catatan', e.target.value)}
+                    rows={5}
+                    placeholder="Tulis catatan atau masukan untuk ormawa..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                  />
+                  {errors.catatan && (
+                    <p className="text-red-600 text-xs mt-1">{errors.catatan}</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
-              <button className="bg-[#0B132B] text-white px-6 py-2 rounded-lg hover:bg-[#0A1025] transition">
-                Simpan Review
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 mt-6 pb-8">
+              <Link
+                href="/evaluasi-laporan"
+                className="px-6 py-2.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-colors text-sm"
+              >
+                Kembali
+              </Link>
+              <button
+                type="submit"
+                disabled={processing}
+                className="px-6 py-2.5 bg-[#0B132B] hover:bg-[#1C2541] text-white rounded font-semibold transition-colors text-sm disabled:opacity-50"
+              >
+                {processing ? 'Menyimpan...' : 'Simpan Evaluasi'}
               </button>
             </div>
-          </div>
+          </form>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-6">
+        {/* Footer */}
+        <div className="text-center text-xs text-gray-500 py-6">
           ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
-        </p>
+        </div>
       </div>
     </DashboardLayout>
   );
