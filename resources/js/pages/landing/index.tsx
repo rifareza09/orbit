@@ -2,13 +2,30 @@ import React from "react";
 import { Link, Head } from "@inertiajs/react";
 import { Image as ImageIcon, Search, Calendar, MapPin, ChevronDown } from "lucide-react";
 
-// ... (Interface Tipe Data tetap sama) ...
-interface ShowcaseItem { user: { id: number; name: string }; logo_url?: string | null; }
-interface ScheduleItem { id: number; kegiatan: string; waktu: string; tempat?: string; ormawa_name: string; }
-interface LandingProps { ormawas: ShowcaseItem[]; schedules: ScheduleItem[]; auth: { user: any }; }
+interface OrmawaItem {
+  id: number;
+  name: string;
+  username: string;
+  role: string;
+  logo_url?: string | null;
+}
 
-export default function LandingPage({ ormawas = [], schedules = [], auth }: LandingProps) {
+interface KegiatanItem {
+  id: number;
+  nama_kegiatan: string;
+  ormawa: string;
+  tanggal_pelaksanaan: string;
+  tempat_pelaksanaan: string;
+  status: string;
+}
 
+interface LandingProps {
+  ormawas: OrmawaItem[];
+  latestKegiatan: KegiatanItem[];
+  auth: { user: any };
+}
+
+export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }: LandingProps) {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -89,21 +106,27 @@ export default function LandingPage({ ormawas = [], schedules = [], auth }: Land
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 {ormawas.map((item, idx) => (
-                <div key={idx} className="bg-white rounded-xl p-6 flex flex-col items-center justify-center shadow-sm hover:shadow-xl transition-all cursor-pointer group h-48 border border-gray-200 transform hover:-translate-y-1">
-                    <div className="mb-4 text-gray-400 group-hover:text-[#0B132B] transition">
-                    {item.logo_url ? (
-                        <img src={item.logo_url} alt={item.user.name} className="w-16 h-16 object-contain"/>
-                    ) : (
-                        <ImageIcon size={48} strokeWidth={1} />
-                    )}
-                    </div>
-                    <div className="text-[10px] font-bold text-gray-400 uppercase text-center mb-1 tracking-wider">
-                    UKM
-                    </div>
-                    <div className="text-sm font-bold text-center leading-tight text-[#0B132B] line-clamp-2">
-                    {item.user.name}
-                    </div>
-                </div>
+                <Link key={idx} href={`/ormawa/${item.id}`}>
+                  <div className="bg-white rounded-xl p-6 flex flex-col items-center justify-center shadow-sm hover:shadow-xl transition-all cursor-pointer group h-48 border border-gray-200 transform hover:-translate-y-1">
+                      <div className="mb-4 text-gray-400 group-hover:text-[#0B132B] transition">
+                        {item.logo_url ? (
+                          <img 
+                            src={item.logo_url} 
+                            alt={item.name} 
+                            className="w-16 h-16 object-contain"
+                          />
+                        ) : (
+                          <ImageIcon size={48} strokeWidth={1} />
+                        )}
+                      </div>
+                      <div className="text-[10px] font-bold text-gray-400 uppercase text-center mb-1 tracking-wider">
+                        {item.role === 'ormawa' ? 'ORMAWA' : 'ORGANISASI'}
+                      </div>
+                      <div className="text-sm font-bold text-center leading-tight text-[#0B132B] line-clamp-2">
+                        {item.name}
+                      </div>
+                  </div>
+                </Link>
                 ))}
                 
                 {ormawas.length === 0 && Array(10).fill(0).map((_, i) => (
@@ -136,36 +159,48 @@ export default function LandingPage({ ormawas = [], schedules = [], auth }: Land
 
             {/* List Kegiatan (Scrollable jika banyak) */}
             <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                {(schedules.length > 0 ? schedules : [1,2,3,4]).map((item: any, idx) => (
-                <div key={idx} className="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-center gap-6 shadow-sm hover:shadow-md transition duration-300">
-                    <div className="w-full md:w-24 h-24 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 flex-shrink-0">
-                        <ImageIcon size={32} />
-                    </div>
-                    <div className="flex-1 text-center md:text-left w-full">
-                        <h3 className="font-bold text-xl text-[#0B132B] mb-1">
-                            {typeof item === 'object' ? item.kegiatan : "Nama Kegiatan"}
-                        </h3>
-                        <p className="text-sm text-gray-500 font-medium mb-3 uppercase tracking-wide">
-                            {typeof item === 'object' ? item.ormawa_name : "Penyelenggara"}
-                        </p>
-                        <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-500">
-                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
-                                <Calendar size={16} className="text-[#0B132B]" /> 
-                                {typeof item === 'object' ? item.waktu : "Segera"}
-                            </div>
-                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
-                                <MapPin size={16} className="text-[#0B132B]" /> 
-                                {typeof item === 'object' ? item.tempat || "Kampus YARSI" : "Kampus YARSI"}
+                {latestKegiatan.length > 0 ? (
+                  latestKegiatan.map((item: any, idx) => (
+                    <div key={idx} className="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-center gap-6 shadow-sm hover:shadow-md transition duration-300">
+                        <div className="w-full md:w-24 h-24 bg-gray-50 rounded-xl flex items-center justify-center text-gray-300 flex-shrink-0">
+                            <ImageIcon size={32} />
+                        </div>
+                        <div className="flex-1 text-center md:text-left w-full">
+                            <h3 className="font-bold text-xl text-[#0B132B] mb-1">
+                                {item.nama_kegiatan}
+                            </h3>
+                            <p className="text-sm text-gray-500 font-medium mb-3 uppercase tracking-wide">
+                                {item.ormawa}
+                            </p>
+                            <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-500">
+                                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                                    <Calendar size={16} className="text-[#0B132B]" /> 
+                                    {item.tanggal_pelaksanaan}
+                                </div>
+                                <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                                    <MapPin size={16} className="text-[#0B132B]" /> 
+                                    {item.tempat_pelaksanaan}
+                                </div>
                             </div>
                         </div>
+                        <div>
+                            <span className="bg-green-100 text-green-700 px-5 py-2 rounded-full text-xs font-bold border border-green-200">
+                                Disetujui
+                            </span>
+                        </div>
                     </div>
-                    <div>
-                        <span className="bg-green-100 text-green-700 px-5 py-2 rounded-full text-xs font-bold border border-green-200">
-                            Akan Datang
-                        </span>
+                  ))
+                ) : (
+                  Array(3).fill(0).map((_, i) => (
+                    <div key={i} className="bg-white border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+                        <div className="w-full md:w-24 h-24 bg-gray-100 rounded-xl flex-shrink-0"></div>
+                        <div className="flex-1 w-full space-y-2">
+                            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                        </div>
                     </div>
-                </div>
-                ))}
+                  ))
+                )}
             </div>
           </div>
         </div>

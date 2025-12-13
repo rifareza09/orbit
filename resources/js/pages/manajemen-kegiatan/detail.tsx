@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { Link, useForm, usePage, router } from "@inertiajs/react";
 import { Download } from "lucide-react";
 
 interface ItemPengajuanDana {
@@ -35,6 +35,7 @@ interface Props {
 
 export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
   const { flash } = usePage().props as any;
+  const [isLoading, setIsLoading] = useState(false);
 
   const { data, setData, post, processing, errors } = useForm({
     status_review: pengajuan.status_review,
@@ -43,8 +44,24 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
+    setIsLoading(true);
+
+    // Use router.post with onSuccess callback for proper redirect
+    router.post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
+      status_review: data.status_review,
+      catatan_puskaka: data.catatan_puskaka,
+    }, {
       preserveScroll: true,
+      onSuccess: () => {
+        router.visit('/manajemen-kegiatan');
+      },
+      onError: (errors) => {
+        console.error('Error:', errors);
+        setIsLoading(false);
+      },
+      onFinish: () => {
+        setIsLoading(false);
+      }
     });
   };
 
@@ -284,10 +301,10 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
               </Link>
               <button
                 type="submit"
-                disabled={processing}
+                disabled={isLoading}
                 className="px-6 py-2.5 bg-[#0B132B] hover:bg-[#1C2541] text-white rounded font-semibold transition-colors text-sm disabled:opacity-50"
               >
-                {processing ? 'Menyimpan...' : 'Simpan Review'}
+                {isLoading ? 'Menyimpan...' : 'Simpan Review'}
               </button>
             </div>
           </form>

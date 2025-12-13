@@ -19,59 +19,8 @@ use App\Http\Controllers\ProfileOrmawaController;
 | Public Route
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    // Public landing showcasing Ormawa documentation and schedules
-    $ormawaUsers = \App\Models\User::where('role', '!=', 'puskaka')
-        ->orderBy('name')
-        ->limit(8)
-        ->get();
-
-    $showcases = $ormawaUsers->map(function ($user) {
-        $photos = \App\Models\Dokumentasi::where('user_id', $user->id)
-            ->orderBy('tanggal_kegiatan', 'desc')
-            ->limit(4)
-            ->get()
-            ->map(function ($d) {
-                return [
-                    'id' => $d->id,
-                    'nama_kegiatan' => $d->nama_kegiatan,
-                    'tanggal' => optional($d->tanggal_kegiatan)->format('Y-m-d'),
-                    'foto_url' => $d->foto_path ? asset('storage/' . $d->foto_path) : null,
-                ];
-            });
-
-        // Simple schedule: upcoming items from PengajuanKegiatan (if date fields exist), otherwise empty
-        $schedules = \App\Models\PengajuanKegiatan::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->limit(3)
-            ->get()
-            ->map(function ($p) {
-                return [
-                    'id' => $p->id,
-                    'kegiatan' => $p->kegiatan ?? $p->judul ?? 'Kegiatan',
-                    'waktu' => method_exists($p, 'getAttribute') && $p->getAttribute('tanggal_pelaksanaan')
-                        ? optional($p->tanggal_pelaksanaan)->format('Y-m-d')
-                        : (optional($p->created_at)->format('Y-m-d')),
-                ];
-            });
-
-        return [
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'username' => $user->username,
-                'role' => $user->role,
-            ],
-            'photos' => $photos,
-            'schedules' => $schedules,
-        ];
-    });
-
-    return Inertia::render('landing/index', [
-        'showcases' => $showcases,
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
-})->name('home');
+Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('home');
+Route::get('/ormawa/{id}', [\App\Http\Controllers\LandingController::class, 'showOrmawa'])->name('landing.ormawa');
 
 /*
 |--------------------------------------------------------------------------

@@ -173,10 +173,17 @@ class EvaluasiLaporanController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        // Redirect back dengan success message
-        return redirect()
-            ->route('evaluasi-laporan.detail', $laporan->id)
-            ->with('success', 'Status laporan berhasil diperbarui!');
+        // Return JSON response with updated laporan data for frontend redirect handling
+        return response()->json([
+            'success' => true,
+            'message' => 'Status laporan berhasil diperbarui!',
+            'laporan' => [
+                'id' => $laporan->id,
+                'status' => $laporan->status,
+                'catatan_puskaka' => $laporan->catatan_puskaka,
+                'reviewed_at' => $laporan->reviewed_at ? $laporan->reviewed_at->format('d/m/Y H:i') : null,
+            ]
+        ]);
     }
 }
 

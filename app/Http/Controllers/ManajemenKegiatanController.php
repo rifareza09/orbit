@@ -157,11 +157,13 @@ class ManajemenKegiatanController extends Controller
         // Find pengajuan kegiatan
         $pengajuan = PengajuanKegiatan::findOrFail($id);
 
-        // Update status dan catatan - gunakan field 'status' bukan 'status_review'
-        $pengajuan->status = $validated['status_review'];
-        $pengajuan->catatan_puskaka = $validated['catatan_puskaka'] ?? null;
-        $pengajuan->reviewed_at = now();
-        $pengajuan->save();
+        // Update BOTH status dan status_review fields
+        $pengajuan->update([
+            'status' => $validated['status_review'],
+            'status_review' => $validated['status_review'],
+            'catatan_puskaka' => $validated['catatan_puskaka'] ?? null,
+            'reviewed_at' => now(),
+        ]);
 
         // Jika disetujui: auto-create LaporanKegiatan
         if ($pengajuan->status === 'Disetujui') {
@@ -178,7 +180,7 @@ class ManajemenKegiatanController extends Controller
             );
         }
 
-        // Redirect back dengan success message
+        // Redirect dengan success message
         return redirect()
             ->route('manajemen-kegiatan.index')
             ->with('success', 'Review berhasil disimpan');
