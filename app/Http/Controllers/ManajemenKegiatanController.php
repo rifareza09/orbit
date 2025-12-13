@@ -150,18 +150,33 @@ class ManajemenKegiatanController extends Controller
 
         // Validasi input
         $validated = $request->validate([
-            'status_review' => 'required|in:Menunggu Review,Direview,Disetujui,Ditolak,Direvisi',
+            'status_review' => 'required|in:Disetujui,Ditolak,Direvisi',
             'catatan_puskaka' => 'nullable|string|max:2000',
         ]);
 
         // Find pengajuan kegiatan
         $pengajuan = PengajuanKegiatan::findOrFail($id);
 
-        // Update status dan catatan
-        $pengajuan->status_review = $validated['status_review'];
+        // Update status dan catatan - gunakan field 'status' bukan 'status_review'
+        $pengajuan->status = $validated['status_review'];
         $pengajuan->catatan_puskaka = $validated['catatan_puskaka'] ?? null;
         $pengajuan->reviewed_at = now();
         $pengajuan->save();
+
+        // Jika disetujui: auto-create LaporanKegiatan
+        if ($pengajuan->status === 'Disetujui') {
+            \App\Models\LaporanKegiatan::firstOrCreate(
+                [
+                    'pengajuan_kegiatan_id' => $pengajuan->id,
+                    'user_id' => $pengajuan->user_id,
+                ],
+                [
+                    'status' => 'Belum Diajukan',
+                    'judul' => $pengajuan->nama_kegiatan,
+                    'deskripsi' => $pengajuan->deskripsi,
+                ]
+            );
+        }
 
         // Redirect back dengan success message
         return redirect()

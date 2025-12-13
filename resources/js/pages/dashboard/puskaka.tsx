@@ -25,44 +25,31 @@ interface ProgramKerja {
   created_at: string;
 }
 
+interface Stat {
+  title: string;
+  value: number;
+  color: string;
+}
+
+interface BarChartData {
+  name: string;
+  total: number;
+}
+
+interface PieChartData {
+  name: string;
+  value: number;
+  [key: string]: string | number;
+}
+
 interface Props {
+  stats: Stat[];
+  barData: BarChartData[];
+  pieData: PieChartData[];
   programKerjas: ProgramKerja[];
 }
 
-export default function PuskakaDashboard({ programKerjas = [] }: Props) {
-  // Dummy Statistik
-  const stats = [
-    { title: "Program Kerja Terdaftar", value: 100, color: "bg-[#DDF4F4]" },
-    { title: "Menunggu Review", value: 13, color: "bg-[#FFF1D7]" },
-    { title: "Kegiatan Disetujui", value: 54, color: "bg-[#FFE8C7]" },
-    { title: "Laporan Masuk", value: 20, color: "bg-[#DFF1FF]" },
-  ];
-
-  // Dummy Bar Chart
-  const barData = [
-    { name: "KONGRES", total: 22 },
-    { name: "BEM", total: 14 },
-    { name: "SMAKA", total: 11 },
-    { name: "LDK", total: 20 },
-    { name: "IMASI", total: 13 },
-    { name: "VOYAGE", total: 9 },
-    { name: "YBBC", total: 12 },
-    { name: "KREASI", total: 10 },
-    { name: "LPM", total: 8 },
-    { name: "TDM", total: 7 },
-  ];
-
-  // Dummy Pie Chart
-  const pieData = [
-    { name: "Akademik", value: 25 },
-    { name: "Sosial", value: 21 },
-    { name: "Keagamaan", value: 17 },
-    { name: "Kewirausahaan", value: 12 },
-    { name: "Seni", value: 10 },
-    { name: "Olahraga", value: 9 },
-    { name: "Lainnya", value: 6 },
-  ];
-
+export default function PuskakaDashboard({ stats = [], barData = [], pieData = [], programKerjas = [] }: Props) {
   const pieColors = [
     "#A7D0F5",
     "#FAD4AD",
@@ -71,6 +58,9 @@ export default function PuskakaDashboard({ programKerjas = [] }: Props) {
     "#FFD27F",
     "#9DD6DF",
     "#D2C5F4",
+    "#B5E7A0",
+    "#FFB6C1",
+    "#87CEEB",
   ];
 
   return (
@@ -170,10 +160,10 @@ export default function PuskakaDashboard({ programKerjas = [] }: Props) {
 
             <div className="flex gap-4">
               <div className="w-48 h-48">
-                <ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={pieData}
+                      data={pieData as any}
                       dataKey="value"
                       outerRadius="80%"
                       innerRadius="50%"
@@ -242,6 +232,7 @@ export default function PuskakaDashboard({ programKerjas = [] }: Props) {
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           pk.status === 'Diajukan' ? 'bg-yellow-100 text-yellow-700' :
+                          pk.status === 'Direview' ? 'bg-blue-100 text-blue-700' :
                           pk.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
                           pk.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
                           'bg-gray-100 text-gray-700'

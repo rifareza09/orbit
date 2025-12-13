@@ -247,8 +247,7 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
                     onChange={(e) => setData('status_review', e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
                   >
-                    <option value="Menunggu Review">Menunggu Review</option>
-                    <option value="Direview">Direview</option>
+                    <option value="">-- Pilih Status --</option>
                     <option value="Disetujui">Disetujui</option>
                     <option value="Ditolak">Ditolak</option>
                     <option value="Direvisi">Direvisi</option>

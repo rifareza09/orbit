@@ -275,12 +275,12 @@ export default function DetailPengajuanKegiatan() {
                     </button>
 
                     {/* Show Edit button for Belum Diajukan or Direvisi status */}
-                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status_review === 'Direvisi') && (
+                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status === 'Direvisi') && (
                         <button
                           onClick={() => router.visit(`/pengajuan-kegiatan/edit/${pengajuan.id}`)}
                           className="bg-yellow-600 text-white px-8 py-2 rounded-lg shadow hover:bg-yellow-700 transition"
                         >
-                          {pengajuan.status_review === 'Direvisi' ? 'Revisi Proposal' : 'Edit Proposal'}
+                          {pengajuan.status === 'Direvisi' ? 'Revisi Proposal' : 'Edit Proposal'}
                         </button>
                     )}
 

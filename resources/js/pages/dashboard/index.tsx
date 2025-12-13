@@ -9,43 +9,95 @@ type DashboardProps = {
     approved: number;
     done: number;
   };
+  userName?: string;
+  progressSteps?: Array<{ label: string; status: string }>;
+  proposalsList?: Array<{ id: number; nama_kegiatan: string; status: string; progressActive: string[]; created_at: string }>;
+  defaultProposalId?: number;
+  defaultProgressActive?: string[];
+  latestProposalStatus?: string;
 };
 
 export default function DashboardPage() {
-  const { stats } = usePage<DashboardProps>().props;
+  const { stats, userName, progressSteps = [], proposalsList = [], defaultProposalId, defaultProgressActive = [], latestProposalStatus } = usePage<DashboardProps>().props;
+  const [selectedProposalId, setSelectedProposalId] = React.useState<number | null>(defaultProposalId ?? null);
+
+  // Ambil 3 proposal terbaru untuk tabs
+  const topProposals = proposalsList.slice(0, 3);
+  const moreProposals = proposalsList.slice(3);
+  const hasMore = moreProposals.length > 0;
+
+  // Ambil proposal yang dipilih
+  const selectedProposal = proposalsList.find(p => p.id === selectedProposalId) || proposalsList[0];
+  const currentProgressActive = selectedProposal?.progressActive ?? defaultProgressActive;
   const kpis = {
-    total: stats?.total ?? 12,
-    review: stats?.review ?? 3,
-    approved: stats?.approved ?? 6,
-    done: stats?.done ?? 3,
+    total: stats?.total ?? 0,
+    review: stats?.review ?? 0,
+    approved: stats?.approved ?? 0,
+    done: stats?.done ?? 0,
   };
   return (
     <DashboardLayout>
       {/* Header banner */}
       <div className="p-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold text-[#0B132B]">Halo, UKM Smarakaryadhwani!</h1>
+          <h1 className="text-2xl font-semibold text-[#0B132B]">Halo, {userName || 'UKM'}!</h1>
         </div>
 
         {/* Status timeline */}
         <div className="bg-[#0B132B] text-white rounded-2xl p-6">
-          <div className="font-medium">Status Kegiatan</div>
-          <div className="text-xs text-white/80 mb-4">Latihan dan Kepemimpinan</div>
+          <div className="font-medium mb-4">Status Kegiatan</div>
+
+          {/* Tabs untuk 3 proposal terbaru + dropdown untuk sisanya */}
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            {topProposals.map(p => (
+              <button
+                key={p.id}
+                onClick={() => setSelectedProposalId(p.id)}
+                className={`px-3 py-1.5 rounded text-sm font-medium transition whitespace-nowrap ${
+                  selectedProposalId === p.id
+                    ? 'bg-yellow-400 text-[#0B132B]'
+                    : 'bg-[#1C2541] text-white hover:bg-[#2C3551]'
+                }`}
+                title={p.nama_kegiatan}
+              >
+                {p.nama_kegiatan.length > 15 ? p.nama_kegiatan.substring(0, 15) + '...' : p.nama_kegiatan}
+              </button>
+            ))}
+
+            {/* Dropdown untuk kegiatan lainnya */}
+            {hasMore && (
+              <select
+                value={selectedProposalId ?? ''}
+                onChange={(e) => setSelectedProposalId(Number(e.target.value))}
+                className="bg-[#1C2541] text-white text-sm px-3 py-1.5 rounded border border-white/30 focus:outline-none hover:bg-[#2C3551] transition"
+              >
+                <option value="">Lihat lebih banyak...</option>
+                {moreProposals.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama_kegiatan}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {/* Info status proposal yang dipilih */}
+          {selectedProposal && (
+            <div className="text-xs text-white/80 mb-4">
+              Status: <span className="font-semibold text-yellow-400">{selectedProposal.status}</span> · Dibuat: {selectedProposal.created_at}
+            </div>
+          )}
+
+          {/* Progress timeline */}
           <div className="flex items-center justify-between">
-            {[
-              { label: "Diajukan", active: true },
-              { label: "Direview", active: true },
-              { label: "Disetujui", active: false },
-              { label: "Dilaksanakan", active: false },
-              { label: "Selesai", active: false },
-            ].map((step, idx, arr) => (
-              <div key={step.label} className="flex items-center w-full">
+            {progressSteps.map((step, idx, arr) => (
+              <div key={step.status} className="flex items-center w-full">
                 <div
                   className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-                    step.active ? "border-yellow-400" : "border-white/40"
+                    currentProgressActive.includes(step.status) ? "border-yellow-400" : "border-white/40"
                   }`}
                 >
-                  <div className={`w-3 h-3 rounded-full ${step.active ? "bg-yellow-400" : "bg-white/30"}`} />
+                  <div className={`w-3 h-3 rounded-full ${currentProgressActive.includes(step.status) ? "bg-yellow-400" : "bg-white/30"}`} />
                 </div>
                 <div className="ml-2 text-xs">{step.label}</div>
                 {idx < arr.length - 1 && (

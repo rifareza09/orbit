@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { Link, useForm, usePage } from "@inertiajs/react";
-import { Download, FileText, Image } from "lucide-react";
+import { useForm, usePage, router } from "@inertiajs/react";
+import { FileText, Image as ImageIcon } from "lucide-react";
+import { formatCurrency } from "@/utils/currency";
 
-interface Laporan {
+interface LaporanEvaluasi {
   id: number;
   nama_kegiatan: string;
   ormawa: string;
@@ -23,317 +24,260 @@ interface Laporan {
   created_at: string;
 }
 
-interface Props {
-  laporan: Laporan;
-}
+export default function EvaluasiLaporanDetail() {
+  const { laporan, flash } = usePage<{ laporan: LaporanEvaluasi; flash?: any }>().props;
+  const [isLoading, setIsLoading] = useState(false);
 
-export default function EvaluasiLaporanDetail({ laporan }: Props) {
-  const { flash } = usePage().props as any;
-
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData } = useForm({
     status: laporan.status,
-    catatan: laporan.catatan_puskaka || '',
+    catatan_puskaka: laporan.catatan_puskaka || '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    post(`/evaluasi-laporan/${laporan.id}/update-status`, {
+  const handleApprove = () => {
+    setIsLoading(true);
+    router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
+      status: 'Disetujui',
+      catatan_puskaka: data.catatan_puskaka,
+    }, {
       preserveScroll: true,
+      onSuccess: () => {
+        router.visit('/evaluasi-laporan');
+      }
+    });
+  };
+
+  const handleReject = () => {
+    setIsLoading(true);
+    router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
+      status: 'Ditolak',
+      catatan_puskaka: data.catatan_puskaka,
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        router.visit('/evaluasi-laporan');
+      }
+    });
+  };
+
+  const handleReview = () => {
+    setIsLoading(true);
+    router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
+      status: 'Direview',
+      catatan_puskaka: data.catatan_puskaka,
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        router.visit('/evaluasi-laporan');
+      }
     });
   };
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="p-10 bg-[#F5F6FA] min-h-screen">
         {/* Header */}
-        <div className="bg-white border-b">
-          <div className="px-8 py-6">
-            <h1 className="text-2xl font-bold text-[#0B132B]">Detail Laporan Kegiatan</h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Dilaporkan oleh <span className="font-semibold">{laporan.ormawa}</span> pada {laporan.created_at}
-            </p>
+        <h1 className="text-2xl font-bold text-[#0B132B] mb-6">Evaluasi Laporan Kegiatan</h1>
+
+        {/* Success Message */}
+        {flash?.success && (
+          <div className="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded mb-6">
+            {flash.success}
+          </div>
+        )}
+
+        {/* KARTU DETAIL */}
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden mb-6">
+          <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
+            Detail Laporan ({laporan.ormawa})
+          </div>
+
+          <div className="p-8">
+            {/* Grid 2 Kolom */}
+            <div className="grid grid-cols-2 gap-x-10 gap-y-6 mb-8">
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Nama Kegiatan</p>
+                <p className="mt-2 text-gray-900">{laporan.nama_kegiatan}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Ketua Pelaksana</p>
+                <p className="mt-2 text-gray-900">{laporan.ketua_pelaksana}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Tempat Pelaksanaan</p>
+                <p className="mt-2 text-gray-900">{laporan.tempat_pelaksanaan}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Tanggal Pelaksanaan</p>
+                <p className="mt-2 text-gray-900">{laporan.tanggal_pelaksanaan}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Jumlah Peserta</p>
+                <p className="mt-2 text-gray-900">{laporan.jumlah_peserta} orang</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Anggaran Disetujui</p>
+                <p className="mt-2 text-gray-900">{formatCurrency(laporan.anggaran_disetujui)}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Dana Digunakan</p>
+                <p className="mt-2 text-gray-900">{formatCurrency(laporan.anggaran_realisasi)}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Status</p>
+                <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full mt-2 ${
+                  laporan.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
+                  laporan.status === 'Ditolak' ? 'bg-red-200 text-red-800' :
+                  laporan.status === 'Direview' ? 'bg-yellow-200 text-yellow-800' :
+                  laporan.status === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
+                  'bg-blue-200 text-blue-800'
+                }`}>
+                  {laporan.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Ringkasan */}
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <p className="text-sm font-semibold text-gray-700 mb-3">Ringkasan Kegiatan</p>
+              <p className="text-gray-900 leading-relaxed whitespace-pre-line">
+                {laporan.ringkasan || 'Tidak ada ringkasan'}
+              </p>
+            </div>
+
+            {/* Laporan Pertanggung Jawaban */}
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <p className="text-sm font-semibold text-gray-700 mb-3">Laporan Pertanggung Jawaban</p>
+              {laporan.lpj_file ? (
+                <a href={`/storage/${laporan.lpj_file}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-blue-600 hover:text-blue-700">
+                  <FileText className="h-6 w-6" />
+                </a>
+              ) : (
+                <span className="text-gray-500">Tidak ada file</span>
+              )}
+            </div>
+
+            {/* Bukti Pengeluaran */}
+            <div className="mb-8 pb-8 border-b border-gray-200">
+              <p className="text-sm font-semibold text-gray-700 mb-3">Bukti Pengeluaran</p>
+              <div className="flex gap-4">
+                {laporan.bukti_pengeluaran && laporan.bukti_pengeluaran.length > 0 ? (
+                  laporan.bukti_pengeluaran.map((file, idx) => (
+                    <a key={idx} href={`/storage/${file}`} target="_blank" rel="noopener noreferrer" title={file} className="inline-flex items-center text-blue-600 hover:text-blue-700 p-2 border border-gray-300 rounded">
+                      <FileText className="h-6 w-6" />
+                    </a>
+                  ))
+                ) : (
+                  <span className="text-gray-500">Tidak ada file</span>
+                )}
+              </div>
+            </div>
+
+            {/* Dokumentasi Kegiatan */}
+            <div className="mb-8">
+              <p className="text-sm font-semibold text-gray-700 mb-3">Dokumentasi Kegiatan</p>
+              <div className="flex gap-3 flex-wrap">
+                {laporan.dokumentasi && laporan.dokumentasi.length > 0 ? (
+                  laporan.dokumentasi.map((file, idx) => (
+                    <a key={idx} href={`/storage/${file}`} target="_blank" rel="noopener noreferrer" title={file} className="inline-flex items-center text-blue-600 hover:text-blue-700 p-2 border border-gray-300 rounded">
+                      <ImageIcon className="h-6 w-6" />
+                    </a>
+                  ))
+                ) : (
+                  <span className="text-gray-500">Tidak ada dokumentasi</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-8 space-y-6">
-          {/* Success Message */}
-          {flash?.success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
-              <span className="block sm:inline">{flash.success}</span>
-            </div>
-          )}
-
-          {/* Detail Kegiatan Section */}
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="bg-blue-100 px-6 py-3 border-b border-blue-200">
-              <h2 className="font-bold text-[#0B132B] text-sm">Informasi Kegiatan</h2>
+        {/* CATATAN SEBELUMNYA */}
+        {laporan.catatan_puskaka && (
+          <div className="bg-blue-50 rounded-xl shadow-sm border border-blue-200 overflow-hidden mb-6">
+            <div className="bg-blue-100 text-blue-900 px-6 py-3 font-semibold border-b border-blue-200">
+              Catatan Sebelumnya
             </div>
             <div className="p-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Nama Kegiatan
-                  </label>
-                  <input
-                    type="text"
-                    value={laporan.nama_kegiatan}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Ketua Pelaksana
-                  </label>
-                  <input
-                    type="text"
-                    value={laporan.ketua_pelaksana}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Tempat Pelaksanaan
-                  </label>
-                  <input
-                    type="text"
-                    value={laporan.tempat_pelaksanaan}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Tanggal Pelaksanaan
-                  </label>
-                  <input
-                    type="text"
-                    value={laporan.tanggal_pelaksanaan}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Jumlah Peserta
-                  </label>
-                  <input
-                    type="text"
-                    value={laporan.jumlah_peserta}
-                    readOnly
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Status
-                  </label>
-                  <span className={`inline-block px-3 py-2 rounded-full text-xs font-semibold ${
-                    laporan.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
-                    laporan.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
-                    laporan.status === 'Direview' ? 'bg-blue-100 text-blue-700' :
-                    laporan.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
-                    'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {laporan.status}
-                  </span>
-                </div>
-                <div className="col-span-2">
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Ringkasan Kegiatan
-                  </label>
-                  <textarea
-                    value={laporan.ringkasan}
-                    readOnly
-                    rows={4}
-                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
-                  />
-                </div>
-              </div>
+              <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+                {laporan.catatan_puskaka}
+              </p>
+              {laporan.reviewed_at && (
+                <p className="mt-3 text-xs text-gray-500">
+                  Direview pada: {laporan.reviewed_at}
+                </p>
+              )}
             </div>
           </div>
+        )}
 
-          {/* Anggaran Section */}
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="bg-yellow-100 px-6 py-3 border-b border-yellow-200">
-              <h2 className="font-bold text-[#0B132B] text-sm">Realisasi Anggaran</h2>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-3 gap-6">
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Anggaran Disetujui
-                  </label>
-                  <div className="text-2xl font-bold text-[#0B132B]">
-                    Rp {laporan.anggaran_disetujui.toLocaleString('id-ID')}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Anggaran Realisasi
-                  </label>
-                  <div className="text-2xl font-bold text-blue-600">
-                    Rp {laporan.anggaran_realisasi.toLocaleString('id-ID')}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Selisih
-                  </label>
-                  <div className={`text-2xl font-bold ${
-                    laporan.anggaran_disetujui - laporan.anggaran_realisasi >= 0 
-                      ? 'text-green-600' 
-                      : 'text-red-600'
-                  }`}>
-                    Rp {Math.abs(laporan.anggaran_disetujui - laporan.anggaran_realisasi).toLocaleString('id-ID')}
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* FORM REVIEW */}
+        <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
+          <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
+            Review & Evaluasi
           </div>
 
-          {/* Files Section */}
-          <div className="grid grid-cols-3 gap-6">
-            {/* LPJ File */}
-            {laporan.lpj_file && (
-              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="px-6 py-3 border-b bg-white">
-                  <h2 className="font-bold text-[#0B132B] text-sm">File LPJ</h2>
-                </div>
-                <div className="p-6">
-                  <a
-                    href={`/storage/${laporan.lpj_file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                  >
-                    <FileText size={16} />
-                    Download LPJ
-                  </a>
-                </div>
-              </div>
-            )}
-
-            {/* Bukti Pengeluaran */}
-            {laporan.bukti_pengeluaran && laporan.bukti_pengeluaran.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="px-6 py-3 border-b bg-white">
-                  <h2 className="font-bold text-[#0B132B] text-sm">Bukti Pengeluaran</h2>
-                </div>
-                <div className="p-6 space-y-2">
-                  {laporan.bukti_pengeluaran.map((file, index) => (
-                    <a
-                      key={index}
-                      href={`/storage/${file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm"
-                    >
-                      <Download size={14} />
-                      Bukti {index + 1}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Dokumentasi */}
-            {laporan.dokumentasi && laporan.dokumentasi.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-                <div className="px-6 py-3 border-b bg-white">
-                  <h2 className="font-bold text-[#0B132B] text-sm">Dokumentasi</h2>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-2 gap-2">
-                    {laporan.dokumentasi.slice(0, 4).map((foto, index) => (
-                      <a
-                        key={index}
-                        href={`/storage/${foto}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="aspect-square bg-gray-100 rounded-lg overflow-hidden hover:opacity-75 transition"
-                      >
-                        <img
-                          src={`/storage/${foto}`}
-                          alt={`Dokumentasi ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Form Update Status */}
-          <form onSubmit={handleSubmit}>
-            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-              <div className="bg-green-100 px-6 py-3 border-b border-green-200">
-                <h2 className="font-bold text-[#0B132B] text-sm">Evaluasi Laporan</h2>
-              </div>
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Status Laporan
-                  </label>
-                  <select
-                    value={data.status}
-                    onChange={(e) => setData('status', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
-                  >
-                    <option value="Belum Diajukan">Belum Diajukan</option>
-                    <option value="Diajukan">Diajukan</option>
-                    <option value="Direview">Direview</option>
-                    <option value="Disetujui">Disetujui</option>
-                    <option value="Direvisi">Direvisi</option>
-                    <option value="Ditolak">Ditolak</option>
-                  </select>
-                  {errors.status && (
-                    <p className="text-red-600 text-xs mt-1">{errors.status}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Catatan (Opsional)
-                  </label>
-                  <textarea
-                    value={data.catatan}
-                    onChange={(e) => setData('catatan', e.target.value)}
-                    rows={5}
-                    placeholder="Tulis catatan atau masukan untuk ormawa..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
-                  />
-                  {errors.catatan && (
-                    <p className="text-red-600 text-xs mt-1">{errors.catatan}</p>
-                  )}
-                </div>
-              </div>
+          <div className="p-8">
+            <div className="mb-6">
+              <label className="text-sm font-semibold text-gray-700 block mb-2">
+                Catatan Puskaka
+              </label>
+              <textarea
+                value={data.catatan_puskaka}
+                onChange={(e) => setData('catatan_puskaka', e.target.value)}
+                rows={5}
+                className="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                placeholder="Masukkan catatan, saran, atau alasan penolakan..."
+              />
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-3 mt-6 pb-8">
-              <Link
-                href="/evaluasi-laporan"
-                className="px-6 py-2.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-colors text-sm"
+            <div className="flex gap-4 justify-center pt-4">
+              <button
+                type="button"
+                onClick={() => window.history.back()}
+                disabled={isLoading}
+                className="bg-gray-500 text-white px-8 py-2 rounded-lg shadow hover:bg-gray-600 transition font-semibold disabled:opacity-50"
               >
                 Kembali
-              </Link>
+              </button>
+
               <button
-                type="submit"
-                disabled={processing}
-                className="px-6 py-2.5 bg-[#0B132B] hover:bg-[#1C2541] text-white rounded font-semibold transition-colors text-sm disabled:opacity-50"
+                type="button"
+                onClick={handleReview}
+                disabled={isLoading}
+                className="bg-yellow-500 text-white px-8 py-2 rounded-lg shadow hover:bg-yellow-600 transition font-semibold disabled:opacity-50"
               >
-                {processing ? 'Menyimpan...' : 'Simpan Evaluasi'}
+                {isLoading ? 'Memproses...' : 'Perlu Revisi'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleReject}
+                disabled={isLoading}
+                className="bg-red-500 text-white px-8 py-2 rounded-lg shadow hover:bg-red-600 transition font-semibold disabled:opacity-50"
+              >
+                {isLoading ? 'Memproses...' : 'Tolak'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleApprove}
+                disabled={isLoading}
+                className="bg-green-500 text-white px-8 py-2 rounded-lg shadow hover:bg-green-600 transition font-semibold disabled:opacity-50"
+              >
+                {isLoading ? 'Memproses...' : 'Setujui'}
               </button>
             </div>
-          </form>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center text-xs text-gray-500 py-6">
+        <div className="text-center text-gray-500 text-sm mt-12">
           ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
         </div>
       </div>

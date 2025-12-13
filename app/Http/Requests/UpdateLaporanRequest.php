@@ -22,17 +22,14 @@ class UpdateLaporanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pengajuan_kegiatan_id' => 'required|exists:pengajuan_kegiatans,id',
-            'anggaran_disetujui'    => 'nullable|numeric|min:0',
             'anggaran_realisasi'    => 'nullable|numeric|min:0',
             'ringkasan'             => 'nullable|string',
-            'status'                => 'nullable|in:Belum Diajukan,Diajukan,Direview,Disetujui,Direvisi,Ditolak',
+            'catatan'               => 'nullable|string',
             'lpj'                   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'bukti_pengeluaran.*'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'dokumentasi.*'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'remove_lpj'            => 'boolean',
-            'remove_bukti'          => 'array',
-            'remove_dokumentasi'    => 'array',
+            'remove_bukti.*'        => 'string',
+            'remove_dokumentasi.*'  => 'string',
         ];
     }
 

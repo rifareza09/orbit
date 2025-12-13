@@ -52,16 +52,16 @@ class EvaluasiLaporanController extends Controller
                     'nama_kegiatan' => $pengajuan->nama_kegiatan ?? '-',
                     'ormawa' => $laporan->user->name ?? '-',
                     'jenis' => 'Akademik', // Default, bisa disesuaikan
-                    'tanggal_pelaksanaan' => $pengajuan && $pengajuan->tanggal_pelaksanaan 
-                        ? (is_string($pengajuan->tanggal_pelaksanaan) 
-                            ? $pengajuan->tanggal_pelaksanaan 
+                    'tanggal_pelaksanaan' => $pengajuan && $pengajuan->tanggal_pelaksanaan
+                        ? (is_string($pengajuan->tanggal_pelaksanaan)
+                            ? $pengajuan->tanggal_pelaksanaan
                             : $pengajuan->tanggal_pelaksanaan->format('d/m/Y'))
                         : '-',
                     'status' => $laporan->status,
                     'anggaran_disetujui' => $laporan->anggaran_disetujui,
                     'anggaran_realisasi' => $laporan->anggaran_realisasi,
-                    'created_at' => is_string($laporan->created_at) 
-                        ? $laporan->created_at 
+                    'created_at' => is_string($laporan->created_at)
+                        ? $laporan->created_at
                         : $laporan->created_at->format('d/m/Y'),
                 ];
             });
@@ -126,9 +126,9 @@ class EvaluasiLaporanController extends Controller
                 'ketua_pelaksana' => $pengajuan->ketua_pelaksana ?? '-',
                 'tempat_pelaksanaan' => $pengajuan->tempat_pelaksanaan ?? '-',
                 'jumlah_peserta' => $pengajuan->jumlah_peserta ?? 0,
-                'tanggal_pelaksanaan' => $pengajuan && $pengajuan->tanggal_pelaksanaan 
-                    ? (is_string($pengajuan->tanggal_pelaksanaan) 
-                        ? $pengajuan->tanggal_pelaksanaan 
+                'tanggal_pelaksanaan' => $pengajuan && $pengajuan->tanggal_pelaksanaan
+                    ? (is_string($pengajuan->tanggal_pelaksanaan)
+                        ? $pengajuan->tanggal_pelaksanaan
                         : $pengajuan->tanggal_pelaksanaan->format('d/m/Y'))
                     : '-',
                 'anggaran_disetujui' => $laporan->anggaran_disetujui,
@@ -140,8 +140,8 @@ class EvaluasiLaporanController extends Controller
                 'lpj_file' => $laporan->lpj_file,
                 'bukti_pengeluaran' => $laporan->bukti_pengeluaran,
                 'dokumentasi' => $laporan->dokumentasi,
-                'created_at' => is_string($laporan->created_at) 
-                    ? $laporan->created_at 
+                'created_at' => is_string($laporan->created_at)
+                    ? $laporan->created_at
                     : $laporan->created_at->format('d/m/Y H:i'),
             ]
         ]);
@@ -160,22 +160,23 @@ class EvaluasiLaporanController extends Controller
         // Validasi input
         $validated = $request->validate([
             'status' => 'required|in:Belum Diajukan,Diajukan,Direview,Disetujui,Direvisi,Ditolak',
-            'catatan' => 'nullable|string|max:2000',
+            'catatan_puskaka' => 'nullable|string|max:2000',
         ]);
 
         // Find laporan kegiatan
         $laporan = LaporanKegiatan::findOrFail($id);
 
         // Update status, catatan, and reviewed_at
-        $laporan->status = $validated['status'];
-        $laporan->catatan_puskaka = $validated['catatan'] ?? null;
-        $laporan->reviewed_at = now();
-        $laporan->save();
+        $laporan->update([
+            'status' => $validated['status'],
+            'catatan_puskaka' => $validated['catatan_puskaka'] ?? $laporan->catatan_puskaka,
+            'reviewed_at' => now(),
+        ]);
 
         // Redirect back dengan success message
         return redirect()
-            ->route('evaluasi-laporan.index')
-            ->with('success', 'Status laporan berhasil diperbarui');
+            ->route('evaluasi-laporan.detail', $laporan->id)
+            ->with('success', 'Status laporan berhasil diperbarui!');
     }
 }
 

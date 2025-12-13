@@ -15,8 +15,9 @@ class LaporanKegiatanController extends Controller
 {
     public function index()
     {
-        // Get semua pengajuan kegiatan tanpa eager loading yang bermasalah
+        // Get pengajuan kegiatan yang sudah disetujui oleh Puskaka
         $pengajuanKegiatan = PengajuanKegiatan::where('user_id', Auth::id())
+            ->where('status', 'Disetujui')  // Filter: hanya yang sudah disetujui
             ->orderBy('tanggal_pelaksanaan', 'desc')
             ->get();
 
@@ -52,6 +53,11 @@ class LaporanKegiatanController extends Controller
         $pengajuan = PengajuanKegiatan::where('user_id', Auth::id())
             ->where('id', $pengajuanId)
             ->firstOrFail();
+
+        // Check apakah pengajuan sudah disetujui
+        if ($pengajuan->status !== 'Disetujui') {
+            return back()->with('error', 'Laporan kegiatan hanya bisa dibuat setelah pengajuan kegiatan disetujui oleh Puskaka');
+        }
 
         // Check if laporan already exists for this pengajuan
         $existingLaporan = LaporanKegiatan::where('pengajuan_kegiatan_id', $pengajuanId)
@@ -150,7 +156,7 @@ class LaporanKegiatanController extends Controller
     public function show($id)
     {
         $laporan = LaporanKegiatan::where('user_id', Auth::id())
-            ->with(['pengajuanKegiatan', 'user'])
+            ->with(['pengajuanKegiatan.programKerja', 'user'])
             ->findOrFail($id);
 
         return Inertia::render('laporan-kegiatan/detail', [
@@ -162,9 +168,10 @@ class LaporanKegiatanController extends Controller
                 'tempatPelaksanaan' => $laporan->pengajuanKegiatan->tempat_pelaksanaan ?? '-',
                 'tanggalPelaksanaan' => $laporan->pengajuanKegiatan->tanggal_pelaksanaan ?? null,
                 'jumlahPeserta' => $laporan->pengajuanKegiatan->jumlah_peserta ?? 0,
-                'anggaranDisetujui' => $laporan->anggaran_disetujui,
+                'estimasiAnggaran' => $laporan->pengajuanKegiatan->programKerja->estimasi_anggaran ?? 0,
                 'anggaranRealisasi' => $laporan->anggaran_realisasi,
                 'ringkasan' => $laporan->ringkasan,
+                'catatan' => $laporan->catatan,
                 'status' => $laporan->status,
                 'catatan_puskaka' => $laporan->catatan_puskaka,
                 'reviewed_at' => $laporan->reviewed_at ? (is_string($laporan->reviewed_at) ? $laporan->reviewed_at : $laporan->reviewed_at->format('d/m/Y H:i')) : null,
@@ -184,19 +191,23 @@ class LaporanKegiatanController extends Controller
             ->findOrFail($id);
 
         return Inertia::render('laporan-kegiatan/edit', [
-            'item' => [
+            'laporan' => [
                 'id' => $laporan->id,
                 'pengajuan_kegiatan_id' => $laporan->pengajuan_kegiatan_id,
-                'namaKegiatan' => $laporan->pengajuanKegiatan->nama_kegiatan ?? '-',
-                'tanggalPelaksanaan' => $laporan->pengajuanKegiatan->tanggal_pelaksanaan ?? null,
-                'tempatPelaksanaan' => $laporan->pengajuanKegiatan->tempat_pelaksanaan ?? '-',
-                'anggaranDisetujui' => $laporan->anggaran_disetujui,
-                'anggaranRealisasi' => $laporan->anggaran_realisasi,
                 'ringkasan' => $laporan->ringkasan,
-                'status' => $laporan->status,
-                'lpjFile' => $laporan->lpj_file,
-                'buktiPengeluaran' => $laporan->bukti_pengeluaran ?? [],
+                'catatan' => $laporan->catatan,
+                'lpj_file' => $laporan->lpj_file,
+                'bukti_pengeluaran' => $laporan->bukti_pengeluaran ?? [],
                 'dokumentasi' => $laporan->dokumentasi ?? [],
+            ],
+            'pengajuan' => [
+                'id' => $laporan->pengajuanKegiatan->id,
+                'nama_kegiatan' => $laporan->pengajuanKegiatan->nama_kegiatan ?? '-',
+                'ketua_pelaksana' => $laporan->pengajuanKegiatan->ketua_pelaksana ?? '-',
+                'tempat_pelaksanaan' => $laporan->pengajuanKegiatan->tempat_pelaksanaan ?? '-',
+                'tanggal_pelaksanaan' => $laporan->pengajuanKegiatan->tanggal_pelaksanaan ?? null,
+                'jumlah_peserta' => $laporan->pengajuanKegiatan->jumlah_peserta ?? 0,
+                'anggaran_yang_disetujui' => $laporan->pengajuanKegiatan->anggaran_yang_disetujui ?? 0,
             ]
         ]);
     }
@@ -208,17 +219,12 @@ class LaporanKegiatanController extends Controller
         $validated = $request->validated();
 
         $updateData = [
-            'anggaran_disetujui' => $validated['anggaran_disetujui'] ?? null,
-            'anggaran_realisasi' => $validated['anggaran_realisasi'] ?? null,
-            'ringkasan' => $validated['ringkasan'] ?? null,
-            'status' => $validated['status'] ?? $laporan->status,
+            'anggaran_realisasi' => $validated['anggaran_realisasi'] ?? $laporan->anggaran_realisasi,
+            'ringkasan' => $validated['ringkasan'] ?? $laporan->ringkasan,
         ];
 
         // Handle LPJ file
-        if ($request->boolean('remove_lpj') && $laporan->lpj_file) {
-            Storage::disk('public')->delete($laporan->lpj_file);
-            $updateData['lpj_file'] = null;
-        } elseif ($request->hasFile('lpj')) {
+        if ($request->hasFile('lpj')) {
             if ($laporan->lpj_file) {
                 Storage::disk('public')->delete($laporan->lpj_file);
             }
@@ -229,11 +235,12 @@ class LaporanKegiatanController extends Controller
         $currentBukti = $laporan->bukti_pengeluaran ?? [];
 
         // Remove selected files
-        if ($request->has('remove_bukti')) {
-            foreach ($request->input('remove_bukti') as $index) {
-                if (isset($currentBukti[$index])) {
-                    Storage::disk('public')->delete($currentBukti[$index]);
-                    unset($currentBukti[$index]);
+        if ($request->has('remove_bukti') && is_array($request->input('remove_bukti'))) {
+            foreach ($request->input('remove_bukti') as $filename) {
+                $key = array_search($filename, $currentBukti);
+                if ($key !== false) {
+                    Storage::disk('public')->delete($currentBukti[$key]);
+                    unset($currentBukti[$key]);
                 }
             }
             $currentBukti = array_values($currentBukti); // Re-index array
@@ -251,11 +258,12 @@ class LaporanKegiatanController extends Controller
         $currentDok = $laporan->dokumentasi ?? [];
 
         // Remove selected files
-        if ($request->has('remove_dokumentasi')) {
-            foreach ($request->input('remove_dokumentasi') as $index) {
-                if (isset($currentDok[$index])) {
-                    Storage::disk('public')->delete($currentDok[$index]);
-                    unset($currentDok[$index]);
+        if ($request->has('remove_dokumentasi') && is_array($request->input('remove_dokumentasi'))) {
+            foreach ($request->input('remove_dokumentasi') as $filename) {
+                $key = array_search($filename, $currentDok);
+                if ($key !== false) {
+                    Storage::disk('public')->delete($currentDok[$key]);
+                    unset($currentDok[$key]);
                 }
             }
             $currentDok = array_values($currentDok); // Re-index array
@@ -271,8 +279,7 @@ class LaporanKegiatanController extends Controller
 
         $laporan->update($updateData);
 
-        return redirect()->route('laporan.detail', $laporan->id)
-            ->with('success', 'Laporan kegiatan berhasil diperbarui!');
+        return redirect()->route('laporan.detail', $laporan->id);
     }
 
     public function destroy($id)

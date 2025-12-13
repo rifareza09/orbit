@@ -151,7 +151,7 @@ class PengajuanKegiatanController extends Controller
             ->findOrFail($id);
 
         // Check if pengajuan can be edited (Belum Diajukan or Direvisi)
-        if (!in_array($pengajuan->status, ['Belum Diajukan']) && $pengajuan->status_review !== 'Direvisi') {
+        if (!in_array($pengajuan->status, ['Belum Diajukan', 'Direvisi'])) {
             return redirect('/pengajuan-kegiatan')
                 ->with('error', 'Pengajuan ini tidak dapat diedit.');
         }
@@ -213,7 +213,6 @@ class PengajuanKegiatanController extends Controller
             'jumlah_peserta' => $validated['jumlah_peserta'],
             'tanggal_pelaksanaan' => $validated['tanggal_pelaksanaan'],
             'deskripsi' => $validated['deskripsi'],
-            'status_review' => 'Menunggu Review', // Reset status review after edit
             'catatan_puskaka' => null, // Clear previous feedback
             'reviewed_at' => null, // Clear review timestamp
             ...$updateData

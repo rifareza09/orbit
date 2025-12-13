@@ -13,6 +13,7 @@ class LaporanKegiatan extends Model
         'anggaran_disetujui',
         'anggaran_realisasi',
         'ringkasan',
+        'catatan',
         'status',
         'lpj_file',
         'bukti_pengeluaran',

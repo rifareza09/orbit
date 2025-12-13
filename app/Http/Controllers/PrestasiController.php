@@ -23,7 +23,7 @@ class PrestasiController extends Controller
 
     public function create()
     {
-        return Inertia::render('prestasi/tambahPrestasi');
+        return Inertia::render('prestasi/TambahPrestasi');
     }
 
     public function store(Request $request)
@@ -49,7 +49,7 @@ class PrestasiController extends Controller
             'tingkat_kejuaraan' => $validated['tingkat_kejuaraan'],
             'nama_peraih' => $validated['nama_peraih'],
             'tanggal_perolehan' => $validated['tanggal_perolehan'],
-            'bukti_file' => $buktiPath,
+            'bukti_path' => $buktiPath,
         ]);
 
         return redirect()->route('prestasi.index')
@@ -61,8 +61,8 @@ class PrestasiController extends Controller
         $prestasi = Prestasi::where('user_id', Auth::id())->findOrFail($id);
 
         // Hapus file bukti jika ada
-        if ($prestasi->bukti_file) {
-            Storage::disk('public')->delete($prestasi->bukti_file);
+        if ($prestasi->bukti_path) {
+            Storage::disk('public')->delete($prestasi->bukti_path);
         }
 
         $prestasi->delete();
@@ -75,11 +75,11 @@ class PrestasiController extends Controller
     {
         $prestasi = Prestasi::where('user_id', Auth::id())->findOrFail($id);
 
-        if (!$prestasi->bukti_file || !Storage::disk('public')->exists($prestasi->bukti_file)) {
+        if (!$prestasi->bukti_path || !Storage::disk('public')->exists($prestasi->bukti_path)) {
             abort(404, 'File bukti tidak ditemukan');
         }
 
-        $filePath = storage_path('app/public/' . $prestasi->bukti_file);
+        $filePath = storage_path('app/public/' . $prestasi->bukti_path);
         $fileName = 'Bukti_' . $prestasi->nama_prestasi . '.pdf';
 
         return response()->download($filePath, $fileName);

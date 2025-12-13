@@ -14,7 +14,7 @@ class Prestasi extends Model
         'tingkat_kejuaraan',
         'nama_peraih',
         'tanggal_perolehan',
-        'bukti_file',
+        'bukti_path',
     ];
 
     protected $casts = [

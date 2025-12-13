@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ProgramKerjaController;
 use App\Http\Controllers\PengajuanKegiatanController;
@@ -84,16 +85,109 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if ($user->role === 'puskaka') {
             return redirect()->route('dashboard.puskaka');
         }
-        return Inertia::render('dashboard/index');
+
+        // Data untuk Ormawa/UKM
+        $userId = Auth::id();
+
+        // Query data user
+        $programKerja = \App\Models\ProgramKerja::where('user_id', $userId)->get();
+        $pengajuan = \App\Models\PengajuanKegiatan::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
+        $laporan = \App\Models\LaporanKegiatan::where('user_id', $userId)->get();
+
+        // Statistik
+        $stats = [
+            'total' => $programKerja->count() + $pengajuan->count(),
+            'review' => $programKerja->where('status', 'Direview')->count() + $pengajuan->where('status', 'Diajukan')->count(),
+            'approved' => $programKerja->where('status', 'Disetujui')->count() + $pengajuan->where('status', 'Disetujui')->count(),
+            'done' => $laporan->count(),
+        ];
+
+        // Progress timeline berdasarkan data terbaru
+        $latestProposal = $pengajuan->first();
+        $progressSteps = [
+            ['label' => 'Belum Diajukan', 'status' => 'Belum Diajukan'],
+            ['label' => 'Diajukan', 'status' => 'Diajukan'],
+            ['label' => 'Disetujui', 'status' => 'Disetujui'],
+            ['label' => 'Selesai', 'status' => 'Selesai'],
+        ];
+
+        // Map semua pengajuan untuk dropdown
+        $proposalsList = $pengajuan->map(function ($p) {
+            $statusOrder = ['Belum Diajukan' => 0, 'Diajukan' => 1, 'Disetujui' => 2, 'Selesai' => 3, 'Ditolak' => 1, 'Direvisi' => 1];
+            $currentIndex = $statusOrder[$p->status] ?? 0;
+
+            $progressActive = [];
+            $steps = ['Belum Diajukan', 'Diajukan', 'Disetujui', 'Selesai'];
+            for ($i = 0; $i <= $currentIndex; $i++) {
+                $progressActive[] = $steps[$i];
+            }
+
+            return [
+                'id' => $p->id,
+                'nama_kegiatan' => $p->nama_kegiatan,
+                'status' => $p->status,
+                'progressActive' => $progressActive,
+                'created_at' => $p->created_at->format('d M Y'),
+            ];
+        });
+
+        // Default ke proposal terbaru
+        $defaultProposal = $proposalsList->first();
+        $defaultProgressActive = $defaultProposal ? $defaultProposal['progressActive'] : [];
+
+        return Inertia::render('dashboard/index', [
+            'stats' => $stats,
+            'userName' => $user->name,
+            'progressSteps' => $progressSteps,
+            'proposalsList' => $proposalsList,
+            'defaultProposalId' => $defaultProposal?->id ?? null,
+            'defaultProgressActive' => $defaultProgressActive,
+            'latestProposalStatus' => $latestProposal?->status ?? 'Belum Diajukan',
+        ]);
     })->name('dashboard');
 
     Route::get('/dashboard/puskaka', function () {
         if (Auth::user()->role !== 'puskaka') abort(403);
 
-        // Fetch ALL program kerja dari semua ormawa (tidak filter status dulu)
-        $programKerjas = \App\Models\ProgramKerja::with('user')
-            ->orderBy('created_at', 'desc')
-            ->get()
+        // Query data dari database
+        $allProgramKerjas = \App\Models\ProgramKerja::with('user')->get();
+        $allPengajuan = \App\Models\PengajuanKegiatan::get();
+        $allLaporan = \App\Models\LaporanKegiatan::get();
+
+        // Statistik
+        $totalProgram = $allProgramKerjas->count();
+        $menungguReview = $allProgramKerjas->where('status', 'Diajukan')->count();
+        $kegiatanDisetujui = $allPengajuan->where('status', 'Disetujui')->count();
+        $laporanMasuk = $allLaporan->where('status', 'Diajukan')->count();
+
+        // Bar Chart: Jumlah kegiatan per ormawa
+        $barData = $allProgramKerjas->groupBy('user_id')
+            ->map(function ($items) {
+                $user = $items->first()->user;
+                return [
+                    'name' => $user->name ?? 'Unknown',
+                    'total' => $items->count(),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values()
+            ->toArray();
+
+        // Pie Chart: Jenis kegiatan
+        $pieData = $allProgramKerjas->groupBy('jenis_kegiatan')
+            ->map(function ($items) {
+                return [
+                    'name' => $items->first()->jenis_kegiatan ?? 'Lainnya',
+                    'value' => $items->count(),
+                ];
+            })
+            ->sortByDesc('value')
+            ->values()
+            ->toArray();
+
+        // Data untuk tabel
+        $programKerjas = $allProgramKerjas
+            ->sortByDesc('created_at')
             ->map(function ($pk) {
                 return [
                     'id' => $pk->id,
@@ -104,12 +198,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     'estimasi_anggaran' => $pk->estimasi_anggaran,
                     'status' => $pk->status,
                     'ormawa' => $pk->user->name ?? '-',
+                    'user_id' => $pk->user_id,
                     'created_at' => $pk->created_at->format('d M Y'),
                 ];
-            });
+            })
+            ->values()
+            ->toArray();
 
         return Inertia::render('dashboard/puskaka', [
-            'programKerjas' => $programKerjas
+            'stats' => [
+                ['title' => 'Program Kerja Terdaftar', 'value' => $totalProgram, 'color' => 'bg-[#DDF4F4]'],
+                ['title' => 'Menunggu Review', 'value' => $menungguReview, 'color' => 'bg-[#FFF1D7]'],
+                ['title' => 'Kegiatan Disetujui', 'value' => $kegiatanDisetujui, 'color' => 'bg-[#FFE8C7]'],
+                ['title' => 'Laporan Masuk', 'value' => $laporanMasuk, 'color' => 'bg-[#DFF1FF]'],
+            ],
+            'barData' => $barData,
+            'pieData' => $pieData,
+            'programKerjas' => $programKerjas,
         ]);
     })->name('dashboard.puskaka');
 
@@ -158,40 +263,156 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     });
 
-    Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan', function () {
-    if (Auth::user()->role !== 'puskaka') abort(403);
-    return Inertia::render('evaluasi-laporan/index');
-})->name('evaluasi.laporan');
-
-
-Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan/detail/{id}', function ($id) {
+    Route::middleware(['auth', 'verified'])->get('/data-ormawa', function () {
     if (Auth::user()->role !== 'puskaka') abort(403);
 
-    return Inertia::render('evaluasi-laporan/detail', [
-        'id' => $id
+    // Query data ormawa dari database (exclude puskaka)
+    $ormawaReal = \App\Models\User::where('role', '!=', 'puskaka')
+        ->orderBy('name')
+        ->get()
+        ->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'nama' => $user->name,
+                'jenis' => ucfirst($user->role),
+                'ketua' => $user->deskripsi ?? '-',
+                'anggota' => \App\Models\Kepengurusan::where('user_id', $user->id)->count(),
+                'status' => 'Aktif',
+            ];
+        });
+
+    // Dummy data non-aktif (optional, bisa ditambah manual)
+    $ormawaDummy = [
+        ['id' => 999, 'nama' => 'Kreasi', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
+        ['id' => 998, 'nama' => 'LPM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
+        ['id' => 997, 'nama' => 'TDM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
+    ];
+
+    // Kombinasikan data real + dummy
+    $ormawaList = collect($ormawaReal)->concat($ormawaDummy);
+
+    // Statistik
+    $stats = [
+        'total' => $ormawaList->count(),
+        'aktif' => $ormawaList->where('status', 'Aktif')->count(),
+        'nonaktif' => $ormawaList->where('status', 'Non-Aktif')->count(),
+    ];
+
+    return Inertia::render('data-ormawa/index', [
+        'dataOrmawa' => $ormawaList,
+        'stats' => $stats,
     ]);
-});
+})->name('data.ormawa');
 
-Route::middleware(['auth', 'verified'])->get('/data-ormawa', function () {
+Route::middleware(['auth', 'verified'])->post('/ormawa/create', function () {
     if (Auth::user()->role !== 'puskaka') abort(403);
 
-    return Inertia::render('data-ormawa/index');
-})->name('data.ormawa');
+    $validated = request()->validate([
+        'name' => 'required|string|max:255',
+        'username' => 'required|string|unique:users,username|max:255',
+        'password' => 'required|string|min:8',
+        'role' => 'required|in:ukm,bem,kongres',
+    ]);
+
+    \App\Models\User::create([
+        'name' => $validated['name'],
+        'username' => $validated['username'],
+        'password' => Hash::make($validated['password']),
+        'role' => $validated['role'],
+    ]);
+
+    return redirect()
+        ->route('data.ormawa')
+        ->with('success', 'Ormawa baru berhasil ditambahkan');
+});
 
 Route::middleware(['auth', 'verified'])->get('/data-ormawa/detail/{id}', function ($id) {
     if (Auth::user()->role !== 'puskaka') abort(403);
 
+    // Handle dummy data untuk ormawa non-aktif
+    $dummyOrmawaMap = [
+        999 => ['nama' => 'Kreasi', 'jenis' => 'UKM'],
+        998 => ['nama' => 'LPM', 'jenis' => 'UKM'],
+        997 => ['nama' => 'TDM', 'jenis' => 'UKM'],
+    ];
+
+    if (in_array($id, [999, 998, 997])) {
+        $dummyData = $dummyOrmawaMap[$id];
+        return Inertia::render('data-ormawa/detail', [
+            'unit' => [
+                'nama' => $dummyData['nama'],
+                'periode' => '2025/2026',
+                'logo_url' => null,
+            ],
+            'deskripsi' => 'Organisasi sedang non-aktif',
+            'kepengurusan' => [],
+            'jadwal' => [],
+            'proposals' => [],
+        ]);
+    }
+
+    // Query data user/ormawa dari database
+    $user = \App\Models\User::findOrFail($id);
+
+    // Get kepengurusan
+    $kepengurusan = \App\Models\Kepengurusan::where('user_id', $user->id)
+        ->get()
+        ->map(function ($k) {
+            return [
+                'id' => $k->id,
+                'jabatan' => $k->jabatan ?? '-',
+                'nama' => $k->nama ?? '-',
+                'prodi' => $k->prodi ?? '-',
+                'npm' => $k->npm ?? '-',
+            ];
+        });
+
+    // Get jadwal latihan
+    $jadwal = \App\Models\JadwalLatihan::where('user_id', $user->id)
+        ->get()
+        ->map(function ($j) {
+            return [
+                'id' => $j->id,
+                'divisi' => $j->divisi ?? '-',
+                'hari' => $j->hari ?? '-',
+                'tempat' => $j->tempat ?? '-',
+                'pukul' => $j->pukul ?? '-',
+            ];
+        });
+
+    // Get pengajuan kegiatan
+    $proposals = \App\Models\PengajuanKegiatan::where('user_id', $user->id)
+        ->get()
+        ->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'nama_kegiatan' => $p->nama_kegiatan,
+                'program_kerja' => $p->programKerja->program_kerja ?? '-',
+                'tanggal_pelaksanaan' => $p->tanggal_pelaksanaan ? date('d M Y', strtotime($p->tanggal_pelaksanaan)) : '-',
+                'status' => $p->status,
+            ];
+        });
+
     return Inertia::render('data-ormawa/detail', [
-        'id' => $id
+        'unit' => [
+            'nama' => $user->name,
+            'periode' => $user->periode ?? '2025/2026',
+            'logo_url' => $user->logo_path ? asset('storage/' . $user->logo_path) : null,
+        ],
+        'deskripsi' => $user->deskripsi ?? '',
+        'kepengurusan' => $kepengurusan,
+        'jadwal' => $jadwal,
+        'proposals' => $proposals,
     ]);
 })->name('data.ormawa.detail');
 
 Route::middleware(['auth', 'verified'])->get('/program-kerja/indexPuskaka', function () {
     if (Auth::user()->role !== 'puskaka') abort(403);
 
-    // Fetch program kerja dengan status Diajukan
+    // Fetch program kerja dengan status Diajukan, Direview, Disetujui, Ditolak
+    // (exclude Belum Diajukan agar hanya yang sudah/sedang di-review)
     $programKerjas = \App\Models\ProgramKerja::with('user')
-        ->where('status', 'Diajukan')
+        ->whereIn('status', ['Diajukan', 'Direview', 'Disetujui', 'Ditolak'])
         ->orderBy('created_at', 'desc')
         ->get()
         ->map(function ($pk) {
@@ -240,6 +461,11 @@ Route::middleware(['auth', 'verified'])->post('/program-kerja/{id}/update-status
     \App\Http\Controllers\PuskakaController::class,
     'updateStatusProgramKerja'
 ])->name('program-kerja.updateStatus');
+
+Route::middleware(['auth', 'verified'])->post('/pengajuan-kegiatan/{id}/update-status', [
+    \App\Http\Controllers\PuskakaController::class,
+    'updateStatusPengajuanKegiatan'
+])->name('pengajuan-kegiatan.updateStatus');
 
 // Manajemen Kegiatan Routes (Puskaka)
 Route::middleware(['auth', 'verified'])->get('/manajemen-kegiatan', [
