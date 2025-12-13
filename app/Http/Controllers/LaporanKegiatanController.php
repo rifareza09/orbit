@@ -221,6 +221,7 @@ class LaporanKegiatanController extends Controller
         $updateData = [
             'anggaran_realisasi' => $validated['anggaran_realisasi'] ?? $laporan->anggaran_realisasi,
             'ringkasan' => $validated['ringkasan'] ?? $laporan->ringkasan,
+            'catatan' => $validated['catatan'] ?? $laporan->catatan,
         ];
 
         // Handle LPJ file
