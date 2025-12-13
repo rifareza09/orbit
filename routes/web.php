@@ -218,7 +218,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('dashboard.puskaka');
 
-    // Profil Ormawa (User menu)
+    // Profil (User menu)
     Route::get('/profil', function () {
         $user = Auth::user();
 
@@ -229,13 +229,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         $deskripsi = $user->deskripsi ?? '';
 
-        // Get kepengurusan dari database
-        $kepengurusan = \App\Models\Kepengurusan::where('user_id', Auth::id())
+        // Untuk Puskaka, tidak perlu data kepengurusan dan jadwal
+        $isPuskaka = $user->role === 'puskaka';
+        
+        // Get kepengurusan dari database (hanya untuk ormawa)
+        $kepengurusan = $isPuskaka ? collect([]) : \App\Models\Kepengurusan::where('user_id', Auth::id())
             ->orderBy('created_at', 'asc')
             ->get();
 
-        // Get jadwal latihan dari database
-        $jadwal = \App\Models\JadwalLatihan::where('user_id', Auth::id())
+        // Get jadwal latihan dari database (hanya untuk ormawa)
+        $jadwal = $isPuskaka ? collect([]) : \App\Models\JadwalLatihan::where('user_id', Auth::id())
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -245,6 +248,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'kepengurusan' => $kepengurusan,
             'jadwal' => $jadwal,
             'logo_url' => $user->logo_path ? asset('storage/' . $user->logo_path) : null,
+            'isPuskaka' => $isPuskaka,
         ]);
     })->name('profile.ormawa');
 

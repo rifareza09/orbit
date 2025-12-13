@@ -13,9 +13,10 @@ interface Props {
   kepengurusan: Pengurus[];
   jadwal: Jadwal[];
   logo_url?: string | null;
+  isPuskaka?: boolean;
 }
 
-export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, logo_url }: Props) {
+export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, logo_url, isPuskaka = false }: Props) {
   const handleDelete = (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus data kepengurusan ini?')) {
       router.delete(`/profile/kepengurusan/${id}`);
@@ -47,7 +48,9 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
 
             {/* Info Unit */}
             <div>
-              <div className="text-sm font-semibold text-gray-500 mb-1">Unit Kegiatan Mahasiswa</div>
+              <div className="text-sm font-semibold text-gray-500 mb-1">
+                {isPuskaka ? 'Profil Administrator' : 'Unit Kegiatan Mahasiswa'}
+              </div>
               <h1 className="text-3xl font-bold leading-tight">{unit?.nama || 'Nama Organisasi'}</h1>
               <div className="text-sm text-gray-500 mt-1 font-medium">Periode {unit?.periode || '-'}</div>
             </div>
@@ -75,7 +78,8 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
           </div>
         </section>
 
-        {/* 3. Struktur Kepengurusan */}
+        {/* 3. Struktur Kepengurusan - Hidden for Puskaka */}
+        {!isPuskaka && (
         <section className="mt-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-lg text-[#0B132B]">Struktur Kepengurusan</h3>
@@ -146,8 +150,10 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
             </table>
           </div>
         </section>
+        )}
 
-        {/* 4. Jadwal Latihan */}
+        {/* 4. Jadwal Latihan - Hidden for Puskaka */}
+        {!isPuskaka && (
         <section className="mt-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-lg text-[#0B132B]">Jadwal Latihan</h3>
@@ -217,6 +223,7 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
             </div>
           )}
         </section>
+        )}
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-400 mt-12 mb-2 font-medium">
