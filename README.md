@@ -272,6 +272,7 @@ git push origin feature/nama-fitur
 ## 👨‍💻 Contributors
 
 - [Rifa Reza](https://github.com/rifareza09)
+- [Rendra] (https://github.com/rendra-v)
 
 ## 📄 License
 
