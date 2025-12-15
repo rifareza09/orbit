@@ -15,10 +15,26 @@ type DashboardProps = {
   defaultProposalId?: number;
   defaultProgressActive?: string[];
   latestProposalStatus?: string;
+  statistikKegiatan?: {
+    belumDiajukan: number;
+    diajukan: number;
+    direview: number;
+    disetujui: number;
+    ditolak: number;
+    direvisi: number;
+  };
+  aktivitasTerakhir?: Array<{
+    type: string;
+    id: number;
+    nama: string;
+    status: string;
+    tanggal: string;
+    tanggal_format: string;
+  }>;
 };
 
 export default function DashboardPage() {
-  const { stats, userName, progressSteps = [], proposalsList = [], defaultProposalId, defaultProgressActive = [], latestProposalStatus } = usePage<DashboardProps>().props;
+  const { stats, userName, progressSteps = [], proposalsList = [], defaultProposalId, defaultProgressActive = [], latestProposalStatus, statistikKegiatan, aktivitasTerakhir = [] } = usePage<DashboardProps>().props;
   const [selectedProposalId, setSelectedProposalId] = React.useState<number | null>(defaultProposalId ?? null);
 
   // Ambil 3 proposal terbaru untuk tabs
@@ -126,16 +142,56 @@ export default function DashboardPage() {
         {/* Charts row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <div className="bg-white rounded-2xl shadow p-6">
-            <h3 className="text-[#0B132B] font-medium mb-2">Statistik Kegiatan</h3>
-            <div className="aspect-video rounded-xl bg-gray-50 border grid place-items-center text-gray-400">
-              {/* Placeholder pie chart */}
-              <span>Grafik Pie (Belum Diajukan, Perlu Direview, Disetujui, Selesai)</span>
+            <h3 className="text-[#0B132B] font-medium mb-4">Statistik Kegiatan</h3>
+            <div className="space-y-3">
+              {[
+                { label: 'Belum Diajukan', value: statistikKegiatan?.belumDiajukan ?? 0, color: 'bg-gray-300' },
+                { label: 'Diajukan / Review', value: (statistikKegiatan?.diajukan ?? 0) + (statistikKegiatan?.direview ?? 0), color: 'bg-yellow-400' },
+                { label: 'Disetujui', value: statistikKegiatan?.disetujui ?? 0, color: 'bg-green-500' },
+                { label: 'Ditolak / Direvisi', value: (statistikKegiatan?.ditolak ?? 0) + (statistikKegiatan?.direvisi ?? 0), color: 'bg-red-500' },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
+                  <span className="text-sm text-gray-700">{item.label}</span>
+                  <span className="ml-auto font-semibold text-[#0B132B]">{item.value}</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="bg-white rounded-2xl shadow p-6">
-            <h3 className="text-[#0B132B] font-medium mb-2">Aktivitas Terakhir</h3>
-            <div className="aspect-video rounded-xl bg-gray-50 border grid place-items-center text-gray-400">
-              <span>Ruang untuk widget lain / tabel ringkas</span>
+            <h3 className="text-[#0B132B] font-medium mb-4">Aktivitas Terakhir</h3>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {aktivitasTerakhir && aktivitasTerakhir.length > 0 ? (
+                aktivitasTerakhir.map((activity, idx) => (
+                  <div key={`${activity.type}-${activity.id}`} className="pb-3 border-b last:border-b-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                            activity.type === 'pengajuan' 
+                              ? 'bg-blue-100 text-blue-700' 
+                              : 'bg-green-100 text-green-700'
+                          }`}>
+                            {activity.type === 'pengajuan' ? 'Pengajuan' : 'Laporan'}
+                          </span>
+                          <span className={`text-xs font-medium px-2 py-1 rounded ${
+                            activity.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
+                            activity.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                            activity.status === 'Direvisi' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {activity.status}
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-[#0B132B] mt-1">{activity.nama}</p>
+                        <p className="text-xs text-gray-500">{activity.tanggal_format}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-400 text-sm py-6">Belum ada aktivitas</p>
+              )}
             </div>
           </div>
         </div>

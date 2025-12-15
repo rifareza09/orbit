@@ -34,6 +34,12 @@ class UserSeeder extends Seeder
                 'role' => 'ukm',
             ],
             [
+                'name' => 'IMASI',
+                'username' => 'imasi',
+                'password' => Hash::make('imasi123'),
+                'role' => 'ukm',
+            ],
+            [
                 'name' => 'YBBC',
                 'username' => 'ybbc',
                 'password' => Hash::make('ybbc123'),

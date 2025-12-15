@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('prestasis', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('nama_prestasi');
+            $table->string('jenis_prestasi');
+            $table->string('tingkat_kejuaraan');
+            $table->string('nama_peraih');
+            $table->date('tanggal_perolehan');
+            $table->string('bukti_path')->nullable();
             $table->timestamps();
         });
     }

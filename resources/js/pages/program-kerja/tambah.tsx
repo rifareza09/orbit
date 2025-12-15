@@ -1,6 +1,7 @@
 import React from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { useForm, router } from "@inertiajs/react";
+import { formatCurrencyInput } from "@/utils/currency";
 
 export default function TambahProgramKerja() {
   const { data, setData, post, processing, errors } = useForm({
@@ -13,7 +14,12 @@ export default function TambahProgramKerja() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    post("/program-kerja", {
+    // Convert formatted currency back to number before submit
+    const submitData = {
+      ...data,
+      estimasi_anggaran: parseInt(data.estimasi_anggaran.replace(/\D/g, '')) || 0,
+    };
+    post("/program-kerja", submitData, {
       onSuccess: () => router.visit("/program-kerja"),
     });
   };
@@ -75,7 +81,8 @@ export default function TambahProgramKerja() {
                 <input
                   name="estimasi_anggaran"
                   value={data.estimasi_anggaran}
-                  onChange={(e) => setData("estimasi_anggaran", e.target.value)}
+                  onChange={(e) => setData("estimasi_anggaran", formatCurrencyInput(e.target.value))}
+                  placeholder="0"
                   className="w-full pl-10 pr-4 py-2 border bg-gray-100 rounded-lg"
                 />
               </div>

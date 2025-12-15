@@ -2,7 +2,7 @@ import React, { useState, FormEvent } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { router, usePage } from '@inertiajs/react';
 import { Upload, Trash2, FileText, Image } from 'lucide-react';
-import { formatCurrency } from '@/utils/currency';
+import { formatCurrency, formatCurrencyInput } from '@/utils/currency';
 
 interface LaporanItem {
   id: number;
@@ -33,7 +33,7 @@ export default function EditLaporan() {
   const [formData, setFormData] = useState({
     ringkasan: laporan.ringkasan || '',
     catatan: laporan.catatan || '',
-    anggaran_realisasi: pengajuan.anggaran_yang_disetujui,
+    anggaran_realisasi: formatCurrencyInput(pengajuan.anggaran_yang_disetujui.toString()),
     lpjFile: null as File | null,
     buktiPengeluaran: [] as File[],
     dokumentasi: [] as File[],
@@ -51,7 +51,7 @@ export default function EditLaporan() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'anggaran_realisasi' ? (value ? parseInt(value) : 0) : value,
+      [name]: name === 'anggaran_realisasi' ? formatCurrencyInput(value) : value,
     }));
   };
 
@@ -119,11 +119,14 @@ export default function EditLaporan() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Convert formatted string back to number
+    const anggaranRealisasiNumber = parseInt(formData.anggaran_realisasi.replace(/\D/g, '')) || 0;
+
     const form = new FormData();
     form.append('_method', 'PUT');
     form.append('ringkasan', formData.ringkasan);
     form.append('catatan', formData.catatan);
-    form.append('anggaran_realisasi', formData.anggaran_realisasi.toString());
+    form.append('anggaran_realisasi', anggaranRealisasiNumber.toString());
 
     if (formData.lpjFile) {
       form.append('lpj', formData.lpjFile);
@@ -241,16 +244,16 @@ export default function EditLaporan() {
                 <div>
                   <p className="font-semibold text-sm mb-1">Dana Digunakan*</p>
                   <input
-                    type="number"
+                    type="text"
                     name="anggaran_realisasi"
                     value={formData.anggaran_realisasi}
                     onChange={handleInputChange}
+                    placeholder="0"
                     className="w-full p-2 rounded-md border border-gray-300"
                     required
-                    min="0"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {formatCurrency(formData.anggaran_realisasi)}
+                    Rp {formData.anggaran_realisasi}
                   </p>
                 </div>
               </div>
@@ -464,7 +467,7 @@ export default function EditLaporan() {
               )}
 
               <div>
-                <p className="font-semibold text-sm mb-3">Upload Foto Baru</p>
+                <p className="font-semibold text-sm mb-3">Upload Dokumentasi Baru</p>
                 <label className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-[#0B132B] hover:bg-blue-50 cursor-pointer transition">
                   <input
                     type="file"

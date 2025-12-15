@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { router, usePage } from "@inertiajs/react";
+import { formatCurrencyInput } from "@/utils/currency";
 
 interface ProgramKerjaItem {
   id: number;
@@ -31,20 +32,29 @@ export default function EditProgramKerja() {
         kegiatan: item.kegiatan,
         deskripsi_kegiatan: item.deskripsiKegiatan,
         jenis_kegiatan: item.jenisKegiatan,
-        estimasi_anggaran: String(item.estimasiKegiatan ?? ""),
+        estimasi_anggaran: formatCurrencyInput(String(item.estimasiKegiatan ?? "")),
         status: item.status ?? "Belum Diajukan",
       });
     }
   }, [item]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: name === 'estimasi_anggaran' ? formatCurrencyInput(value) : value 
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // ✅ jangan kirim status, biar tidak berubah
-    const { status, ...payload } = formData;
+    // Convert formatted currency back to number before submit
+    const submitData = {
+      ...formData,
+      estimasi_anggaran: parseInt(formData.estimasi_anggaran.replace(/\D/g, '')) || 0,
+    };
+    // jangan kirim status, biar tidak berubah
+    const { status, ...payload } = submitData;
     router.put(`/program-kerja/${item.id}`, payload, {
       onSuccess: () => router.visit("/program-kerja"),
     });

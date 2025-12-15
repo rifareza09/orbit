@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Link, Head } from "@inertiajs/react";
-import { ArrowLeft, Calendar, MapPin, FileText, Image as ImageIcon, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, FileText, Image as ImageIcon, Clock, Award } from "lucide-react";
 
 interface Ormawa {
   id: number;
   name: string;
   username: string;
   role: string;
+  deskripsi?: string;
 }
 
 interface Kegiatan {
@@ -32,15 +33,26 @@ interface Dokumentasi {
   foto_url: string | null;
 }
 
+interface Prestasi {
+  id: number;
+  nama_prestasi: string;
+  jenis_prestasi: string;
+  tingkat_kejuaraan: string;
+  nama_peraih: string;
+  tanggal_perolehan: string;
+  bukti_path: string | null;
+}
+
 interface Props {
   ormawa: Ormawa;
   kegiatan: Kegiatan[];
   jadwalLatihan: JadwalLatihan[];
   dokumentasi: Dokumentasi[];
+  prestasi: Prestasi[];
 }
 
-export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = [], dokumentasi = [] }: Props) {
-  const [activeTab, setActiveTab] = useState<"kegiatan" | "jadwal" | "dokumentasi">("kegiatan");
+export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = [], dokumentasi = [], prestasi = [] }: Props) {
+  const [activeTab, setActiveTab] = useState<"kegiatan" | "jadwal" | "dokumentasi" | "prestasi">("kegiatan");
 
   return (
     <>
@@ -60,7 +72,10 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
         <div className="bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white py-12 px-6 md:px-12">
           <div className="max-w-6xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-2">{ormawa.name}</h1>
-            <p className="text-gray-300 text-lg capitalize">{ormawa.role}</p>
+            <p className="text-gray-300 text-lg capitalize mb-3">{ormawa.role}</p>
+            {ormawa.deskripsi && (
+              <p className="text-gray-200 text-base max-w-2xl">{ormawa.deskripsi}</p>
+            )}
           </div>
         </div>
 
@@ -97,6 +112,16 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
                 }`}
               >
                 Dokumentasi ({dokumentasi.length})
+              </button>
+              <button
+                onClick={() => setActiveTab("prestasi")}
+                className={`py-4 px-2 font-semibold border-b-2 transition ${
+                  activeTab === "prestasi"
+                    ? "border-[#0B132B] text-[#0B132B]"
+                    : "border-transparent text-gray-600 hover:text-[#0B132B]"
+                }`}
+              >
+                Prestasi ({prestasi.length})
               </button>
             </div>
           </div>
@@ -204,6 +229,58 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
                 <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
                   <ImageIcon size={48} className="mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-500 text-lg">Tidak ada dokumentasi</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab: Prestasi */}
+          {activeTab === "prestasi" && (
+            <div className="space-y-6">
+              {prestasi.length > 0 ? (
+                prestasi.map((item) => (
+                  <div key={item.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 border border-gray-200">
+                    <div className="flex items-start gap-4 mb-4">
+                      <Award size={32} className="text-[#0B132B] flex-shrink-0 mt-1" />
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold text-[#0B132B] mb-2">{item.nama_prestasi}</h3>
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Jenis Prestasi</p>
+                            <p className="text-gray-700">{item.jenis_prestasi}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Tingkat Kejuaraan</p>
+                            <p className="text-gray-700">{item.tingkat_kejuaraan}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-600">Nama Peraih</p>
+                            <p className="text-gray-700">{item.nama_peraih}</p>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 pt-2">
+                            <Calendar size={16} className="text-[#0B132B]" />
+                            <span className="font-semibold">{item.tanggal_perolehan}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {item.bukti_path && (
+                        <a
+                          href={item.bukti_path}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 inline-flex items-center gap-2 bg-[#0B132B] text-white px-4 py-2 rounded-lg hover:bg-[#1C2541] transition text-sm font-semibold"
+                        >
+                          <FileText size={16} />
+                          Lihat Bukti
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                  <Award size={48} className="mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500 text-lg">Tidak ada prestasi</p>
                 </div>
               )}
             </div>

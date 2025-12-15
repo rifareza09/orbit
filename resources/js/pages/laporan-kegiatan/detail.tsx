@@ -194,6 +194,7 @@ export default function DetailLaporanKegiatan() {
                 item.status === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
                 item.status === 'Diajukan' ? 'bg-blue-200 text-blue-800' :
                 item.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
+                item.status === 'Selesai' ? 'bg-purple-200 text-purple-800' :
                 'bg-red-200 text-red-800'
               }`}>
                 {item.status}

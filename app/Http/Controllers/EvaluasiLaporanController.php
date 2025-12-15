@@ -166,24 +166,20 @@ class EvaluasiLaporanController extends Controller
         // Find laporan kegiatan
         $laporan = LaporanKegiatan::findOrFail($id);
 
+        // Jika status "Disetujui", ubah menjadi "Selesai" untuk laporan
+        $finalStatus = $validated['status'] === 'Disetujui' ? 'Selesai' : $validated['status'];
+
         // Update status, catatan, and reviewed_at
         $laporan->update([
-            'status' => $validated['status'],
+            'status' => $finalStatus,
             'catatan_puskaka' => $validated['catatan_puskaka'] ?? $laporan->catatan_puskaka,
             'reviewed_at' => now(),
         ]);
 
-        // Return JSON response with updated laporan data for frontend redirect handling
-        return response()->json([
-            'success' => true,
-            'message' => 'Status laporan berhasil diperbarui!',
-            'laporan' => [
-                'id' => $laporan->id,
-                'status' => $laporan->status,
-                'catatan_puskaka' => $laporan->catatan_puskaka,
-                'reviewed_at' => $laporan->reviewed_at ? $laporan->reviewed_at->format('d/m/Y H:i') : null,
-            ]
-        ]);
+        // Redirect ke index dengan success message
+        return redirect()
+            ->route('evaluasi-laporan.index')
+            ->with('success', 'Status laporan berhasil diperbarui!');
     }
 }
 

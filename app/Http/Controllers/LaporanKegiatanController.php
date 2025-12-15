@@ -15,9 +15,9 @@ class LaporanKegiatanController extends Controller
 {
     public function index()
     {
-        // Get pengajuan kegiatan yang sudah disetujui oleh Puskaka
+        // Get pengajuan kegiatan yang sudah disetujui atau selesai
         $pengajuanKegiatan = PengajuanKegiatan::where('user_id', Auth::id())
-            ->where('status', 'Disetujui')  // Filter: hanya yang sudah disetujui
+            ->whereIn('status', ['Disetujui', 'Selesai'])  // Filter: yang disetujui atau sudah selesai
             ->orderBy('tanggal_pelaksanaan', 'desc')
             ->get();
 
@@ -224,6 +224,11 @@ class LaporanKegiatanController extends Controller
             'catatan' => $validated['catatan'] ?? $laporan->catatan,
         ];
 
+        // Jika status saat ini "Direvisi", ubah menjadi "Diajukan" untuk direview ulang
+        if ($laporan->status === 'Direvisi') {
+            $updateData['status'] = 'Diajukan';
+        }
+
         // Handle LPJ file
         if ($request->hasFile('lpj')) {
             if ($laporan->lpj_file) {
@@ -280,7 +285,7 @@ class LaporanKegiatanController extends Controller
 
         $laporan->update($updateData);
 
-        return redirect()->route('laporan.detail', $laporan->id);
+        return redirect()->route('laporan.index')->with('success', 'Laporan kegiatan berhasil diperbarui!');
     }
 
     public function destroy($id)

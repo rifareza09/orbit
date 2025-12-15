@@ -68,6 +68,7 @@ export default function LaporanKegiatan() {
                         item.laporanStatus === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
                         item.laporanStatus === 'Diajukan' ? 'bg-blue-200 text-blue-800' :
                         item.laporanStatus === 'Disetujui' ? 'bg-green-200 text-green-800' :
+                        item.laporanStatus === 'Selesai' ? 'bg-purple-200 text-purple-800' :
                         'bg-red-200 text-red-800'
                       }`}>
                         {!item.hasLaporan ? 'Belum Diajukan' : item.laporanStatus}
@@ -83,6 +84,16 @@ export default function LaporanKegiatan() {
                           className="text-blue-600 hover:text-blue-800 underline"
                         >
                           Buat
+                        </button>
+                      ) : item.laporanStatus === 'Direvisi' ? (
+                        <button
+                          onClick={() => {
+                            console.log('Klik Revisi - Item:', item);
+                            router.visit(`/laporan-kegiatan/edit/${item.laporanId}`);
+                          }}
+                          className="text-orange-600 hover:text-orange-800 underline font-semibold"
+                        >
+                          Revisi
                         </button>
                       ) : (
                         <button

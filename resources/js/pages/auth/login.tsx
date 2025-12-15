@@ -1,7 +1,6 @@
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -103,10 +102,13 @@ export default function Login({
                             </div>
 
                             <div className="flex items-center space-x-3">
-                                <Checkbox
+                                <input
                                     id="remember"
+                                    type="checkbox"
                                     name="remember"
+                                    value="true"
                                     tabIndex={3}
+                                    className="h-4 w-4 rounded border-gray-300 text-[#0B132B] focus:ring-[#0B132B]"
                                 />
                                 <Label htmlFor="remember">Remember me</Label>
                             </div>

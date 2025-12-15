@@ -7,6 +7,7 @@ use App\Models\LaporanKegiatan;
 use App\Models\PengajuanKegiatan;
 use App\Models\Dokumentasi;
 use App\Models\JadwalLatihan;
+use App\Models\Prestasi;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -119,16 +120,34 @@ class LandingController extends Controller
                 ];
             });
 
+        // Get prestasi
+        $prestasi = Prestasi::where('user_id', $id)
+            ->orderBy('tanggal_perolehan', 'desc')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'nama_prestasi' => $p->nama_prestasi,
+                    'jenis_prestasi' => $p->jenis_prestasi,
+                    'tingkat_kejuaraan' => $p->tingkat_kejuaraan,
+                    'nama_peraih' => $p->nama_peraih,
+                    'tanggal_perolehan' => $p->tanggal_perolehan ? (is_string($p->tanggal_perolehan) ? $p->tanggal_perolehan : $p->tanggal_perolehan->format('d/m/Y')) : '-',
+                    'bukti_path' => $p->bukti_path ? asset('storage/' . $p->bukti_path) : null,
+                ];
+            });
+
         return Inertia::render('landing/ormawa-detail', [
             'ormawa' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'username' => $user->username,
                 'role' => $user->role,
+                'deskripsi' => $user->deskripsi ?? 'Organisasi mahasiswa yang aktif mengadakan kegiatan.',
             ],
             'kegiatan' => $kegiatan,
             'jadwalLatihan' => $jadwalLatihan,
             'dokumentasi' => $dokumentasi,
+            'prestasi' => $prestasi,
         ]);
     }
 }

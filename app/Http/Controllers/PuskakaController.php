@@ -63,7 +63,7 @@ class PuskakaController extends Controller
 
         // Redirect back to index dengan success message
         return redirect()
-            ->route('program-kerja.detailPuskaka', ['id' => $programKerja->id])
+            ->route('program-kerja.indexPuskaka')
             ->with('success', 'Status program kerja diperbarui menjadi ' . $programKerja->status);
     }
 

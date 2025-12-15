@@ -23,6 +23,9 @@ class ManajemenKegiatanController extends Controller
         // Build query
         $query = PengajuanKegiatan::with(['user', 'programKerja']);
 
+        // Filter: Hanya tampilkan pengajuan yang sudah DIAJUKAN oleh ormawa
+        $query->where('status', 'Diajukan');
+
         // Filter by tahun akademik (dari tanggal pelaksanaan)
         if ($request->filled('tahun_akademik')) {
             $tahun = $request->tahun_akademik;
@@ -59,11 +62,11 @@ class ManajemenKegiatanController extends Controller
                 ];
             });
 
-        // Calculate statistics
-        $totalPengajuan = PengajuanKegiatan::count();
-        $perluDireview = PengajuanKegiatan::where('status_review', 'Menunggu Review')->count();
-        $disetujui = PengajuanKegiatan::where('status_review', 'Disetujui')->count();
-        $ditolak = PengajuanKegiatan::where('status_review', 'Ditolak')->count();
+        // Calculate statistics - hanya untuk yang sudah DIAJUKAN
+        $totalPengajuan = PengajuanKegiatan::where('status', 'Diajukan')->count();
+        $perluDireview = PengajuanKegiatan::where('status', 'Diajukan')->where('status_review', 'Menunggu Review')->count();
+        $disetujui = PengajuanKegiatan::where('status', 'Diajukan')->where('status_review', 'Disetujui')->count();
+        $ditolak = PengajuanKegiatan::where('status', 'Diajukan')->where('status_review', 'Ditolak')->count();
 
         // Get list of ormawa for filter
         $ormawaList = \App\Models\User::where('role', '!=', 'puskaka')

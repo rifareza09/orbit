@@ -1,6 +1,7 @@
 import React from "react";
 import { router, usePage } from "@inertiajs/react";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import { formatCurrency } from "@/utils/currency";
 
 type Program = {
   id: number;
@@ -43,7 +44,7 @@ export default function ProgramKerja() {
                 <th className="px-4 py-3">Jenis Kegiatan</th>
                 <th className="px-4 py-3">Estimasi Anggaran</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Status Detail</th>
+                <th className="px-4 py-3">Aksi</th>
               </tr>
             </thead>
 
@@ -55,7 +56,7 @@ export default function ProgramKerja() {
                   <td className="px-4 py-3">{item.kegiatan}</td>
                   <td className="px-4 py-3">{item.deskripsi_kegiatan}</td>
                   <td className="px-4 py-3">{item.jenis_kegiatan}</td>
-                  <td className="px-4 py-3">{item.estimasi_anggaran}</td>
+                  <td className="px-4 py-3">{formatCurrency(Number(item.estimasi_anggaran))}</td>
                   <td className="px-4 py-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       item.status === 'Disetujui' ? 'bg-green-100 text-green-700' :

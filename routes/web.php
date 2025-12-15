@@ -43,11 +43,48 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $pengajuan = \App\Models\PengajuanKegiatan::where('user_id', $userId)->orderBy('created_at', 'desc')->get();
         $laporan = \App\Models\LaporanKegiatan::where('user_id', $userId)->get();
 
+        // Statistik breakdown kegiatan per status
+        $statistikKegiatan = [
+            'belumDiajukan' => $pengajuan->where('status', 'Belum Diajukan')->count(),
+            'diajukan' => $pengajuan->where('status', 'Diajukan')->count(),
+            'direview' => $pengajuan->where('status', 'Direview')->count(),
+            'disetujui' => $pengajuan->where('status', 'Disetujui')->count(),
+            'ditolak' => $pengajuan->where('status', 'Ditolak')->count(),
+            'direvisi' => $pengajuan->where('status', 'Direvisi')->count(),
+        ];
+
+        // Aktivitas terakhir: gabung pengajuan + laporan, sort by created_at DESC, ambil 5 terakhir
+        $allActivities = collect();
+        foreach ($pengajuan as $p) {
+            $allActivities->push([
+                'type' => 'pengajuan',
+                'id' => $p->id,
+                'nama' => $p->nama_kegiatan,
+                'status' => $p->status,
+                'tanggal' => $p->created_at,
+                'tanggal_format' => $p->created_at->format('d M Y H:i'),
+            ]);
+        }
+        foreach ($laporan as $l) {
+            $allActivities->push([
+                'type' => 'laporan',
+                'id' => $l->id,
+                'nama' => $l->pengajuan_kegiatan_id ? 
+                    \App\Models\PengajuanKegiatan::find($l->pengajuan_kegiatan_id)?->nama_kegiatan ?? 'Unknown' : 'Unknown',
+                'status' => $l->status,
+                'tanggal' => $l->created_at,
+                'tanggal_format' => $l->created_at->format('d M Y H:i'),
+            ]);
+        }
+        
+        // Sort by tanggal DESC dan ambil 5 terakhir
+        $aktivitasTerakhir = $allActivities->sortByDesc('tanggal')->take(5)->values();
+
         // Statistik
         $stats = [
-            'total' => $programKerja->count() + $pengajuan->count(),
-            'review' => $programKerja->where('status', 'Direview')->count() + $pengajuan->where('status', 'Diajukan')->count(),
-            'approved' => $programKerja->where('status', 'Disetujui')->count() + $pengajuan->where('status', 'Disetujui')->count(),
+            'total' => $pengajuan->count(),
+            'review' => $pengajuan->where('status', 'Diajukan')->count() + $pengajuan->where('status', 'Direview')->count(),
+            'approved' => $pengajuan->where('status', 'Disetujui')->count(),
             'done' => $laporan->count(),
         ];
 
@@ -62,8 +99,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Map semua pengajuan untuk dropdown
         $proposalsList = $pengajuan->map(function ($p) {
+            // Check laporan kegiatan status untuk determine progress
+            $laporan = \App\Models\LaporanKegiatan::where('pengajuan_kegiatan_id', $p->id)->first();
+            $laporanStatus = $laporan ? $laporan->status : null;
+
+            // Determine status untuk progress calculation
+            // Jika ada laporan dengan status "Selesai", set progress ke Selesai
+            $displayStatus = $laporanStatus === 'Selesai' ? 'Selesai' : $p->status;
+
             $statusOrder = ['Belum Diajukan' => 0, 'Diajukan' => 1, 'Disetujui' => 2, 'Selesai' => 3, 'Ditolak' => 1, 'Direvisi' => 1];
-            $currentIndex = $statusOrder[$p->status] ?? 0;
+            $currentIndex = $statusOrder[$displayStatus] ?? 0;
 
             $progressActive = [];
             $steps = ['Belum Diajukan', 'Diajukan', 'Disetujui', 'Selesai'];
@@ -92,6 +137,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'defaultProposalId' => $defaultProposal?->id ?? null,
             'defaultProgressActive' => $defaultProgressActive,
             'latestProposalStatus' => $latestProposal?->status ?? 'Belum Diajukan',
+            'statistikKegiatan' => $statistikKegiatan,
+            'aktivitasTerakhir' => $aktivitasTerakhir,
         ]);
     })->name('dashboard');
 
@@ -217,45 +264,51 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::middleware(['auth', 'verified'])->get('/data-ormawa', function () {
-    if (Auth::user()->role !== 'puskaka') abort(403);
+        if (Auth::user()->role !== 'puskaka') abort(403);
 
-    // Query data ormawa dari database (exclude puskaka)
-    $ormawaReal = \App\Models\User::where('role', '!=', 'puskaka')
-        ->orderBy('name')
-        ->get()
-        ->map(function ($user) {
-            return [
-                'id' => $user->id,
-                'nama' => $user->name,
-                'jenis' => ucfirst($user->role),
-                'ketua' => $user->deskripsi ?? '-',
-                'anggota' => \App\Models\Kepengurusan::where('user_id', $user->id)->count(),
-                'status' => 'Aktif',
-            ];
-        });
+        // Query data ormawa dari database (exclude puskaka)
+        $ormawaReal = \App\Models\User::where('role', '!=', 'puskaka')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($user) {
+                // Ambil nama ketua dari kepengurusan dengan jabatan "Ketua"
+                $ketuaKepengurusan = \App\Models\Kepengurusan::where('user_id', $user->id)
+                    ->where('jabatan', 'Ketua')
+                    ->first();
+                $namaKetua = $ketuaKepengurusan ? $ketuaKepengurusan->nama : '-';
+                
+                return [
+                    'id' => $user->id,
+                    'nama' => $user->name,
+                    'jenis' => ucfirst($user->role),
+                    'ketua' => $namaKetua,
+                    'anggota' => \App\Models\Kepengurusan::where('user_id', $user->id)->count(),
+                    'status' => 'Aktif',
+                ];
+            });
 
-    // Dummy data non-aktif (optional, bisa ditambah manual)
-    $ormawaDummy = [
-        ['id' => 999, 'nama' => 'Kreasi', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
-        ['id' => 998, 'nama' => 'LPM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
-        ['id' => 997, 'nama' => 'TDM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
-    ];
+        // Dummy data non-aktif (optional, bisa ditambah manual)
+        $ormawaDummy = [
+            ['id' => 999, 'nama' => 'Kreasi', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
+            ['id' => 998, 'nama' => 'LPM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
+            ['id' => 997, 'nama' => 'TDM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
+        ];
 
-    // Kombinasikan data real + dummy
-    $ormawaList = collect($ormawaReal)->concat($ormawaDummy);
+        // Kombinasikan data real + dummy
+        $ormawaList = collect($ormawaReal)->concat($ormawaDummy);
 
-    // Statistik
-    $stats = [
-        'total' => $ormawaList->count(),
-        'aktif' => $ormawaList->where('status', 'Aktif')->count(),
-        'nonaktif' => $ormawaList->where('status', 'Non-Aktif')->count(),
-    ];
+        // Statistik
+        $stats = [
+            'total' => $ormawaList->count(),
+            'aktif' => $ormawaList->where('status', 'Aktif')->count(),
+            'nonaktif' => $ormawaList->where('status', 'Non-Aktif')->count(),
+        ];
 
-    return Inertia::render('data-ormawa/index', [
-        'dataOrmawa' => $ormawaList,
-        'stats' => $stats,
-    ]);
-})->name('data.ormawa');
+        return Inertia::render('data-ormawa/index', [
+            'dataOrmawa' => $ormawaList,
+            'stats' => $stats,
+        ]);
+    })->name('data.ormawa');
 
 Route::middleware(['auth', 'verified'])->post('/ormawa/create', function () {
     if (Auth::user()->role !== 'puskaka') abort(403);
