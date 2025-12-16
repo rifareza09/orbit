@@ -51,6 +51,24 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('smaka123'),
                 'role' => 'ukm',
             ],
+            [
+                'name' => 'HMSI',
+                'username' => 'hmsi',
+                'password' => Hash::make('hmsi123'),
+                'role' => 'ukm',
+            ],
+            [
+                'name' => 'KARIR ALUMNI',
+                'username' => 'karir',
+                'password' => Hash::make('karir123'),
+                'role' => 'ukm',
+            ],
+            [
+                'name' => 'OASIS',
+                'username' => 'oasis',
+                'password' => Hash::make('oasis123'),
+                'role' => 'ukm',
+            ],
 
             // BEM Role
             [

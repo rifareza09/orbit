@@ -18,8 +18,15 @@ class DatabaseSeeder extends Seeder
             ['name' => 'LDK KAHFI', 'username' => 'ldk', 'role' => 'ukm'],
             ['name' => 'VOYAGE', 'username' => 'voyage', 'role' => 'ukm'],
             ['name' => 'HIMASI', 'username' => 'himasi', 'role' => 'ukm'],
+            ['name' => 'IMASI', 'username' => 'imasi', 'role' => 'ukm'],
             ['name' => 'YBBC', 'username' => 'ybbc', 'role' => 'ukm'],
             ['name' => 'SMAKA', 'username' => 'smaka', 'role' => 'ukm'],
+            ['name' => 'HMSI', 'username' => 'hmsi', 'role' => 'ukm'],
+            ['name' => 'KARIR ALUMNI', 'username' => 'karir', 'role' => 'ukm'],
+            ['name' => 'OASIS', 'username' => 'oasis', 'role' => 'ukm'],
+            ['name' => 'TDM', 'username' => 'tdm', 'role' => 'ukm'],
+            ['name' => 'LPM', 'username' => 'lpm', 'role' => 'ukm'],
+            ['name' => 'KREASI', 'username' => 'kreasi', 'role' => 'ukm'],
 
             // BEM Role
             ['name' => 'BEM', 'username' => 'bem', 'role' => 'bem'],

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Link, Head, router } from '@inertiajs/react';
-import { Image as ImageIcon, Edit2, Trash2, Eye } from 'lucide-react';
+import { Image as ImageIcon, Edit2, Trash2, Eye, Lock, X, Eye as EyeIcon, EyeOff } from 'lucide-react';
 
 interface UnitInfo { nama: string; periode: string }
 interface Pengurus { id: number; jabatan: string; nama: string; prodi: string; npm: string }
@@ -17,6 +17,21 @@ interface Props {
 }
 
 export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, logo_url, isPuskaka = false }: Props) {
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+
   const handleDelete = (id: number) => {
     if (confirm('Apakah Anda yakin ingin menghapus data kepengurusan ini?')) {
       router.delete(`/profile/kepengurusan/${id}`);
@@ -27,6 +42,71 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
     if (confirm('Apakah Anda yakin ingin menghapus jadwal latihan ini?')) {
       router.delete(`/profile/jadwal-latihan/${id}`);
     }
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    // Validation
+    if (!passwordForm.currentPassword) {
+      setPasswordError('Password saat ini wajib diisi');
+      return;
+    }
+    if (!passwordForm.newPassword) {
+      setPasswordError('Password baru wajib diisi');
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError('Password baru minimal 8 karakter');
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError('Password baru dan konfirmasi password tidak cocok');
+      return;
+    }
+
+    setIsSubmittingPassword(true);
+
+    fetch('/profile/change-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+      },
+      body: JSON.stringify({
+        current_password: passwordForm.currentPassword,
+        new_password: passwordForm.newPassword,
+        new_password_confirmation: passwordForm.confirmPassword,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((data) => {
+            throw new Error(data.error || 'Gagal mengubah password');
+          });
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setPasswordSuccess('Password berhasil diubah!');
+        setPasswordForm({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+        setTimeout(() => {
+          setShowPasswordModal(false);
+          setPasswordSuccess('');
+        }, 2000);
+      })
+      .catch((error) => {
+        setPasswordError(error.message || 'Gagal mengubah password');
+      })
+      .finally(() => {
+        setIsSubmittingPassword(false);
+      });
   };
 
   return (
@@ -64,6 +144,15 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
             <Edit2 size={16} />
             Edit Profil
           </Link>
+
+          {/* Tombol Ubah Password */}
+          <button
+            onClick={() => setShowPasswordModal(true)}
+            className="z-10 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2 shadow-md"
+          >
+            <Lock size={16} />
+            Ubah Password
+          </button>
         </div>
 
         {/* 2. Deskripsi Section */}
@@ -229,6 +318,169 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
         <div className="text-center text-xs text-gray-400 mt-12 mb-2 font-medium">
           ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
         </div>
+
+        {/* MODAL UBAH PASSWORD */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-[#0B132B] flex items-center gap-2">
+                  <Lock size={20} />
+                  Ubah Password
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setPasswordForm({
+                      currentPassword: '',
+                      newPassword: '',
+                      confirmPassword: '',
+                    });
+                    setPasswordError('');
+                    setPasswordSuccess('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {passwordSuccess && (
+                <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-800 font-semibold">✓ {passwordSuccess}</p>
+                </div>
+              )}
+
+              {passwordError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800 font-semibold">✗ {passwordError}</p>
+                </div>
+              )}
+
+              <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                {/* Password Saat Ini */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password Saat Ini
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.current ? 'text' : 'password'}
+                      value={passwordForm.currentPassword}
+                      onChange={(e) =>
+                        setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                      }
+                      placeholder="Masukkan password saat ini"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowPasswords({ ...showPasswords, current: !showPasswords.current })
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPasswords.current ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <EyeIcon size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Password Baru */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password Baru
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.new ? 'text' : 'password'}
+                      value={passwordForm.newPassword}
+                      onChange={(e) =>
+                        setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+                      }
+                      placeholder="Minimal 8 karakter"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowPasswords({ ...showPasswords, new: !showPasswords.new })
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPasswords.new ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <EyeIcon size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Konfirmasi Password Baru */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Konfirmasi Password Baru
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPasswords.confirm ? 'text' : 'password'}
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) =>
+                        setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+                      }
+                      placeholder="Ulangi password baru"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowPasswords({ ...showPasswords, confirm: !showPasswords.confirm })
+                      }
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPasswords.confirm ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <EyeIcon size={18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tombol */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPasswordModal(false);
+                      setPasswordForm({
+                        currentPassword: '',
+                        newPassword: '',
+                        confirmPassword: '',
+                      });
+                      setPasswordError('');
+                      setPasswordSuccess('');
+                    }}
+                    className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingPassword}
+                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 disabled:cursor-not-allowed"
+                  >
+                    {isSubmittingPassword ? 'Mengubah...' : 'Ubah Password'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

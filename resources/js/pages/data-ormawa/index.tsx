@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { ChevronDown, Search, Plus, X } from "lucide-react";
+import { ChevronDown, Search, Plus, X, RotateCw, Copy, Check } from "lucide-react";
 import { Link, usePage, router } from "@inertiajs/react";
 
 interface Ormawa {
@@ -23,6 +23,10 @@ export default function DataOrmawaPage() {
   }>().props;
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [selectedOrmawaForReset, setSelectedOrmawaForReset] = useState<Ormawa | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -45,6 +49,46 @@ export default function DataOrmawaPage() {
         alert('Gagal menambah ormawa');
       }
     });
+  };
+
+  const handleResetAkun = (ormawa: Ormawa) => {
+    setSelectedOrmawaForReset(ormawa);
+    setShowResetModal(true);
+  };
+
+  const confirmResetAkun = () => {
+    if (!selectedOrmawaForReset) return;
+
+    fetch(`/ormawa/reset-akun/${selectedOrmawaForReset.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+      },
+      body: JSON.stringify({}),
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Gagal mereset akun');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success && data.newPassword) {
+        setNewPassword(data.newPassword);
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      alert('Gagal mereset akun: ' + error.message);
+      setShowResetModal(false);
+    });
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(newPassword);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -126,12 +170,22 @@ export default function DataOrmawaPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <Link
-                        href={`/data-ormawa/detail/${org.id}`}
-                        className="text-blue-600 underline text-sm"
-                      >
-                        Lihat
-                      </Link>
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/data-ormawa/detail/${org.id}`}
+                          className="text-blue-600 underline text-sm hover:text-blue-800"
+                        >
+                          Lihat
+                        </Link>
+                        <button
+                          onClick={() => handleResetAkun(org)}
+                          className="text-orange-600 underline text-sm hover:text-orange-800 flex items-center gap-1"
+                          title="Reset akun dan password"
+                        >
+                          <RotateCw size={14} />
+                          Reset
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -278,6 +332,133 @@ export default function DataOrmawaPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL RESET AKUN */}
+        {showResetModal && selectedOrmawaForReset && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold text-[#0B132B]">Reset Akun Ormawa</h2>
+                <button
+                  onClick={() => {
+                    setShowResetModal(false);
+                    setNewPassword("");
+                    setCopied(false);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {!newPassword ? (
+                <div>
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-gray-700">
+                      Anda akan mereset akun <strong>{selectedOrmawaForReset.nama}</strong>
+                    </p>
+                    <ul className="text-sm text-gra y-700 mt-3 space-y-2">
+                      <li>✓ Password akan direset ke password baru</li>
+                      <li>✓ Semua data program kerja akan dihapus</li>
+                      <li>✓ Semua pengajuan kegiatan akan dihapus</li>
+                      <li>✓ Semua laporan kegiatan akan dihapus</li>
+                      <li className="font-semibold">✓ Data di Puskaka tetap tersimpan (filter tahun kepengurusan)</li>
+                    </ul>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setShowResetModal(false);
+                        setNewPassword("");
+                      }}
+                      className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={confirmResetAkun}
+                      className="flex-1 bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition flex items-center justify-center gap-2"
+                    >
+                      <RotateCw size={18} />
+                      Reset Akun
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <p className="text-sm text-green-800 font-semibold mb-2">✓ Akun berhasil direset!</p>
+                    <p className="text-sm text-gray-700">
+                      Berikan password baru ini kepada ketua {selectedOrmawaForReset.nama}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                      <input
+                        type="text"
+                        value={selectedOrmawaForReset.nama}
+                        disabled
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newPassword}
+                          disabled
+                          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700 font-mono"
+                        />
+                        <button
+                          onClick={copyToClipboard}
+                          className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition ${
+                            copied
+                              ? 'bg-green-500 text-white'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          }`}
+                        >
+                          {copied ? (
+                            <>
+                              <Check size={18} />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={18} />
+                              Copy
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-xs text-yellow-800">
+                      💡 <strong>Tips:</strong> Catat atau copy password ini sebelum menutup dialog. Password ini hanya ditampilkan sekali.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setShowResetModal(false);
+                      setNewPassword("");
+                      setCopied(false);
+                    }}
+                    className="w-full mt-4 bg-[#0B132B] text-white py-2 rounded-lg hover:bg-[#1C2541] transition"
+                  >
+                    Selesai
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

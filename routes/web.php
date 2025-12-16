@@ -251,6 +251,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Edit Profil Ormawa
     Route::get('/profil/edit', [ProfileOrmawaController::class, 'edit'])->name('profile.ormawa.edit');
     Route::post('/profil/update', [ProfileOrmawaController::class, 'update'])->name('profile.ormawa.update');
+    Route::post('/profile/change-password', [\App\Http\Controllers\Settings\ProfileController::class, 'changePassword'])->name('profile.change-password');
 
     // Manajemen Kegiatan (Puskaka Only)
     Route::get('/manajemen-kegiatan', function () {
@@ -331,6 +332,11 @@ Route::middleware(['auth', 'verified'])->post('/ormawa/create', function () {
         ->route('data.ormawa')
         ->with('success', 'Ormawa baru berhasil ditambahkan');
 });
+
+Route::middleware(['auth', 'verified'])->post('/ormawa/reset-akun/{userId}', [
+    \App\Http\Controllers\DataOrmawaController::class,
+    'resetAkun'
+])->name('ormawa.reset');
 
 Route::middleware(['auth', 'verified'])->get('/data-ormawa/detail/{id}', function ($id) {
     if (Auth::user()->role !== 'puskaka') abort(403);
