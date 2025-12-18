@@ -26,7 +26,14 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
 
     const confirmAjukan = () => {
         setShowConfirmModal(false);
-        router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' });
+        router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' }, {
+            onSuccess: () => {
+                alert('✅ Program kerja berhasil diajukan ke Puskaka!');
+            },
+            onError: () => {
+                alert('❌ Gagal mengajukan program kerja. Silakan coba lagi.');
+            }
+        });
     };
 
     return (

@@ -286,7 +286,11 @@ export default function EditLaporan() {
         // Setelah berhasil update, ajukan kembali
         router.post(`/laporan-kegiatan/ajukan/${laporan.id}`, {}, {
           onSuccess: () => {
+            alert('✅ Laporan kegiatan berhasil diajukan kembali ke Puskaka!');
             router.visit('/laporan-kegiatan');
+          },
+          onError: () => {
+            alert('❌ Gagal mengajukan kembali laporan kegiatan. Silakan coba lagi.');
           },
           onFinish: () => setIsSubmitting(false),
         });

@@ -72,7 +72,13 @@ export default function EditProgramKerja() {
       onSuccess: () => {
         // Setelah berhasil update, ajukan kembali
         router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' }, {
-          onSuccess: () => router.visit("/program-kerja"),
+          onSuccess: () => {
+            alert('✅ Program kerja berhasil diajukan kembali ke Puskaka!');
+            router.visit("/program-kerja");
+          },
+          onError: () => {
+            alert('❌ Gagal mengajukan kembali program kerja. Silakan coba lagi.');
+          }
         });
       },
     });

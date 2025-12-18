@@ -46,7 +46,11 @@ export default function DetailPengajuanKegiatan() {
   const handleAjukan = () => {
     router.put(`/pengajuan-kegiatan/ajukan/${pengajuan.id}`, {}, {
       onSuccess: () => {
+        alert('✅ Pengajuan kegiatan berhasil diajukan ke Puskaka!');
         router.visit('/pengajuan-kegiatan');
+      },
+      onError: () => {
+        alert('❌ Gagal mengajukan pengajuan kegiatan. Silakan coba lagi.');
       }
     });
   };

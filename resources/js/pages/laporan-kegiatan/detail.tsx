@@ -33,7 +33,11 @@ export default function DetailLaporanKegiatan() {
   const handleAjukan = () => {
     router.post(`/laporan-kegiatan/ajukan/${item.id}`, {}, {
       onSuccess: () => {
+        alert('✅ Laporan kegiatan berhasil diajukan ke Puskaka!');
         router.visit('/laporan-kegiatan');
+      },
+      onError: () => {
+        alert('❌ Gagal mengajukan laporan kegiatan. Silakan coba lagi.');
       }
     });
   };

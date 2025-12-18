@@ -202,7 +202,11 @@ export default function BuatProposal() {
                     // Setelah berhasil update, ajukan kembali
                     router.put(`/pengajuan-kegiatan/ajukan/${pengajuan.id}`, {}, {
                         onSuccess: () => {
+                            alert('✅ Pengajuan kegiatan berhasil diajukan kembali ke Puskaka!');
                             router.visit('/pengajuan-kegiatan');
+                        },
+                        onError: () => {
+                            alert('❌ Gagal mengajukan kembali pengajuan kegiatan. Silakan coba lagi.');
                         }
                     });
                 },

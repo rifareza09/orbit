@@ -142,8 +142,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('dashboard');
 
-    Route::get('/dashboard/puskaka', function () {
-        if (Auth::user()->role !== 'puskaka') abort(403);
+    Route::middleware(['puskaka'])->get('/dashboard/puskaka', function () {
 
         // Query data dari database
         $allProgramKerjas = \App\Models\ProgramKerja::with('user')->get();
@@ -251,11 +250,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Edit Profil Ormawa
     Route::get('/profil/edit', [ProfileOrmawaController::class, 'edit'])->name('profile.ormawa.edit');
     Route::post('/profil/update', [ProfileOrmawaController::class, 'update'])->name('profile.ormawa.update');
-    Route::post('/profile/change-password', [\App\Http\Controllers\Settings\ProfileController::class, 'changePassword'])->name('profile.change-password');
+    Route::post('/profile/change-password', [\App\Http\Controllers\Settings\ProfileController::class, 'changePassword'])
+        ->middleware('throttle:10,1')
+        ->name('profile.change-password');
 
     // Manajemen Kegiatan (Puskaka Only)
-    Route::get('/manajemen-kegiatan', function () {
-        if (Auth::user()->role !== 'puskaka') abort(403);
+    Route::middleware(['puskaka'])->get('/manajemen-kegiatan', function () {
         return Inertia::render('manajemen-kegiatan/index');
     })->name('manajemen.kegiatan');
 
@@ -264,8 +264,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     });
 
-    Route::middleware(['auth', 'verified'])->get('/data-ormawa', function () {
-        if (Auth::user()->role !== 'puskaka') abort(403);
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/data-ormawa', function () {
 
         // Query data ormawa dari database (exclude puskaka)
         $ormawaList = \App\Models\User::where('role', '!=', 'puskaka')
@@ -301,8 +300,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('data.ormawa');
 
-Route::middleware(['auth', 'verified'])->post('/ormawa/create', function () {
-    if (Auth::user()->role !== 'puskaka') abort(403);
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/create', function () {
 
     $validated = request()->validate([
         'name' => 'required|string|max:255',
@@ -323,18 +321,32 @@ Route::middleware(['auth', 'verified'])->post('/ormawa/create', function () {
         ->with('success', 'Ormawa baru berhasil ditambahkan');
 });
 
-Route::middleware(['auth', 'verified'])->post('/ormawa/reset-akun/{userId}', [
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/reset-akun/{userId}', [
     \App\Http\Controllers\DataOrmawaController::class,
     'resetAkun'
-])->name('ormawa.reset');
+])
+    ->middleware('throttle:5,1')
+    ->name('ormawa.reset');
 
-Route::middleware(['auth', 'verified'])->post('/ormawa/toggle-status/{userId}', [
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/toggle-status/{userId}', [
     \App\Http\Controllers\DataOrmawaController::class,
     'toggleStatus'
-])->name('ormawa.toggle-status');
+])
+    ->middleware('throttle:10,1')
+    ->name('ormawa.toggle-status');
 
-Route::middleware(['auth', 'verified'])->get('/data-ormawa/detail/{id}', function ($id) {
-    if (Auth::user()->role !== 'puskaka') abort(403);
+// Arsip Tahunan (Puskaka Only)
+Route::middleware(['auth', 'verified', 'puskaka'])->group(function () {
+    Route::get('/puskaka/arsip-tahunan', [\App\Http\Controllers\ArsipTahunanController::class, 'index'])
+        ->name('puskaka.arsip-tahunan.index');
+    Route::get('/puskaka/arsip-tahunan/{id}', [\App\Http\Controllers\ArsipTahunanController::class, 'show'])
+        ->name('puskaka.arsip-tahunan.show');
+    Route::delete('/puskaka/arsip-tahunan/{id}', [\App\Http\Controllers\ArsipTahunanController::class, 'destroy'])
+        ->middleware('throttle:10,1')
+        ->name('puskaka.arsip-tahunan.destroy');
+});
+
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/data-ormawa/detail/{id}', function ($id) {
 
     // Handle dummy data untuk ormawa non-aktif
     $dummyOrmawaMap = [
@@ -413,8 +425,7 @@ Route::middleware(['auth', 'verified'])->get('/data-ormawa/detail/{id}', functio
     ]);
 })->name('data.ormawa.detail');
 
-Route::middleware(['auth', 'verified'])->get('/program-kerja/indexPuskaka', function () {
-    if (Auth::user()->role !== 'puskaka') abort(403);
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/program-kerja/indexPuskaka', function () {
 
     // Fetch program kerja dengan status Diajukan, Direview, Disetujui, Ditolak
     // (exclude Belum Diajukan agar hanya yang sudah/sedang di-review)
@@ -442,8 +453,7 @@ Route::middleware(['auth', 'verified'])->get('/program-kerja/indexPuskaka', func
     ]);
 })->name('program-kerja.indexPuskaka');
 
-Route::middleware(['auth', 'verified'])->get('/program-kerja/{id}/detail-puskaka', function ($id) {
-    if (Auth::user()->role !== 'puskaka') abort(403);
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/program-kerja/{id}/detail-puskaka', function ($id) {
 
     $programKerja = \App\Models\ProgramKerja::with('user')->findOrFail($id);
 
@@ -464,28 +474,28 @@ Route::middleware(['auth', 'verified'])->get('/program-kerja/{id}/detail-puskaka
     ]);
 })->name('program-kerja.detailPuskaka');
 
-Route::middleware(['auth', 'verified'])->post('/program-kerja/{id}/update-status', [
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/program-kerja/{id}/update-status', [
     \App\Http\Controllers\PuskakaController::class,
     'updateStatusProgramKerja'
 ])->name('program-kerja.updateStatus');
 
-Route::middleware(['auth', 'verified'])->post('/pengajuan-kegiatan/{id}/update-status', [
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/pengajuan-kegiatan/{id}/update-status', [
     \App\Http\Controllers\PuskakaController::class,
     'updateStatusPengajuanKegiatan'
 ])->name('pengajuan-kegiatan.updateStatus');
 
 // Manajemen Kegiatan Routes (Puskaka)
-Route::middleware(['auth', 'verified'])->get('/manajemen-kegiatan', [
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/manajemen-kegiatan', [
     \App\Http\Controllers\ManajemenKegiatanController::class,
     'index'
 ])->name('manajemen-kegiatan.index');
 
-Route::middleware(['auth', 'verified'])->get('/manajemen-kegiatan/detail/{id}', [
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/manajemen-kegiatan/detail/{id}', [
     \App\Http\Controllers\ManajemenKegiatanController::class,
     'show'
 ])->name('manajemen-kegiatan.detail');
 
-Route::middleware(['auth', 'verified'])->post('/manajemen-kegiatan/{id}/update-review', [
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/manajemen-kegiatan/{id}/update-review', [
     \App\Http\Controllers\ManajemenKegiatanController::class,
     'updateReview'
 ])->name('manajemen-kegiatan.updateReview');
@@ -495,17 +505,17 @@ Route::middleware(['auth', 'verified'])->post('/manajemen-kegiatan/{id}/update-r
 | Evaluasi & Laporan
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan', [
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/evaluasi-laporan', [
     \App\Http\Controllers\EvaluasiLaporanController::class,
     'index'
 ])->name('evaluasi-laporan.index');
 
-Route::middleware(['auth', 'verified'])->get('/evaluasi-laporan/detail/{id}', [
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/evaluasi-laporan/detail/{id}', [
     \App\Http\Controllers\EvaluasiLaporanController::class,
     'show'
 ])->name('evaluasi-laporan.detail');
 
-Route::middleware(['auth', 'verified'])->post('/evaluasi-laporan/{id}/update-status', [
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/evaluasi-laporan/{id}/update-status', [
     \App\Http\Controllers\EvaluasiLaporanController::class,
     'updateStatus'
 ])->name('evaluasi-laporan.updateStatus');

@@ -112,47 +112,50 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
   return (
     <DashboardLayout>
 
-      <div className="p-6 md:p-10 bg-[#F5F6FA] min-h-screen font-sans text-[#0B132B]">
+      <div className="p-4 md:p-6 lg:p-10 bg-[#F5F6FA] min-h-screen font-sans text-[#0B132B]">
 
         {/* 1. Header Card */}
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex items-center justify-between relative overflow-hidden">
-          <div className="flex items-center gap-6 z-10">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 md:p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative overflow-hidden">
+          <div className="flex items-center gap-4 md:gap-6 z-10 flex-1">
             {/* Logo */}
-            <div className="w-28 h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 overflow-hidden">
+            <div className="w-20 h-20 md:w-28 md:h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 overflow-hidden flex-shrink-0">
               {logo_url ? (
                 <img src={logo_url} alt="Logo" className="w-full h-full object-contain p-2" />
               ) : (
-                <ImageIcon size={40} strokeWidth={1.5} />
+                <ImageIcon size={32} strokeWidth={1.5} className="md:w-10 md:h-10" />
               )}
             </div>
 
             {/* Info Unit */}
-            <div>
-              <div className="text-sm font-semibold text-gray-500 mb-1">
+            <div className="flex-1 min-w-0">
+              <div className="text-xs md:text-sm font-semibold text-gray-500 mb-1">
                 {isPuskaka ? 'Profil Administrator' : 'Unit Kegiatan Mahasiswa'}
               </div>
-              <h1 className="text-3xl font-bold leading-tight">{unit?.nama || 'Nama Organisasi'}</h1>
-              <div className="text-sm text-gray-500 mt-1 font-medium">Periode {unit?.periode || '-'}</div>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight truncate">{unit?.nama || 'Nama Organisasi'}</h1>
+              <div className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Periode {unit?.periode || '-'}</div>
             </div>
           </div>
 
-          {/* Tombol Edit Profil */}
-          <Link
-            href="/profil/edit"
-            className="z-10 bg-[#0B132B] text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-[#152042] transition flex items-center gap-2 shadow-md"
-          >
-            <Edit2 size={16} />
-            Edit Profil
-          </Link>
+          {/* Tombol Actions */}
+          <div className="flex flex-row lg:flex-col gap-2 z-10 w-full lg:w-auto">
+            {/* Tombol Edit Profil */}
+            <Link
+              href="/profil/edit"
+              className="bg-[#0B132B] text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#152042] transition flex items-center justify-center gap-2 shadow-md flex-1 lg:flex-initial"
+            >
+              <Edit2 size={16} />
+              <span className="hidden sm:inline">Edit Profil</span>
+            </Link>
 
-          {/* Tombol Ubah Password */}
-          <button
-            onClick={() => setShowPasswordModal(true)}
-            className="z-10 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2 shadow-md"
-          >
-            <Lock size={16} />
-            Ubah Password
-          </button>
+            {/* Tombol Ubah Password */}
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="bg-blue-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2 shadow-md flex-1 lg:flex-initial"
+            >
+              <Lock size={16} />
+              <span className="hidden sm:inline">Ubah Password</span>
+            </button>
+          </div>
         </div>
 
         {/* 2. Deskripsi Section */}
@@ -170,11 +173,11 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
         {/* 3. Struktur Kepengurusan - Hidden for Puskaka */}
         {!isPuskaka && (
         <section className="mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-lg text-[#0B132B]">Struktur Kepengurusan</h3>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
+            <h3 className="font-bold text-base md:text-lg text-[#0B132B]">Struktur Kepengurusan</h3>
             <Link
               href="/profile/kepengurusan/create"
-              className="bg-[#0B132B] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#152042] transition flex items-center gap-2 shadow-md"
+              className="bg-[#0B132B] text-white px-4 py-2 rounded-lg text-xs md:text-sm font-medium hover:bg-[#152042] transition flex items-center gap-2 shadow-md w-full sm:w-auto justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -183,16 +186,17 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
             </Link>
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-[#0B132B] text-white">
-                <tr>
-                  <th className="px-6 py-4 font-semibold w-1/4">Jabatan</th>
-                  <th className="px-6 py-4 font-semibold w-1/3">Nama</th>
-                  <th className="px-6 py-4 font-semibold">Prodi</th>
-                  <th className="px-6 py-4 font-semibold text-right">NPM</th>
-                  <th className="px-6 py-4 font-semibold text-center w-28">Aksi</th>
-                </tr>
-              </thead>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left min-w-[640px]">
+                <thead className="bg-[#0B132B] text-white">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold w-1/4">Jabatan</th>
+                    <th className="px-6 py-4 font-semibold w-1/3">Nama</th>
+                    <th className="px-6 py-4 font-semibold">Prodi</th>
+                    <th className="px-6 py-4 font-semibold text-right">NPM</th>
+                    <th className="px-6 py-4 font-semibold text-center w-28">Aksi</th>
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-gray-100">
                 {kepengurusan.length > 0 ? (
                   kepengurusan.map((row, idx) => (
@@ -236,7 +240,8 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
                   </tr>
                 )}
               </tbody>
-            </table>
+              </table>
+            </div>
           </div>
         </section>
         )}
