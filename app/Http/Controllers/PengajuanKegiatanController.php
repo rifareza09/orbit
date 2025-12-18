@@ -151,7 +151,8 @@ class PengajuanKegiatanController extends Controller
             ->findOrFail($id);
 
         // Check if pengajuan can be edited (Belum Diajukan or Direvisi)
-        if (!in_array($pengajuan->status, ['Belum Diajukan', 'Direvisi'])) {
+        // Cek status_review untuk status revisi dari Puskaka
+        if ($pengajuan->status !== 'Belum Diajukan' && $pengajuan->status_review !== 'Direvisi' && $pengajuan->status_review !== 'Ditolak') {
             return redirect('/pengajuan-kegiatan')
                 ->with('error', 'Pengajuan ini tidak dapat diedit.');
         }
@@ -238,7 +239,11 @@ class PengajuanKegiatanController extends Controller
     public function ajukan($id)
     {
         $pengajuan = PengajuanKegiatan::where('user_id', Auth::id())->findOrFail($id);
-        $pengajuan->update(['status' => 'Diajukan']);
+        // Update status dan status_review ke Diajukan (untuk pengajuan baru atau re-submit dari revisi)
+        $pengajuan->update([
+            'status' => 'Diajukan',
+            'status_review' => 'Menunggu Review'
+        ]);
 
         return redirect('/pengajuan-kegiatan')
             ->with('success', 'Proposal kegiatan berhasil diajukan!');

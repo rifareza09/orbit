@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, Head } from "@inertiajs/react";
-import { ArrowLeft, Calendar, MapPin, FileText, Image as ImageIcon, Clock, Award } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, FileText, Image as ImageIcon, Clock, Award, ZoomIn, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Ormawa {
   id: number;
@@ -53,6 +53,38 @@ interface Props {
 
 export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = [], dokumentasi = [], prestasi = [] }: Props) {
   const [activeTab, setActiveTab] = useState<"kegiatan" | "jadwal" | "dokumentasi" | "prestasi">("kegiatan");
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [imageType, setImageType] = useState<"dokumentasi" | "prestasi">("dokumentasi");
+
+  const dokumentasiWithPhoto = dokumentasi.filter(item => item.foto_url);
+  const prestasiWithPhoto = prestasi.filter(item => item.bukti_path);
+
+  const openImageModal = (id: number, type: "dokumentasi" | "prestasi") => {
+    const list = type === "dokumentasi" ? dokumentasiWithPhoto : prestasiWithPhoto;
+    const index = list.findIndex(item => item.id === id);
+    if (index !== -1) {
+      setImageType(type);
+      setSelectedImageIndex(index);
+    }
+  };
+
+  const closeImageModal = () => setSelectedImageIndex(null);
+
+  const showPrevImage = () => {
+    if (selectedImageIndex !== null && selectedImageIndex > 0) {
+      setSelectedImageIndex(selectedImageIndex - 1);
+    }
+  };
+
+  const showNextImage = () => {
+    const list = imageType === "dokumentasi" ? dokumentasiWithPhoto : prestasiWithPhoto;
+    if (selectedImageIndex !== null && selectedImageIndex < list.length - 1) {
+      setSelectedImageIndex(selectedImageIndex + 1);
+    }
+  };
+
+  const currentList = imageType === "dokumentasi" ? dokumentasiWithPhoto : prestasiWithPhoto;
+  const selectedItem = selectedImageIndex !== null ? currentList[selectedImageIndex] : null;
 
   return (
     <>
@@ -206,16 +238,26 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
               {dokumentasi.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {dokumentasi.map((item) => (
-                    <div key={item.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden border border-gray-200 group">
-                      <div className="aspect-square bg-gray-200 flex items-center justify-center overflow-hidden">
+                    <div key={item.id} className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden border border-gray-200">
+                      <div
+                        className="w-full h-40 bg-gray-200 relative overflow-hidden cursor-pointer group"
+                        onClick={() => item.foto_url && openImageModal(item.id, "dokumentasi")}
+                      >
                         {item.foto_url ? (
-                          <img
-                            src={item.foto_url}
-                            alt={item.nama_kegiatan}
-                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                          />
+                          <>
+                            <img
+                              src={item.foto_url}
+                              alt={item.nama_kegiatan}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300 flex items-center justify-center">
+                              <ZoomIn className="text-white" size={32} />
+                            </div>
+                          </>
                         ) : (
-                          <ImageIcon size={48} className="text-gray-400" />
+                          <div className="flex items-center justify-center h-full text-gray-400">
+                            <ImageIcon size={48} />
+                          </div>
                         )}
                       </div>
                       <div className="p-4">
@@ -264,15 +306,13 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
                         </div>
                       </div>
                       {item.bukti_path && (
-                        <a
-                          href={item.bukti_path}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => openImageModal(item.id, "prestasi")}
                           className="flex-shrink-0 inline-flex items-center gap-2 bg-[#0B132B] text-white px-4 py-2 rounded-lg hover:bg-[#1C2541] transition text-sm font-semibold"
                         >
                           <FileText size={16} />
                           Lihat Bukti
-                        </a>
+                        </button>
                       )}
                     </div>
                   </div>
@@ -286,6 +326,64 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
             </div>
           )}
         </div>
+
+        {/* Image Lightbox Modal */}
+        {selectedImageIndex !== null && selectedItem && (
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={closeImageModal}
+          >
+            <div className="relative max-w-5xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
+              {/* Close Button */}
+              <button
+                onClick={closeImageModal}
+                className="absolute top-4 right-4 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 transition"
+              >
+                <X size={24} />
+              </button>
+
+              {/* Previous Button */}
+              {selectedImageIndex > 0 && (
+                <button
+                  onClick={showPrevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 transition"
+                >
+                  <ChevronLeft size={32} />
+                </button>
+              )}
+
+              {/* Next Button */}
+              {selectedImageIndex < currentList.length - 1 && (
+                <button
+                  onClick={showNextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/30 hover:bg-black/50 text-white rounded-full p-3 transition"
+                >
+                  <ChevronRight size={32} />
+                </button>
+              )}
+
+              {/* Image */}
+              <div className="bg-white rounded-lg overflow-hidden shadow-2xl">
+                <img
+                  src={imageType === "dokumentasi" ? (selectedItem as Dokumentasi).foto_url! : (selectedItem as Prestasi).bukti_path!}
+                  alt={imageType === "dokumentasi" ? (selectedItem as Dokumentasi).nama_kegiatan : (selectedItem as Prestasi).nama_prestasi}
+                  className="w-full h-auto max-h-[80vh] object-contain"
+                />
+                <div className="p-4 bg-gray-50">
+                  <h3 className="font-bold text-lg text-[#0B132B]">
+                    {imageType === "dokumentasi" ? (selectedItem as Dokumentasi).nama_kegiatan : (selectedItem as Prestasi).nama_prestasi}
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {imageType === "dokumentasi" ? (selectedItem as Dokumentasi).tanggal_kegiatan : (selectedItem as Prestasi).tanggal_perolehan}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {selectedImageIndex + 1} / {currentList.length}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="bg-[#0B132B] text-white py-8 text-center text-sm mt-12">

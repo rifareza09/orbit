@@ -69,33 +69,81 @@ export default function BuatLaporanKegiatan() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    console.log('=== FORM SUBMISSION DEBUG ===');
+    console.log('isEdit:', isEdit);
+    console.log('laporanId:', laporanId);
+    console.log('Form data:', data);
+    console.log('Form errors:', errors);
+    console.log('Processing:', processing);
+    console.log('Files - LPJ:', data.lpj?.name, 'Size:', data.lpj?.size);
+    console.log('Files - Bukti:', data.bukti_pengeluaran.length, 'files', data.bukti_pengeluaran.map((f: File) => `${f.name} (${f.size})`));
+    console.log('Files - Dokumentasi:', data.dokumentasi.length, 'files', data.dokumentasi.map((f: File) => `${f.name} (${f.size})`));
+
     if (isEdit && laporanId) {
       // Update existing laporan
+      console.log(`📤 Submitting update to: /laporan-kegiatan/update/${laporanId}`);
       post(`/laporan-kegiatan/update/${laporanId}`, {
         onSuccess: () => {
+          console.log('✅ Update success!');
           router.visit('/laporan-kegiatan');
+        },
+        onError: (errors) => {
+          console.error('❌ Update error:', errors);
+          showNotification('error', `❌ Update gagal: ${JSON.stringify(errors)}`);
         }
       });
     } else {
       // Create new laporan
+      console.log('📤 Submitting create to: /laporan-kegiatan');
       post('/laporan-kegiatan', {
         onSuccess: () => {
+          console.log('✅ Create success!');
           router.visit('/laporan-kegiatan');
+        },
+        onError: (errors) => {
+          console.error('❌ Create error:', errors);
+          showNotification('error', `❌ Simpan gagal: ${JSON.stringify(errors)}`);
         }
       });
     }
+  };
+
+  const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB per file
+  const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB total
+  const [notifications, setNotifications] = React.useState<Array<{id: string, type: 'error'|'success', message: string}>>([]);
+
+  const showNotification = (type: 'error' | 'success', message: string) => {
+    const id = Date.now().toString();
+    setNotifications(prev => [...prev, {id, type, message}]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 5000); // Auto-remove after 5 seconds
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const handleLpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const allowedTypes = ['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'];
-      if (allowedTypes.includes(file.type)) {
-        setData('lpj', file);
-      } else {
-        alert('File harus berformat PNG, JPG, JPEG, atau PDF');
+      if (!allowedTypes.includes(file.type)) {
+        showNotification('error', `❌ File "${file.name}" tidak valid. Harus berformat PNG, JPG, JPEG, atau PDF`);
         e.target.value = '';
+        return;
       }
+      if (file.size > MAX_FILE_SIZE) {
+        showNotification('error', `❌ File "${file.name}" terlalu besar! Ukuran: ${formatFileSize(file.size)}, Maksimal: ${formatFileSize(MAX_FILE_SIZE)}`);
+        e.target.value = '';
+        return;
+      }
+      setData('lpj', file);
+      showNotification('success', `✅ File "${file.name}" (${formatFileSize(file.size)}) siap upload`);
     }
   };
 
@@ -103,39 +151,162 @@ export default function BuatLaporanKegiatan() {
     const files = Array.from(e.target.files || []);
     const allowedTypes = ['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'];
 
-    const validFiles = files.filter(file => {
-      if (allowedTypes.includes(file.type)) {
-        return true;
-      } else {
-        alert(`File ${file.name} tidak valid. Harus berformat PNG, JPG, JPEG, atau PDF`);
-        return false;
+    const validFiles: File[] = [];
+    let totalSize = 0;
+    const errors: string[] = [];
+
+    files.forEach(file => {
+      // Check file type
+      if (!allowedTypes.includes(file.type)) {
+        errors.push(`"${file.name}" - format tidak valid (harus PNG, JPG, JPEG, atau PDF)`);
+        return;
       }
+
+      // Check individual file size
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`"${file.name}" - terlalu besar (${formatFileSize(file.size)} > ${formatFileSize(MAX_FILE_SIZE)})`);
+        return;
+      }
+
+      totalSize += file.size;
+      validFiles.push(file);
     });
 
-    setData('bukti_pengeluaran', validFiles);
+    // Check total size
+    if (totalSize > MAX_TOTAL_SIZE) {
+      errors.push(`Total file terlalu besar (${formatFileSize(totalSize)} > ${formatFileSize(MAX_TOTAL_SIZE)})`);
+      e.target.value = '';
+    } else if (errors.length === 0) {
+      setData('bukti_pengeluaran', validFiles);
+      showNotification('success', `✅ ${validFiles.length} file bukti pengeluaran (${formatFileSize(totalSize)}) siap upload`);
+      return;
+    }
+
+    if (errors.length > 0) {
+      showNotification('error', `❌ Bukti Pengeluaran:\n${errors.join('\n')}`);
+      e.target.value = '';
+    }
   };
 
   const handleDokumentasiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const allowedTypes = ['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'];
 
-    const validFiles = files.filter(file => {
-      if (allowedTypes.includes(file.type)) {
-        return true;
-      } else {
-        alert(`File ${file.name} tidak valid. Harus berformat PNG, JPG, JPEG, atau PDF`);
-        return false;
+    console.log('📸 Dokumentasi change - Files selected:', files.length, files.map(f => `${f.name} (${formatFileSize(f.size)})`));
+
+    const validFiles: File[] = [];
+    let totalSize = 0;
+    const errors: string[] = [];
+
+    files.forEach(file => {
+      // Check file type
+      if (!allowedTypes.includes(file.type)) {
+        errors.push(`"${file.name}" - format tidak valid (harus PNG, JPG, JPEG, atau PDF)`);
+        console.log('❌ Invalid type:', file.name, file.type);
+        return;
       }
+
+      // Check individual file size
+      if (file.size > MAX_FILE_SIZE) {
+        errors.push(`"${file.name}" - terlalu besar (${formatFileSize(file.size)} > ${formatFileSize(MAX_FILE_SIZE)})`);
+        console.log('❌ File too large:', file.name, formatFileSize(file.size));
+        return;
+      }
+
+      totalSize += file.size;
+      validFiles.push(file);
     });
 
-    setData('dokumentasi', validFiles);
+    console.log('Total size:', formatFileSize(totalSize), 'Max:', formatFileSize(MAX_TOTAL_SIZE));
+
+    // Check total size
+    if (totalSize > MAX_TOTAL_SIZE) {
+      errors.push(`Total file terlalu besar (${formatFileSize(totalSize)} > ${formatFileSize(MAX_TOTAL_SIZE)})`);
+      e.target.value = '';
+    } else if (errors.length === 0) {
+      setData('dokumentasi', validFiles);
+      console.log('✅ Dokumentasi valid, setting', validFiles.length, 'files');
+      showNotification('success', `✅ ${validFiles.length} file dokumentasi (${formatFileSize(totalSize)}) siap upload`);
+      return;
+    }
+
+    if (errors.length > 0) {
+      console.log('🔴 Errors found:', errors);
+      showNotification('error', `❌ Dokumentasi:\n${errors.join('\n')}`);
+      e.target.value = '';
+    }
   };
   return (
     <DashboardLayout>
       <div className="p-8">
+        {/* Notification Toast Container */}
+        <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+          {notifications.map(notif => (
+            <div
+              key={notif.id}
+              className={`p-4 rounded-lg shadow-lg border-l-4 animate-in fade-in slide-in-from-right ${
+                notif.type === 'error'
+                  ? 'bg-red-50 border-l-red-500 text-red-800'
+                  : 'bg-green-50 border-l-green-500 text-green-800'
+              }`}
+              style={{animation: 'slideIn 0.3s ease-out'}}
+            >
+              <p className="text-sm font-medium whitespace-pre-wrap">{notif.message}</p>
+            </div>
+          ))}
+        </div>
+
+        <style>{`
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+        `}</style>
+
         <h1 className="text-2xl font-semibold text-[#0B132B] mb-6">
           {isEdit ? 'Edit Laporan Kegiatan' : 'Buat Laporan Kegiatan'}
         </h1>
+
+        {/* Info Box - Upload Guidelines */}
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex gap-3">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-11-1a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-blue-900">Panduan Upload File</h3>
+              <p className="mt-1 text-sm text-blue-800">
+                • Setiap file maksimal <strong>20MB</strong><br/>
+                • Total semua file maksimal <strong>50MB</strong><br/>
+                • Format yang diterima: <strong>PDF, JPG, JPEG, PNG</strong><br/>
+                • ⚠️ Jika file melebihi batas, notifikasi akan muncul (atas kanan)<br/>
+                • Tips: Kompresi gambar/PDF sebelum upload
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {Object.keys(errors).length > 0 && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <h3 className="text-sm font-semibold text-red-900">Terjadi Kesalahan:</h3>
+            <ul className="mt-2 text-sm text-red-800 list-disc list-inside">
+              {Object.entries(errors).map(([key, value]) => (
+                <li key={key}>
+                  {key}: {typeof value === 'string' ? value : JSON.stringify(value)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -257,6 +428,7 @@ export default function BuatLaporanKegiatan() {
             <div>
               <label htmlFor="lpj-upload" className="block text-sm font-medium text-gray-700 mb-2">
                 Laporan Pertanggung Jawaban (LPJ)
+                <span className="text-xs text-gray-500 font-normal ml-1">(Maksimal 5MB)</span>
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
                 <input
@@ -289,6 +461,7 @@ export default function BuatLaporanKegiatan() {
             <div>
               <label htmlFor="bukti-upload" className="block text-sm font-medium text-gray-700 mb-2">
                 Bukti Pengeluaran (Nota/Kwitansi)
+                <span className="text-xs text-gray-500 font-normal ml-1">(Per file: Maks 5MB, Total: Maks 8MB)</span>
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
                 <input
@@ -321,6 +494,7 @@ export default function BuatLaporanKegiatan() {
             <div>
               <label htmlFor="dokumentasi-upload" className="block text-sm font-medium text-gray-700 mb-2">
                 Dokumentasi Kegiatan
+                <span className="text-xs text-gray-500 font-normal ml-1">(Per file: Maks 5MB, Total: Maks 8MB)</span>
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
                 <input
@@ -380,6 +554,7 @@ export default function BuatLaporanKegiatan() {
             <button
               type="submit"
               disabled={processing}
+              onClick={() => console.log('🔘 Submit button clicked! Processing:', processing)}
               className="px-6 py-2 bg-[#0B132B] text-white rounded-md hover:bg-gray-800 transition disabled:opacity-50"
             >
               {processing ? 'Menyimpan...' : (isEdit ? 'Update' : 'Simpan')}

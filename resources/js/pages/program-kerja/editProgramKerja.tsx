@@ -60,6 +60,24 @@ export default function EditProgramKerja() {
     });
   };
 
+  const handleAjukanKembali = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simpan perubahan dulu, lalu ajukan
+    const submitData = {
+      ...formData,
+      estimasi_anggaran: convertFormattedToNumber(formData.estimasi_anggaran),
+    };
+    const { status, ...payload } = submitData;
+    router.put(`/program-kerja/${item.id}`, payload, {
+      onSuccess: () => {
+        // Setelah berhasil update, ajukan kembali
+        router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' }, {
+          onSuccess: () => router.visit("/program-kerja"),
+        });
+      },
+    });
+  };
+
 
   return (
     <DashboardLayout>
@@ -138,12 +156,24 @@ export default function EditProgramKerja() {
             >
               Batalkan
             </button>
-            <button
-              type="submit"
-              className="bg-[#0B132B] text-white px-6 py-2 rounded-md hover:bg-[#1C2541] transition"
-            >
-              Simpan Perubahan
-            </button>
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                className="bg-[#0B132B] text-white px-6 py-2 rounded-md hover:bg-[#1C2541] transition"
+              >
+                Simpan Perubahan
+              </button>
+              {/* Tombol Ajukan Kembali hanya muncul jika status Direvisi */}
+              {item.status === 'Direvisi' && (
+                <button
+                  type="button"
+                  onClick={handleAjukanKembali}
+                  className="bg-yellow-500 text-white px-6 py-2 rounded-md hover:bg-yellow-600 transition font-semibold"
+                >
+                  Ajukan Kembali
+                </button>
+              )}
+            </div>
           </div>
         </form>
       </div>

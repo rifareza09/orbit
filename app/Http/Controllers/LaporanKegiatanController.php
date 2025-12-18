@@ -365,7 +365,8 @@ class LaporanKegiatanController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        if ($laporan->status === 'Belum Diajukan') {
+        // Izinkan ajukan dari status Belum Diajukan, Ditolak, atau Direvisi
+        if (in_array($laporan->status, ['Belum Diajukan', 'Ditolak', 'Direvisi'])) {
             $laporan->update(['status' => 'Diajukan']);
 
             return redirect()->route('laporan.index')

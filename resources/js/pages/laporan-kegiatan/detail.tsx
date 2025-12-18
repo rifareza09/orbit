@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { router, usePage } from "@inertiajs/react";
 import { formatCurrency } from "@/utils/currency";
-import { FileText, Image as ImageIcon } from "lucide-react";
+import { FileText, Image as ImageIcon, X } from "lucide-react";
 
 interface LaporanKegiatanItem {
   id: number;
@@ -28,12 +28,19 @@ interface LaporanKegiatanItem {
 
 export default function DetailLaporanKegiatan() {
   const { item } = usePage<{ item: LaporanKegiatanItem }>().props;
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const handleAjukan = () => {
     router.post(`/laporan-kegiatan/ajukan/${item.id}`, {}, {
       onSuccess: () => {
         router.visit('/laporan-kegiatan');
       }
     });
+  };
+
+  const confirmAjukan = () => {
+    setShowConfirmModal(false);
+    handleAjukan();
   };
 
   return (
@@ -231,27 +238,84 @@ export default function DetailLaporanKegiatan() {
             Kembali
           </button>
 
-          {item.status === 'Belum Diajukan' && (
-            <>
-              <button
-                onClick={() => router.visit(`/laporan-kegiatan/edit/${item.id}`)}
-                className="bg-blue-500 text-white px-8 py-2 rounded-lg shadow hover:bg-blue-600 transition font-semibold"
-              >
-                Edit
-              </button>
-              <button
-                onClick={handleAjukan}
-                className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition font-semibold"
-              >
-                Ajukan
-              </button>
-            </>
+          {/* Tombol Edit untuk status Belum Diajukan atau Ditolak */}
+          {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
+            <button
+              onClick={() => router.visit(`/laporan-kegiatan/edit/${item.id}`)}
+              className="bg-blue-500 text-white px-8 py-2 rounded-lg shadow hover:bg-blue-600 transition font-semibold"
+            >
+              Edit
+            </button>
+          )}
+
+          {/* Tombol Revisi khusus untuk status Direvisi - hanya tombol ini yang muncul */}
+          {item.status === 'Direvisi' && (
+            <button
+              onClick={() => router.visit(`/laporan-kegiatan/edit/${item.id}`)}
+              className="bg-orange-500 text-white px-8 py-2 rounded-lg shadow hover:bg-orange-600 transition font-semibold"
+            >
+              Revisi Laporan
+            </button>
+          )}
+
+          {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak */}
+          {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
+            <button
+              onClick={() => setShowConfirmModal(true)}
+              className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition font-semibold"
+            >
+              Ajukan
+            </button>
           )}
         </div>
 
         <div className="text-center text-gray-500 text-sm mt-12">
           ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
         </div>
+
+        {/* CONFIRMATION MODAL */}
+        {showConfirmModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg font-bold text-[#0B132B]">Konfirmasi Pengajuan</h2>
+                        <button
+                            onClick={() => setShowConfirmModal(false)}
+                            className="text-gray-400 hover:text-gray-600"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+
+                    <div className="mb-6">
+                        <p className="text-gray-700">
+                            Apakah Anda yakin ingin mengajukan laporan kegiatan <strong>"{item.namaKegiatan}"</strong> ke Puskaka?
+                        </p>
+                        <p className="text-sm text-gray-600 mt-2">
+                            Anggaran realisasi: <strong>{formatCurrency(item.anggaranRealisasi)}</strong>
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1">
+                            Laporan ini akan diteruskan untuk review dan persetujuan oleh Puskaka.
+                        </p>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => setShowConfirmModal(false)}
+                            className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition font-medium"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            onClick={confirmAjukan}
+                            className="flex-1 bg-[#0B132B] text-white py-2 rounded-lg hover:bg-[#1C2541] transition font-medium"
+                        >
+                            Ya, Ajukan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
       </div>
     </DashboardLayout>
   );

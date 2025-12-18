@@ -25,9 +25,9 @@ class UpdateLaporanRequest extends FormRequest
             'anggaran_realisasi'    => 'nullable|numeric|min:0',
             'ringkasan'             => 'nullable|string',
             'catatan'               => 'nullable|string',
-            'lpj'                   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'bukti_pengeluaran.*'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'dokumentasi.*'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'lpj'                   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            'bukti_pengeluaran.*'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            'dokumentasi.*'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
             'remove_bukti.*'        => 'string',
             'remove_dokumentasi.*'  => 'string',
         ];
@@ -44,11 +44,11 @@ class UpdateLaporanRequest extends FormRequest
             'anggaran_disetujui.numeric' => 'Anggaran disetujui harus berupa angka.',
             'anggaran_realisasi.numeric' => 'Anggaran realisasi harus berupa angka.',
             'lpj.mimes' => 'File LPJ harus berformat PDF, JPG, JPEG, atau PNG.',
-            'lpj.max' => 'File LPJ maksimal 5MB.',
+            'lpj.max' => 'File LPJ maksimal 20MB.',
             'bukti_pengeluaran.*.mimes' => 'File bukti pengeluaran harus berformat PDF, JPG, JPEG, atau PNG.',
-            'bukti_pengeluaran.*.max' => 'File bukti pengeluaran maksimal 5MB.',
+            'bukti_pengeluaran.*.max' => 'File bukti pengeluaran maksimal 20MB per file.',
             'dokumentasi.*.mimes' => 'File dokumentasi harus berformat PDF, JPG, JPEG, atau PNG.',
-            'dokumentasi.*.max' => 'File dokumentasi maksimal 5MB.',
+            'dokumentasi.*.max' => 'File dokumentasi maksimal 20MB per file.',
         ];
     }
 }

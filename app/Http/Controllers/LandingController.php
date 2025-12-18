@@ -9,6 +9,7 @@ use App\Models\Dokumentasi;
 use App\Models\JadwalLatihan;
 use App\Models\Prestasi;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class LandingController extends Controller

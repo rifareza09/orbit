@@ -31,6 +31,7 @@ interface PengajuanKegiatan {
   deskripsi: string;
   proposal_path?: string;
   status?: string;
+  status_review?: string;
   program_kerja?: ProgramKerja;
   item_pengajuan_dana: ItemPengajuanDana[];
 }
@@ -173,6 +174,38 @@ export default function BuatProposal() {
                 onSuccess: () => {
                     router.visit('/pengajuan-kegiatan');
                 }
+            });
+        }
+    };
+
+    const handleAjukanKembali = () => {
+        const formDataToSend = new FormData();
+
+        // Add form fields
+        Object.entries(form).forEach(([key, value]) => {
+            formDataToSend.append(key, value.toString());
+        });
+
+        // Add proposal file
+        if (proposalFile) {
+            formDataToSend.append('proposal', proposalFile);
+        }
+
+        // Add items as JSON
+        formDataToSend.append('items', JSON.stringify(items));
+
+        if (isEdit && pengajuan) {
+            formDataToSend.append('_method', 'PUT');
+            // Simpan perubahan dulu
+            router.post(`/pengajuan-kegiatan/${pengajuan.id}`, formDataToSend as any, {
+                onSuccess: () => {
+                    // Setelah berhasil update, ajukan kembali
+                    router.put(`/pengajuan-kegiatan/ajukan/${pengajuan.id}`, {}, {
+                        onSuccess: () => {
+                            router.visit('/pengajuan-kegiatan');
+                        }
+                    });
+                },
             });
         }
     };
@@ -433,6 +466,17 @@ export default function BuatProposal() {
                     >
                         {isEdit ? 'Simpan Perubahan' : 'Simpan Proposal'}
                     </button>
+
+                    {/* Tombol Ajukan Kembali hanya muncul jika edit dan status Direvisi */}
+                    {isEdit && pengajuan?.status_review === 'Direvisi' && (
+                        <button
+                            type="button"
+                            onClick={handleAjukanKembali}
+                            className="px-10 py-2 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 font-semibold"
+                        >
+                            Ajukan Kembali
+                        </button>
+                    )}
                 </div>
 
                 <p className="text-center text-gray-500 text-sm mt-16">

@@ -16,11 +16,16 @@ class DokumentasiController extends Controller
             ->orderBy('tanggal_kegiatan', 'desc')
             ->get()
             ->map(function($item) {
+                $fotoUrl = null;
+                if ($item->foto_path) {
+                    $fotoUrl = asset('storage/' . $item->foto_path);
+                }
+
                 return [
                     'id' => $item->id,
                     'nama_kegiatan' => $item->nama_kegiatan,
                     'tanggal_kegiatan' => $item->tanggal_kegiatan->format('Y-m-d'),
-                    'foto_url' => $item->foto_path ? asset('storage/' . $item->foto_path) : null,
+                    'foto_url' => $fotoUrl,
                 ];
             });
 

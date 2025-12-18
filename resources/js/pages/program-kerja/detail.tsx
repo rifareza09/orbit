@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { Link, router } from '@inertiajs/react';
+import { X } from 'lucide-react';
 
 interface ProgramKerjaItem {
     id: number;
@@ -15,11 +16,17 @@ interface ProgramKerjaItem {
 }
 
 export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem }) {
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const handleDelete = () => {
         if (window.confirm('Apakah Anda yakin ingin menghapus program kerja ini?')) {
             router.delete(`/program-kerja/${item.id}`);
         }
+    };
+
+    const confirmAjukan = () => {
+        setShowConfirmModal(false);
+        router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' });
     };
 
     return (
@@ -108,29 +115,35 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                         Kembali
                     </Link>
 
-                   {/* Tombol Edit hanya muncul jika status bukan Disetujui */}
-                   {item.status !== 'Disetujui' && (
+                   {/* Tombol Edit untuk status Belum Diajukan atau Ditolak */}
+                   {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
                      <Link
                        href={`/program-kerja/edit/${item.id}`}
-                       className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
+                       className="bg-blue-500 text-white px-8 py-2 rounded-lg shadow hover:bg-blue-600 transition"
                      >
                        Edit
                      </Link>
                    )}
 
-        {/* Tombol Ajukan hanya muncul jika status Belum Diajukan, Ditolak, atau Direvisi */}
-        {(item.status === 'Belum Diajukan' || item.status === 'Ditolak' || item.status === 'Direvisi') && (
-          <button
-            onClick={() => {
-              if (confirm('Apakah Anda yakin ingin mengajukan kembali program kerja ini?')) {
-                router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' });
-              }
-            }}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-2 rounded-lg shadow transition font-semibold"
-          >
-            Ajukan ke Puskaka
-          </button>
-        )}
+                   {/* Tombol Revisi khusus untuk status Direvisi - hanya tombol ini yang muncul */}
+                   {item.status === 'Direvisi' && (
+                     <Link
+                       href={`/program-kerja/edit/${item.id}`}
+                       className="bg-orange-500 text-white px-8 py-2 rounded-lg shadow hover:bg-orange-600 transition font-semibold"
+                     >
+                       Revisi
+                     </Link>
+                   )}
+
+                   {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak */}
+                   {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
+                     <button
+                       onClick={() => setShowConfirmModal(true)}
+                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-2 rounded-lg shadow transition font-semibold"
+                     >
+                       Ajukan ke Puskaka
+                     </button>
+                   )}
 
                 </div>
 
@@ -138,6 +151,47 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                     ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
                 </div>
             </div>
+
+            {/* CONFIRMATION MODAL */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-bold text-[#0B132B]">Konfirmasi Pengajuan</h2>
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="mb-6">
+                            <p className="text-gray-700">
+                                Apakah Anda yakin ingin mengajukan program kerja <strong>"{item.programKerja}"</strong> ke Puskaka?
+                            </p>
+                            <p className="text-sm text-gray-600 mt-2">
+                                Program kerja ini akan diteruskan untuk review dan persetujuan oleh Puskaka.
+                            </p>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition font-medium"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={confirmAjukan}
+                                className="flex-1 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600 transition font-medium"
+                            >
+                                Ya, Ajukan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </DashboardLayout>
     );
 }

@@ -9,6 +9,7 @@ interface LaporanItem {
   pengajuan_kegiatan_id: number;
   ringkasan: string;
   catatan: string;
+  status: string;
   lpj_file: string | null;
   bukti_pengeluaran: string[];
   dokumentasi: string[];
@@ -44,6 +45,26 @@ export default function EditLaporan() {
   const [buktiPreviews, setBuktiPreviews] = useState<string[]>([]);
   const [dokPreviews, setDokPreviews] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notifications, setNotifications] = useState<Array<{id: string, type: 'error'|'success', message: string}>>([]);
+
+  const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB per file
+  const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB total
+
+  const showNotification = (type: 'error' | 'success', message: string) => {
+    const id = Date.now().toString();
+    setNotifications(prev => [...prev, {id, type, message}]);
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 5000);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -60,20 +81,94 @@ export default function EditLaporan() {
     type: 'lpj' | 'bukti' | 'dokumentasi'
   ) => {
     const files = Array.from(e.target.files || []);
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'];
+
     if (type === 'lpj' && files.length > 0) {
-      setFormData((prev) => ({ ...prev, lpjFile: files[0] }));
+      const file = files[0];
+      if (!allowedTypes.includes(file.type)) {
+        showNotification('error', `❌ File "${file.name}" tidak valid. Harus PDF, PNG, JPG, atau JPEG`);
+        e.target.value = '';
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        showNotification('error', `❌ File "${file.name}" terlalu besar! Ukuran: ${formatFileSize(file.size)}, Maksimal: ${formatFileSize(MAX_FILE_SIZE)}`);
+        e.target.value = '';
+        return;
+      }
+      setFormData((prev) => ({ ...prev, lpjFile: file }));
+      showNotification('success', `✅ File "${file.name}" (${formatFileSize(file.size)}) siap upload`);
     } else if (type === 'bukti') {
+      const validFiles: File[] = [];
+      let totalSize = 0;
+      const errors: string[] = [];
+
+      files.forEach(file => {
+        if (!allowedTypes.includes(file.type)) {
+          errors.push(`"${file.name}" - format tidak valid`);
+          return;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          errors.push(`"${file.name}" - terlalu besar (${formatFileSize(file.size)})`);
+          return;
+        }
+        totalSize += file.size;
+        validFiles.push(file);
+      });
+
+      if (totalSize > MAX_TOTAL_SIZE) {
+        showNotification('error', `❌ Total file terlalu besar (${formatFileSize(totalSize)} > ${formatFileSize(MAX_TOTAL_SIZE)})`);
+        e.target.value = '';
+        return;
+      }
+
+      if (errors.length > 0) {
+        showNotification('error', `❌ Bukti Pengeluaran:\n${errors.join('\n')}`);
+        e.target.value = '';
+        return;
+      }
+
       setFormData((prev) => ({
         ...prev,
-        buktiPengeluaran: [...prev.buktiPengeluaran, ...files],
+        buktiPengeluaran: [...prev.buktiPengeluaran, ...validFiles],
       }));
-      setBuktiPreviews([...buktiPreviews, ...files.map((f) => URL.createObjectURL(f))]);
+      setBuktiPreviews([...buktiPreviews, ...validFiles.map((f) => URL.createObjectURL(f))]);
+      showNotification('success', `✅ ${validFiles.length} file bukti (${formatFileSize(totalSize)}) siap upload`);
     } else if (type === 'dokumentasi') {
+      const validFiles: File[] = [];
+      let totalSize = 0;
+      const errors: string[] = [];
+
+      files.forEach(file => {
+        if (!allowedTypes.includes(file.type)) {
+          errors.push(`"${file.name}" - format tidak valid`);
+          return;
+        }
+        if (file.size > MAX_FILE_SIZE) {
+          errors.push(`"${file.name}" - terlalu besar (${formatFileSize(file.size)})`);
+          return;
+        }
+        totalSize += file.size;
+        validFiles.push(file);
+      });
+
+      if (totalSize > MAX_TOTAL_SIZE) {
+        showNotification('error', `❌ Total file terlalu besar (${formatFileSize(totalSize)} > ${formatFileSize(MAX_TOTAL_SIZE)})`);
+        e.target.value = '';
+        return;
+      }
+
+      if (errors.length > 0) {
+        showNotification('error', `❌ Dokumentasi:\n${errors.join('\n')}`);
+        e.target.value = '';
+        return;
+      }
+
       setFormData((prev) => ({
         ...prev,
-        dokumentasi: [...prev.dokumentasi, ...files],
+        dokumentasi: [...prev.dokumentasi, ...validFiles],
       }));
-      setDokPreviews([...dokPreviews, ...files.map((f) => URL.createObjectURL(f))]);
+      setDokPreviews([...dokPreviews, ...validFiles.map((f) => URL.createObjectURL(f))]);
+      showNotification('success', `✅ ${validFiles.length} file dokumentasi (${formatFileSize(totalSize)}) siap upload`);
     }
     e.target.value = '';
   };
@@ -150,6 +245,53 @@ export default function EditLaporan() {
 
     router.post(`/laporan-kegiatan/update/${laporan.id}`, form, {
       onFinish: () => setIsSubmitting(false),
+    });
+  };
+
+  const handleAjukanKembali = () => {
+    setIsSubmitting(true);
+
+    // Convert formatted string back to number
+    const anggaranRealisasiNumber = parseInt(formData.anggaran_realisasi.replace(/\D/g, '')) || 0;
+
+    const form = new FormData();
+    form.append('_method', 'PUT');
+    form.append('ringkasan', formData.ringkasan);
+    form.append('catatan', formData.catatan);
+    form.append('anggaran_realisasi', anggaranRealisasiNumber.toString());
+
+    if (formData.lpjFile) {
+      form.append('lpj', formData.lpjFile);
+    }
+
+    formData.buktiPengeluaran.forEach((file) => {
+      form.append('bukti_pengeluaran[]', file);
+    });
+
+    formData.dokumentasi.forEach((file) => {
+      form.append('dokumentasi[]', file);
+    });
+
+    formData.buktiPengeluaranHapus.forEach((file) => {
+      form.append('remove_bukti[]', file);
+    });
+
+    formData.dokumentasiHapus.forEach((file) => {
+      form.append('remove_dokumentasi[]', file);
+    });
+
+    // Simpan perubahan dulu
+    router.post(`/laporan-kegiatan/update/${laporan.id}`, form, {
+      onSuccess: () => {
+        // Setelah berhasil update, ajukan kembali
+        router.post(`/laporan-kegiatan/ajukan/${laporan.id}`, {}, {
+          onSuccess: () => {
+            router.visit('/laporan-kegiatan');
+          },
+          onFinish: () => setIsSubmitting(false),
+        });
+      },
+      onError: () => setIsSubmitting(false),
     });
   };
 
@@ -559,9 +701,37 @@ export default function EditLaporan() {
               >
                 {isSubmitting ? 'Menyimpan...' : 'Simpan Laporan'}
               </button>
+              {/* Tombol Ajukan Kembali hanya muncul jika status Direvisi */}
+              {laporan.status === 'Direvisi' && (
+                <button
+                  type="button"
+                  onClick={handleAjukanKembali}
+                  disabled={isSubmitting}
+                  className="bg-yellow-500 text-white px-8 py-2 rounded-lg hover:bg-yellow-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Mengajukan...' : 'Ajukan Kembali'}
+                </button>
+              )}
             </div>
           </form>
         </div>
+      </div>
+
+      {/* Notifications */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        {notifications.map(notif => (
+          <div
+            key={notif.id}
+            className={`px-4 py-3 rounded-lg shadow-lg max-w-md animate-slide-in ${
+              notif.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+            } text-white`}
+            style={{
+              animation: 'slideIn 0.3s ease-out'
+            }}
+          >
+            <p className="whitespace-pre-line">{notif.message}</p>
+          </div>
+        ))}
       </div>
     </DashboardLayout>
   );
