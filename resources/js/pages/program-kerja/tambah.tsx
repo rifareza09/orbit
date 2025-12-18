@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { useForm, router } from "@inertiajs/react";
-import { formatCurrencyInput } from "@/utils/currency";
+import { router } from "@inertiajs/react";
+import { formatCurrencyInput, convertFormattedToNumber } from "@/utils/currency";
 
 export default function TambahProgramKerja() {
-  const { data, setData, post, processing, errors } = useForm({
+  const [formData, setFormData] = useState({
     program_kerja: "",
     kegiatan: "",
     deskripsi_kegiatan: "",
@@ -12,15 +12,40 @@ export default function TambahProgramKerja() {
     estimasi_anggaran: "",
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [processing, setProcessing] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: name === 'estimasi_anggaran' ? formatCurrencyInput(value) : value,
+    });
+    // Clear error saat user mulai edit
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setProcessing(true);
+
     // Convert formatted currency back to number before submit
     const submitData = {
-      ...data,
-      estimasi_anggaran: parseInt(data.estimasi_anggaran.replace(/\D/g, '')) || 0,
+      ...formData,
+      estimasi_anggaran: convertFormattedToNumber(formData.estimasi_anggaran),
     };
-    post("/program-kerja", submitData, {
-      onSuccess: () => router.visit("/program-kerja"),
+
+    router.post("/program-kerja", submitData, {
+      onSuccess: () => {
+        setProcessing(false);
+        router.visit("/program-kerja");
+      },
+      onError: (newErrors) => {
+        setProcessing(false);
+        setErrors(newErrors as Record<string, string>);
+      },
     });
   };
 
@@ -47,8 +72,8 @@ export default function TambahProgramKerja() {
               <input
                 type="text"
                 name="program_kerja"
-                value={data.program_kerja}
-                onChange={(e) => setData("program_kerja", e.target.value)}
+                value={formData.program_kerja}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border bg-gray-100 rounded-lg"
               />
               {errors.program_kerja && (
@@ -63,8 +88,8 @@ export default function TambahProgramKerja() {
               <textarea
                 name="deskripsi_kegiatan"
                 rows={2}
-                value={data.deskripsi_kegiatan}
-                onChange={(e) => setData("deskripsi_kegiatan", e.target.value)}
+                value={formData.deskripsi_kegiatan}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border bg-gray-100 rounded-lg"
               ></textarea>
               {errors.deskripsi_kegiatan && (
@@ -80,8 +105,8 @@ export default function TambahProgramKerja() {
                 <span className="absolute left-3 top-2 text-gray-600">Rp</span>
                 <input
                   name="estimasi_anggaran"
-                  value={data.estimasi_anggaran}
-                  onChange={(e) => setData("estimasi_anggaran", formatCurrencyInput(e.target.value))}
+                  value={formData.estimasi_anggaran}
+                  onChange={handleChange}
                   placeholder="0"
                   className="w-full pl-10 pr-4 py-2 border bg-gray-100 rounded-lg"
                 />
@@ -103,8 +128,8 @@ export default function TambahProgramKerja() {
               <input
                 type="text"
                 name="kegiatan"
-                value={data.kegiatan}
-                onChange={(e) => setData("kegiatan", e.target.value)}
+                value={formData.kegiatan}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border bg-gray-100 rounded-lg"
               />
               {errors.kegiatan && (
@@ -118,8 +143,8 @@ export default function TambahProgramKerja() {
               </label>
               <select
                 name="jenis_kegiatan"
-                value={data.jenis_kegiatan}
-                onChange={(e) => setData("jenis_kegiatan", e.target.value)}
+                value={formData.jenis_kegiatan}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border bg-gray-100 rounded-lg"
               >
                 <option value="">Pilih</option>

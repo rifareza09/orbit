@@ -47,3 +47,13 @@ export const formatCurrencyInput = (value: string): string => {
   const formatted = new Intl.NumberFormat('id-ID').format(parseInt(numericValue));
   return formatted;
 };
+
+/**
+ * Convert Indonesian formatted number back to plain number for submission
+ * Format: 1.000.000 => 1000000
+ */
+export const convertFormattedToNumber = (formatted: string): number => {
+  // Remove all non-digit characters (removes dots, spaces, etc)
+  const numericOnly = formatted.replace(/\D/g, '');
+  return parseInt(numericOnly) || 0;
+};

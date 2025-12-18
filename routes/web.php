@@ -69,14 +69,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $allActivities->push([
                 'type' => 'laporan',
                 'id' => $l->id,
-                'nama' => $l->pengajuan_kegiatan_id ? 
+                'nama' => $l->pengajuan_kegiatan_id ?
                     \App\Models\PengajuanKegiatan::find($l->pengajuan_kegiatan_id)?->nama_kegiatan ?? 'Unknown' : 'Unknown',
                 'status' => $l->status,
                 'tanggal' => $l->created_at,
                 'tanggal_format' => $l->created_at->format('d M Y H:i'),
             ]);
         }
-        
+
         // Sort by tanggal DESC dan ambil 5 terakhir
         $aktivitasTerakhir = $allActivities->sortByDesc('tanggal')->take(5)->values();
 
@@ -227,7 +227,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Untuk Puskaka, tidak perlu data kepengurusan dan jadwal
         $isPuskaka = $user->role === 'puskaka';
-        
+
         // Get kepengurusan dari database (hanya untuk ormawa)
         $kepengurusan = $isPuskaka ? collect([]) : \App\Models\Kepengurusan::where('user_id', Auth::id())
             ->orderBy('created_at', 'asc')
@@ -268,7 +268,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if (Auth::user()->role !== 'puskaka') abort(403);
 
         // Query data ormawa dari database (exclude puskaka)
-        $ormawaReal = \App\Models\User::where('role', '!=', 'puskaka')
+        $ormawaList = \App\Models\User::where('role', '!=', 'puskaka')
             ->orderBy('name')
             ->get()
             ->map(function ($user) {
@@ -277,32 +277,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     ->where('jabatan', 'Ketua')
                     ->first();
                 $namaKetua = $ketuaKepengurusan ? $ketuaKepengurusan->nama : '-';
-                
+
                 return [
                     'id' => $user->id,
                     'nama' => $user->name,
                     'jenis' => ucfirst($user->role),
                     'ketua' => $namaKetua,
                     'anggota' => \App\Models\Kepengurusan::where('user_id', $user->id)->count(),
-                    'status' => 'Aktif',
+                    'status' => $user->status ?? 'Aktif', // Ambil dari database, default Aktif
                 ];
             });
-
-        // Dummy data non-aktif (optional, bisa ditambah manual)
-        $ormawaDummy = [
-            ['id' => 999, 'nama' => 'Kreasi', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
-            ['id' => 998, 'nama' => 'LPM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
-            ['id' => 997, 'nama' => 'TDM', 'jenis' => 'UKM', 'ketua' => '-', 'anggota' => 0, 'status' => 'Non-Aktif'],
-        ];
-
-        // Kombinasikan data real + dummy
-        $ormawaList = collect($ormawaReal)->concat($ormawaDummy);
 
         // Statistik
         $stats = [
             'total' => $ormawaList->count(),
             'aktif' => $ormawaList->where('status', 'Aktif')->count(),
-            'nonaktif' => $ormawaList->where('status', 'Non-Aktif')->count(),
+            'nonaktif' => $ormawaList->where('status', 'Nonaktif')->count(),
         ];
 
         return Inertia::render('data-ormawa/index', [
@@ -337,6 +327,11 @@ Route::middleware(['auth', 'verified'])->post('/ormawa/reset-akun/{userId}', [
     \App\Http\Controllers\DataOrmawaController::class,
     'resetAkun'
 ])->name('ormawa.reset');
+
+Route::middleware(['auth', 'verified'])->post('/ormawa/toggle-status/{userId}', [
+    \App\Http\Controllers\DataOrmawaController::class,
+    'toggleStatus'
+])->name('ormawa.toggle-status');
 
 Route::middleware(['auth', 'verified'])->get('/data-ormawa/detail/{id}', function ($id) {
     if (Auth::user()->role !== 'puskaka') abort(403);

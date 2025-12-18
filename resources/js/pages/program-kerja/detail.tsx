@@ -76,6 +76,7 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                                 item.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
                                 item.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
                                 item.status === 'Direview' ? 'bg-blue-100 text-blue-700' :
+                                item.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
                                 item.status === 'Diajukan' ? 'bg-yellow-100 text-yellow-700' :
                                 'bg-gray-200 text-gray-700'
                             }`}>
@@ -117,11 +118,11 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                      </Link>
                    )}
 
-        {/* Tombol Ajukan hanya muncul jika status Belum Diajukan atau Ditolak */}
-        {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
+        {/* Tombol Ajukan hanya muncul jika status Belum Diajukan, Ditolak, atau Direvisi */}
+        {(item.status === 'Belum Diajukan' || item.status === 'Ditolak' || item.status === 'Direvisi') && (
           <button
             onClick={() => {
-              if (confirm('Apakah Anda yakin ingin mengajukan program kerja ini?')) {
+              if (confirm('Apakah Anda yakin ingin mengajukan kembali program kerja ini?')) {
                 router.put(`/program-kerja/ajukan/${item.id}`, { status: 'Diajukan' });
               }
             }}

@@ -153,6 +153,9 @@ export default function DetailPuskaka({ programKerja }: Props) {
             <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
               <div className="bg-blue-100 px-6 py-3 border-b border-blue-200">
                 <h2 className="font-bold text-[#0B132B] text-sm">Status Pengajuan</h2>
+                {programKerja.status === 'Disetujui' && (
+                  <p className="text-xs text-blue-700 mt-1">Program kerja yang sudah disetujui tidak dapat diubah statusnya lagi.</p>
+                )}
               </div>
               <div className="p-6 space-y-4">
                 <div>
@@ -162,7 +165,8 @@ export default function DetailPuskaka({ programKerja }: Props) {
                   <select
                     value={data.status}
                     onChange={(e) => setData('status', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                    disabled={programKerja.status === 'Disetujui'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
                   >
                     <option value="Belum Diajukan">Belum Diajukan</option>
                     <option value="Diajukan">Diajukan</option>
@@ -182,9 +186,10 @@ export default function DetailPuskaka({ programKerja }: Props) {
                   <textarea
                     value={data.catatan_puskaka}
                     onChange={(e) => setData('catatan_puskaka', e.target.value)}
+                    disabled={programKerja.status === 'Disetujui'}
                     rows={4}
                     placeholder="Tulis catatan atau komentar..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
                   />
                   {errors.catatan_puskaka && (
                     <p className="text-red-600 text-xs mt-1">{errors.catatan_puskaka}</p>
@@ -203,8 +208,8 @@ export default function DetailPuskaka({ programKerja }: Props) {
               </Link>
               <button
                 type="submit"
-                disabled={processing}
-                className="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-[#0B132B] rounded font-semibold transition-colors text-sm disabled:opacity-50"
+                disabled={processing || programKerja.status === 'Disetujui'}
+                className="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-[#0B132B] rounded font-semibold transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {processing ? 'Menyimpan...' : 'Simpan Status'}
               </button>

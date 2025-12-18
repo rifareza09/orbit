@@ -284,13 +284,13 @@ export default function DetailPengajuanKegiatan() {
                         </button>
                     )}
 
-                    {/* Show Ajukan button only for Belum Diajukan */}
-                    {pengajuan.status === 'Belum Diajukan' && (
+                    {/* Show Ajukan button for Belum Diajukan and Direvisi */}
+                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status === 'Direvisi') && (
                         <button
                           onClick={handleAjukan}
                           className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
                         >
-                          Ajukan
+                          {pengajuan.status === 'Direvisi' ? 'Ajukan Kembali' : 'Ajukan'}
                         </button>
                     )}
                 </div>

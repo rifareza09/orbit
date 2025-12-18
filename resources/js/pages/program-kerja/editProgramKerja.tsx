@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { router, usePage } from "@inertiajs/react";
-import { formatCurrencyInput } from "@/utils/currency";
+import { formatCurrencyInput, convertFormattedToNumber } from "@/utils/currency";
 
 interface ProgramKerjaItem {
   id: number;
@@ -40,9 +40,9 @@ export default function EditProgramKerja() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: name === 'estimasi_anggaran' ? formatCurrencyInput(value) : value 
+    setFormData({
+      ...formData,
+      [name]: name === 'estimasi_anggaran' ? formatCurrencyInput(value) : value
     });
   };
 
@@ -51,7 +51,7 @@ export default function EditProgramKerja() {
     // Convert formatted currency back to number before submit
     const submitData = {
       ...formData,
-      estimasi_anggaran: parseInt(formData.estimasi_anggaran.replace(/\D/g, '')) || 0,
+      estimasi_anggaran: convertFormattedToNumber(formData.estimasi_anggaran),
     };
     // jangan kirim status, biar tidak berubah
     const { status, ...payload } = submitData;

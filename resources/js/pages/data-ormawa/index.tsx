@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { ChevronDown, Search, Plus, X, RotateCw, Copy, Check } from "lucide-react";
+import { ChevronDown, Search, Plus, X, RotateCw, Copy, Check, Power } from "lucide-react";
 import { Link, usePage, router } from "@inertiajs/react";
 
 interface Ormawa {
@@ -27,6 +27,7 @@ export default function DataOrmawaPage() {
   const [selectedOrmawaForReset, setSelectedOrmawaForReset] = useState<Ormawa | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -89,6 +90,54 @@ export default function DataOrmawaPage() {
     navigator.clipboard.writeText(newPassword);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleToggleStatus = (ormawa: Ormawa) => {
+    const newStatus = ormawa.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
+    const message = `Apakah Anda yakin ingin mengubah status ${ormawa.nama} menjadi "${newStatus}"?`;
+
+    if (!window.confirm(message)) return;
+
+    setIsTogglingStatus(true);
+
+    fetch(`/ormawa/toggle-status/${ormawa.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+      },
+      body: JSON.stringify({
+        status: newStatus,
+      }),
+    })
+      .then((response) => {
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        if (!response.ok) {
+          return response.text().then((text) => {
+            console.log('Error response text:', text);
+            try {
+              const data = JSON.parse(text);
+              throw new Error(data.error || data.message || 'Gagal mengubah status');
+            } catch (e) {
+              throw new Error('Server error: ' + text.substring(0, 100));
+            }
+          });
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Success response:', data);
+        router.reload();
+      })
+      .catch((error) => {
+        console.error('Error detail:', error);
+        alert('Gagal mengubah status: ' + error.message);
+      })
+      .finally(() => {
+        setIsTogglingStatus(false);
+      });
   };
 
   return (
@@ -159,15 +208,19 @@ export default function DataOrmawaPage() {
                       {String(org.anggota).padStart(2, "0")}
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`${
+                      <button
+                        onClick={() => handleToggleStatus(org)}
+                        disabled={isTogglingStatus}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold transition ${
                           org.status === "Aktif"
-                            ? "text-green-600 font-semibold"
-                            : "text-red-600 font-semibold"
-                        }`}
+                            ? "bg-green-100 text-green-700 hover:bg-green-200"
+                            : "bg-red-100 text-red-700 hover:bg-red-200"
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        title="Klik untuk mengubah status"
                       >
+                        <Power size={14} />
                         {org.status}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
@@ -360,12 +413,12 @@ export default function DataOrmawaPage() {
                     <p className="text-sm text-gray-700">
                       Anda akan mereset akun <strong>{selectedOrmawaForReset.nama}</strong>
                     </p>
-                    <ul className="text-sm text-gra y-700 mt-3 space-y-2">
+                    <ul className="text-sm text-gray-700 mt-3 space-y-2">
                       <li>✓ Password akan direset ke password baru</li>
-                      <li>✓ Semua data program kerja akan dihapus</li>
-                      <li>✓ Semua pengajuan kegiatan akan dihapus</li>
-                      <li>✓ Semua laporan kegiatan akan dihapus</li>
-                      <li className="font-semibold">✓ Data di Puskaka tetap tersimpan (filter tahun kepengurusan)</li>
+                      <li>✓ Data program kerja yang belum selesai akan dihapus</li>
+                      <li>✓ Data pengajuan kegiatan yang belum selesai akan dihapus</li>
+                      <li>✓ Data laporan kegiatan yang belum selesai akan dihapus</li>
+                      <li className="font-semibold text-green-700">✓ Data yang sudah disetujui/selesai tetap tersimpan di Puskaka</li>
                     </ul>
                   </div>
 

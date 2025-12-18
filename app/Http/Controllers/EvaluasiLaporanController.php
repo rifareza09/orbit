@@ -79,11 +79,19 @@ class EvaluasiLaporanController extends Controller
             ->orderBy('name')
             ->pluck('name');
 
-        // Get tahun akademik options from existing data
-        $tahunList = LaporanKegiatan::selectRaw('DISTINCT YEAR(created_at) as tahun')
+        // Get tahun akademik options from existing data, atau gunakan tahun sekarang dan sebelumnya
+        $tahunListFromDb = LaporanKegiatan::selectRaw('DISTINCT YEAR(created_at) as tahun')
             ->orderBy('tahun', 'desc')
             ->pluck('tahun')
             ->filter();
+
+        // Jika tidak ada data, gunakan tahun sekarang dan 2 tahun sebelumnya
+        if ($tahunListFromDb->isEmpty()) {
+            $currentYear = date('Y');
+            $tahunList = collect([$currentYear, $currentYear - 1, $currentYear - 2]);
+        } else {
+            $tahunList = $tahunListFromDb;
+        }
 
         return Inertia::render('evaluasi-laporan/index', [
             'laporanKegiatan' => $laporanKegiatan,
@@ -165,6 +173,11 @@ class EvaluasiLaporanController extends Controller
 
         // Find laporan kegiatan
         $laporan = LaporanKegiatan::findOrFail($id);
+
+        // Cek: jika status sudah Selesai (final), tidak boleh di-ubah lagi
+        if ($laporan->status === 'Selesai') {
+            return back()->withErrors(['status' => 'Laporan yang sudah selesai tidak bisa diubah statusnya lagi.']);
+        }
 
         // Jika status "Disetujui", ubah menjadi "Selesai" untuk laporan
         $finalStatus = $validated['status'] === 'Disetujui' ? 'Selesai' : $validated['status'];

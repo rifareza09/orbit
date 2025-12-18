@@ -253,6 +253,9 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
             <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
               <div className="bg-green-100 px-6 py-3 border-b border-green-200">
                 <h2 className="font-bold text-[#0B132B] text-sm">Catatan Pengajuan</h2>
+                {pengajuan.status_review === 'Disetujui' && (
+                  <p className="text-xs text-green-700 mt-1">Pengajuan yang sudah disetujui tidak dapat diubah statusnya lagi.</p>
+                )}
               </div>
               <div className="p-6 space-y-4">
                 <div>
@@ -262,7 +265,8 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
                   <select
                     value={data.status_review}
                     onChange={(e) => setData('status_review', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                    disabled={pengajuan.status_review === 'Disetujui'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
                   >
                     <option value="">-- Pilih Status --</option>
                     <option value="Disetujui">Disetujui</option>
@@ -280,9 +284,10 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
                   <textarea
                     value={data.catatan_puskaka}
                     onChange={(e) => setData('catatan_puskaka', e.target.value)}
+                    disabled={pengajuan.status_review === 'Disetujui'}
                     rows={5}
                     placeholder="Tulis catatan atau masukan untuk ormawa..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
                   />
                   {errors.catatan_puskaka && (
                     <p className="text-red-600 text-xs mt-1">{errors.catatan_puskaka}</p>
@@ -301,8 +306,8 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
               </Link>
               <button
                 type="submit"
-                disabled={isLoading}
-                className="px-6 py-2.5 bg-[#0B132B] hover:bg-[#1C2541] text-white rounded font-semibold transition-colors text-sm disabled:opacity-50"
+                disabled={isLoading || pengajuan.status_review === 'Disetujui'}
+                className="px-6 py-2.5 bg-[#0B132B] hover:bg-[#1C2541] text-white rounded font-semibold transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Menyimpan...' : 'Simpan Review'}
               </button>

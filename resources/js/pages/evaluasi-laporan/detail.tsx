@@ -205,6 +205,9 @@ export default function EvaluasiLaporanDetail() {
         <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
           <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
             Review & Evaluasi
+            {laporan.status === 'Selesai' && (
+              <p className="text-xs font-normal mt-1">Laporan yang sudah selesai tidak dapat diubah statusnya lagi.</p>
+            )}
           </div>
 
           <div className="p-8">
@@ -215,8 +218,9 @@ export default function EvaluasiLaporanDetail() {
               <textarea
                 value={data.catatan_puskaka}
                 onChange={(e) => setData('catatan_puskaka', e.target.value)}
+                disabled={laporan.status === 'Selesai'}
                 rows={5}
-                className="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
+                className="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-[#0B132B] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
                 placeholder="Masukkan catatan, saran, atau alasan penolakan..."
               />
             </div>
@@ -235,8 +239,8 @@ export default function EvaluasiLaporanDetail() {
               <button
                 type="button"
                 onClick={handleReview}
-                disabled={isLoading}
-                className="bg-yellow-500 text-white px-8 py-2 rounded-lg shadow hover:bg-yellow-600 transition font-semibold disabled:opacity-50"
+                disabled={isLoading || laporan.status === 'Selesai'}
+                className="bg-yellow-500 text-white px-8 py-2 rounded-lg shadow hover:bg-yellow-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Memproses...' : 'Perlu Revisi'}
               </button>
@@ -244,8 +248,8 @@ export default function EvaluasiLaporanDetail() {
               <button
                 type="button"
                 onClick={handleReject}
-                disabled={isLoading}
-                className="bg-red-500 text-white px-8 py-2 rounded-lg shadow hover:bg-red-600 transition font-semibold disabled:opacity-50"
+                disabled={isLoading || laporan.status === 'Selesai'}
+                className="bg-red-500 text-white px-8 py-2 rounded-lg shadow hover:bg-red-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Memproses...' : 'Tolak'}
               </button>
@@ -253,8 +257,8 @@ export default function EvaluasiLaporanDetail() {
               <button
                 type="button"
                 onClick={handleApprove}
-                disabled={isLoading}
-                className="bg-green-500 text-white px-8 py-2 rounded-lg shadow hover:bg-green-600 transition font-semibold disabled:opacity-50"
+                disabled={isLoading || laporan.status === 'Selesai'}
+                className="bg-green-500 text-white px-8 py-2 rounded-lg shadow hover:bg-green-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Memproses...' : 'Setujui'}
               </button>

@@ -29,6 +29,11 @@ class PuskakaController extends Controller
         // Find program kerja
         $programKerja = ProgramKerja::findOrFail($id);
 
+        // Cek: jika status sudah Disetujui, tidak boleh di-ubah lagi
+        if ($programKerja->status === 'Disetujui') {
+            return back()->withErrors(['status' => 'Program kerja yang sudah disetujui tidak bisa diubah statusnya lagi.']);
+        }
+
         $newStatus = $validated['status'];
 
         // Jika Ditolak atau Direvisi, catatan wajib
@@ -85,6 +90,11 @@ class PuskakaController extends Controller
 
         // Find pengajuan kegiatan
         $pengajuan = PengajuanKegiatan::findOrFail($id);
+
+        // Cek: jika status sudah Disetujui, tidak boleh di-ubah lagi
+        if ($pengajuan->status === 'Disetujui') {
+            return back()->withErrors(['status' => 'Pengajuan kegiatan yang sudah disetujui tidak bisa diubah statusnya lagi.']);
+        }
 
         $newStatus = $validated['status'];
 
