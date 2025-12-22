@@ -28,9 +28,9 @@ class SecurityHeaders
 
         // Content Security Policy - More permissive in development for Vite HMR
         $isDev = app()->environment('local', 'development');
-        
+
         $csp = "default-src 'self'; ";
-        
+
         if ($isDev) {
             // Allow Vite dev server and HMR in development
             $csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173 ws://localhost:5173 https://fonts.bunny.net; ";
@@ -42,11 +42,11 @@ class SecurityHeaders
             $csp .= "style-src 'self' 'unsafe-inline' https://fonts.bunny.net; ";
             $csp .= "connect-src 'self'; ";
         }
-        
+
         $csp .= "img-src 'self' data: blob:; ";
         $csp .= "font-src 'self' https://fonts.bunny.net data:; ";
         $csp .= "frame-ancestors 'self';";
-        
+
         $response->headers->set('Content-Security-Policy', $csp);
 
         // Referrer Policy

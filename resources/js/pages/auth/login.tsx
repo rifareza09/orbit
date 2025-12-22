@@ -60,18 +60,7 @@ export default function Login({
 
 
                             <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
-                                    {canResetPassword && (
-                                        <TextLink
-                                            href={request()}
-                                            className="ml-auto text-sm"
-                                            tabIndex={5}
-                                        >
-                                            Forgot password?
-                                        </TextLink>
-                                    )}
-                                </div>
+                                <Label htmlFor="password">Password</Label>
                                 <div className="relative">
                                     <Input
                                         id="password"
@@ -81,7 +70,7 @@ export default function Login({
                                         tabIndex={2}
                                         autoComplete="current-password"
                                         placeholder="Password"
-                                        className="pr-10" 
+                                        className="pr-10"
                                     />
                                     <Button
                                         type="button"
@@ -106,11 +95,10 @@ export default function Login({
                                     id="remember"
                                     type="checkbox"
                                     name="remember"
-                                    value="true"
                                     tabIndex={3}
                                     className="h-4 w-4 rounded border-gray-300 text-[#0B132B] focus:ring-[#0B132B]"
                                 />
-                                <Label htmlFor="remember">Remember me</Label>
+                                <Label htmlFor="remember" className="cursor-pointer">Remember me</Label>
                             </div>
 
                             <Button

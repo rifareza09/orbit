@@ -123,7 +123,7 @@ export default function ArsipTahunanDetail({ arsip }: Props) {
             </div>
             {expandedSection === 'programKerja' ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
           </button>
-          
+
           {expandedSection === 'programKerja' && (
             <div className="border-t border-gray-200">
               {arsip.data_program_kerja.length > 0 ? (
@@ -182,7 +182,7 @@ export default function ArsipTahunanDetail({ arsip }: Props) {
             </div>
             {expandedSection === 'pengajuan' ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
           </button>
-          
+
           {expandedSection === 'pengajuan' && (
             <div className="border-t border-gray-200">
               {arsip.data_pengajuan_kegiatan.length > 0 ? (
@@ -262,7 +262,7 @@ export default function ArsipTahunanDetail({ arsip }: Props) {
             </div>
             {expandedSection === 'laporan' ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
           </button>
-          
+
           {expandedSection === 'laporan' && (
             <div className="border-t border-gray-200">
               {arsip.data_laporan_kegiatan.length > 0 ? (

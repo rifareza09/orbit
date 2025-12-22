@@ -41,7 +41,7 @@ class ProgramKerjaPolicy
     public function update(User $user, ProgramKerja $programKerja): bool
     {
         // Only owner can update, and not if already approved
-        return $programKerja->user_id === $user->id 
+        return $programKerja->user_id === $user->id
             && !in_array($programKerja->status, ['Disetujui', 'Selesai']);
     }
 
@@ -60,7 +60,7 @@ class ProgramKerjaPolicy
     public function submit(User $user, ProgramKerja $programKerja): bool
     {
         // Only owner can submit
-        return $programKerja->user_id === $user->id 
+        return $programKerja->user_id === $user->id
             && in_array($programKerja->status, ['Belum Diajukan', 'Ditolak', 'Direvisi']);
     }
 

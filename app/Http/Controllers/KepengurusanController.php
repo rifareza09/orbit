@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kepengurusan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
@@ -43,6 +44,21 @@ class KepengurusanController extends Controller
             'prodi' => 'required|string|max:255',
             'npm' => 'required|string|max:255',
         ]);
+
+        // Validasi: Ketua dan Wakil Ketua hanya boleh 1 orang
+        $jabatanUnique = ['Ketua', 'Wakil Ketua'];
+
+        if (in_array($validated['jabatan'], $jabatanUnique)) {
+            $existing = Kepengurusan::where('user_id', auth()->user()->id)
+                ->where('jabatan', $validated['jabatan'])
+                ->exists();
+
+            if ($existing) {
+                return back()->withErrors([
+                    'jabatan' => 'Jabatan ' . $validated['jabatan'] . ' sudah ada. Hanya boleh 1 orang untuk jabatan ini.'
+                ])->withInput();
+            }
+        }
 
         Kepengurusan::create([
             'user_id' => auth()->user()->id,
@@ -102,6 +118,22 @@ class KepengurusanController extends Controller
             'prodi' => 'required|string|max:255',
             'npm' => 'required|string|max:255',
         ]);
+
+        // Validasi: Ketua dan Wakil Ketua hanya boleh 1 orang (kecuali data yang sedang di-edit)
+        $jabatanUnique = ['Ketua', 'Wakil Ketua'];
+
+        if (in_array($validated['jabatan'], $jabatanUnique)) {
+            $existing = Kepengurusan::where('user_id', auth()->user()->id)
+                ->where('jabatan', $validated['jabatan'])
+                ->where('id', '!=', $kepengurusan->id) // Kecuali data yang sedang di-edit
+                ->exists();
+
+            if ($existing) {
+                return back()->withErrors([
+                    'jabatan' => 'Jabatan ' . $validated['jabatan'] . ' sudah ada. Hanya boleh 1 orang untuk jabatan ini.'
+                ])->withInput();
+            }
+        }
 
         $kepengurusan->update($validated);
 

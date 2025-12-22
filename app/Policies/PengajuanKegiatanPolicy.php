@@ -27,7 +27,7 @@ class PengajuanKegiatanPolicy
 
     public function update(User $user, PengajuanKegiatan $pengajuan): bool
     {
-        return $pengajuan->user_id === $user->id 
+        return $pengajuan->user_id === $user->id
             && !in_array($pengajuan->status, ['Disetujui', 'Selesai']);
     }
 
@@ -38,7 +38,7 @@ class PengajuanKegiatanPolicy
 
     public function submit(User $user, PengajuanKegiatan $pengajuan): bool
     {
-        return $pengajuan->user_id === $user->id 
+        return $pengajuan->user_id === $user->id
             && in_array($pengajuan->status, ['Belum Diajukan', 'Ditolak'])
             || ($pengajuan->status_review === 'Ditolak');
     }

@@ -22,7 +22,7 @@ export default function CreateKepengurusan() {
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <Link
-            href="/profile/ormawa"
+            href="/profil"
             className="p-2 rounded-lg hover:bg-gray-200 transition"
           >
             <ArrowLeft size={20} className="text-[#0B132B]" />
@@ -40,15 +40,22 @@ export default function CreateKepengurusan() {
               <label htmlFor="jabatan" className="block text-sm font-semibold text-gray-700 mb-2">
                 Jabatan <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 id="jabatan"
                 value={data.jabatan}
                 onChange={(e) => setData('jabatan', e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B132B] focus:border-transparent transition"
-                placeholder="Contoh: Ketua, Wakil Ketua, Sekretaris"
                 required
-              />
+              >
+                <option value="">Pilih Jabatan</option>
+                <option value="Ketua">Ketua</option>
+                <option value="Wakil Ketua">Wakil Ketua</option>
+                <option value="Sekretaris">Sekretaris</option>
+                <option value="Bendahara">Bendahara</option>
+                <option value="Koordinator Divisi">Koordinator Divisi</option>
+                <option value="Anggota Divisi">Anggota Divisi</option>
+                <option value="Anggota">Anggota</option>
+              </select>
               {errors.jabatan && (
                 <p className="mt-1 text-sm text-red-600">{errors.jabatan}</p>
               )}
@@ -114,7 +121,7 @@ export default function CreateKepengurusan() {
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
               <Link
-                href="/profile/ormawa"
+                href="/profil"
                 className="flex-1 px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition text-center"
               >
                 Batal

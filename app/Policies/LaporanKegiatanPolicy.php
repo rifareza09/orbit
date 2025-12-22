@@ -27,7 +27,7 @@ class LaporanKegiatanPolicy
 
     public function update(User $user, LaporanKegiatan $laporan): bool
     {
-        return $laporan->user_id === $user->id 
+        return $laporan->user_id === $user->id
             && !in_array($laporan->status, ['Disetujui', 'Selesai']);
     }
 
@@ -38,7 +38,7 @@ class LaporanKegiatanPolicy
 
     public function submit(User $user, LaporanKegiatan $laporan): bool
     {
-        return $laporan->user_id === $user->id 
+        return $laporan->user_id === $user->id
             && in_array($laporan->status, ['Belum Diajukan', 'Ditolak', 'Direvisi']);
     }
 

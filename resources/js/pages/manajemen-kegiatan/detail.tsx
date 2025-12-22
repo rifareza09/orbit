@@ -55,8 +55,7 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
       onSuccess: () => {
         router.visit('/manajemen-kegiatan');
       },
-      onError: (errors) => {
-        console.error('Error:', errors);
+      onError: () => {
         setIsLoading(false);
       },
       onFinish: () => {

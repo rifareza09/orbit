@@ -31,9 +31,9 @@ Web ORBIT telah mengimplementasikan 7 LAYER KEAMANAN:
 
 1) MIDDLEWARE: EnsurePuskaka
    File: app/Http/Middleware/EnsurePuskaka.php
-   
+
    Fungsi: Memastikan hanya user dengan role "Puskaka" yang bisa akses route admin
-   
+
    Kode:
    ```php
    public function handle(Request $request, Closure $next): Response
@@ -55,9 +55,9 @@ Web ORBIT telah mengimplementasikan 7 LAYER KEAMANAN:
 
 2) POLICIES (Resource-Level Authorization)
    File: app/Policies/ProgramKerjaPolicy.php
-   
+
    Fungsi: Kontrol akses detail per resource (siapa bisa lihat/edit data siapa)
-   
+
    Kode:
    ```php
    public function view(User $user, ProgramKerja $programKerja): bool
@@ -66,7 +66,7 @@ Web ORBIT telah mengimplementasikan 7 LAYER KEAMANAN:
        if ($user->role === 'puskaka') {
            return true;
        }
-       
+
        // User biasa hanya bisa lihat data milik sendiri
        return $user->id === $programKerja->user_id;
    }
@@ -77,17 +77,17 @@ Web ORBIT telah mengimplementasikan 7 LAYER KEAMANAN:
        if ($programKerja->status === 'Disetujui') {
            return false;
        }
-       
+
        // Puskaka bisa edit semua
        if ($user->role === 'puskaka') {
            return true;
        }
-       
+
        // User biasa hanya bisa edit milik sendiri
        return $user->id === $programKerja->user_id;
    }
    ```
-   
+
    Policies lain yang sama:
    - app/Policies/PengajuanKegiatanPolicy.php
    - app/Policies/LaporanKegiatanPolicy.php
@@ -216,9 +216,9 @@ public function handle(Request $request, Closure $next): Response
     // Development: Allow Vite dev server
     // Production: Strict CSP
     $isDev = app()->environment('local', 'development');
-    
+
     $csp = "default-src 'self'; ";
-    
+
     if ($isDev) {
         // Development: Allow localhost:5173 untuk Vite HMR
         $csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173 ws://localhost:5173 https://fonts.bunny.net; ";
@@ -230,11 +230,11 @@ public function handle(Request $request, Closure $next): Response
         $csp .= "style-src 'self' 'unsafe-inline' https://fonts.bunny.net; ";
         $csp .= "connect-src 'self'; ";
     }
-    
+
     $csp .= "img-src 'self' data: blob:; ";
     $csp .= "font-src 'self' https://fonts.bunny.net data:; ";
     $csp .= "frame-ancestors 'self';";
-    
+
     $response->headers->set('Content-Security-Policy', $csp);
 
     // 5. Referrer Policy
@@ -259,7 +259,7 @@ Registrasi di bootstrap/app.php:
     $middleware->web(append: [
         SecurityHeaders::class,
     ]);
-    
+
     // Register puskaka middleware
     $middleware->alias([
         'puskaka' => EnsurePuskaka::class,
@@ -384,12 +384,12 @@ Keamanan:
 A. AUTHENTICATION & AUTHORIZATION
 
    "Pak/Bu, untuk keamanan akses, kami implementasikan 2 layer:
-   
+
    Layer 1 - MIDDLEWARE (EnsurePuskaka):
-   Middleware ini mengecek role user sebelum masuk ke halaman admin. Jika 
+   Middleware ini mengecek role user sebelum masuk ke halaman admin. Jika
    bukan Puskaka, otomatis ditolak dengan error 403. Ini mencegah user biasa
    mengakses halaman admin meskipun mereka tahu URL-nya.
-   
+
    Layer 2 - POLICIES (Resource Authorization):
    Policies mengontrol akses detail. Misalnya, mahasiswa A tidak bisa lihat
    atau edit data mahasiswa B. Hanya Puskaka yang bisa akses semua data.
@@ -397,13 +397,13 @@ A. AUTHENTICATION & AUTHORIZATION
 
 B. RATE LIMITING
 
-   "Pak/Bu, kami implementasikan Rate Limiting untuk mencegah serangan 
+   "Pak/Bu, kami implementasikan Rate Limiting untuk mencegah serangan
    Brute Force. Contohnya:
-   
+
    - Login dibatasi 5 kali percobaan per menit per username+IP
    - Registrasi dibatasi 3 kali per menit per IP
    - Reset password dibatasi 3 kali per menit
-   
+
    Jika attacker coba brute force dengan mencoba banyak password, sistem
    akan otomatis block setelah melewati limit. Ini standard security practice
    yang digunakan oleh website besar seperti Google dan Facebook."
@@ -411,53 +411,53 @@ B. RATE LIMITING
 C. SESSION SECURITY
 
    "Pak/Bu, untuk keamanan session:
-   
+
    1. SESSION_ENCRYPT=true
       Semua data session dienkripsi sebelum disimpan di database, jadi
       meskipun ada yang hack database, data session tidak bisa dibaca.
-   
+
    2. SESSION_HTTP_ONLY=true
       Cookie session hanya bisa diakses via HTTP, tidak bisa diakses
       JavaScript. Ini mencegah serangan XSS (Cross-Site Scripting).
-   
+
    3. SESSION_SECURE_COOKIE=true (production)
       Cookie hanya dikirim melalui HTTPS, mencegah Man-in-the-Middle attack.
-   
+
    4. SESSION_SAME_SITE=strict (production)
       Cookie hanya dikirim ke domain yang sama, mencegah CSRF attack."
 
 D. SECURITY HEADERS
 
    "Pak/Bu, kami menambahkan 7 HTTP Security Headers:
-   
+
    1. X-Frame-Options: SAMEORIGIN
       Mencegah website kita di-embed di iframe oleh website lain.
       Ini mencegah Clickjacking attack.
-   
+
    2. X-Content-Type-Options: nosniff
       Mencegah browser menebak-nebak tipe file. Browser harus ikut
       tipe yang kita declare. Mencegah MIME sniffing attack.
-   
+
    3. X-XSS-Protection: 1; mode=block
       Browser akan block halaman jika detect XSS attack.
-   
+
    4. Content-Security-Policy (CSP)
       Kontrol sumber mana saja yang boleh load script, style, dan resource.
       Hanya yang dari domain kita sendiri yang diperbolehkan.
-   
+
    5. Referrer-Policy: strict-origin-when-cross-origin
       Kontrol informasi referrer yang dikirim ke website lain.
-   
+
    6. Permissions-Policy
       Disable akses ke geolocation, microphone, camera karena tidak dibutuhkan.
-   
+
    7. HSTS (Strict-Transport-Security)
       Force browser untuk selalu akses via HTTPS di production."
 
 E. PASSWORD SECURITY
 
    "Pak/Bu, untuk keamanan password:
-   
+
    1. Generate Password:
       Kami generate password random 16 karakter dengan mix:
       - 4 huruf kecil
@@ -465,10 +465,10 @@ E. PASSWORD SECURITY
       - 4 angka
       - 4 special character
       Lalu di-shuffle untuk unpredictable pattern.
-      
+
       Password lama hanya 8 karakter dengan pattern predictable.
       Password baru 16 karakter full random.
-   
+
    2. Password Hashing:
       Kami menggunakan Bcrypt dengan cost factor 12. Ini berarti
       untuk crack 1 password butuh waktu lama, dan untuk crack
@@ -477,16 +477,16 @@ E. PASSWORD SECURITY
 F. INPUT VALIDATION
 
    "Pak/Bu, semua input dari user divalidasi ketat:
-   
+
    1. Form Requests:
       Setiap form punya class validasi sendiri dengan rules ketat.
       Misalnya email harus format email, tanggal harus format date, dll.
-   
+
    2. SQL Injection Protection:
       Kami 100% menggunakan Eloquent ORM, tidak ada raw query.
       Eloquent otomatis escape semua parameter, jadi tidak mungkin
       terjadi SQL Injection.
-   
+
    3. CSRF Protection:
       Laravel otomatis generate token untuk setiap form dan verify
       token tersebut saat submit. Ini mencegah CSRF attack."
@@ -494,19 +494,19 @@ F. INPUT VALIDATION
 G. FILE UPLOAD SECURITY
 
    "Pak/Bu, untuk keamanan file upload:
-   
+
    1. Validasi MIME Type:
       Hanya file image (png, jpg, jpeg) yang diperbolehkan.
       File script (.php, .js, dll) otomatis ditolak.
-   
+
    2. Validasi Ukuran:
       Max 5MB per file untuk mencegah DOS attack dengan upload
       file besar-besar.
-   
+
    3. Storage Aman:
       File disimpan di storage/app/public yang tidak executable.
       Meskipun ada yang upload file .php, tidak akan bisa dijalankan.
-   
+
    4. Nama File Di-Hash:
       Laravel otomatis hash nama file, jadi attacker tidak bisa
       tebak path file untuk direct access."
@@ -519,7 +519,7 @@ MIDDLEWARE:
 [✓] app/Http/Middleware/EnsurePuskaka.php (21 lines)
     - Line 17-19: Check authentication
     - Line 22-24: Check role Puskaka
-    
+
 [✓] app/Http/Middleware/SecurityHeaders.php (58 lines)
     - Line 21: X-Frame-Options
     - Line 24: X-Content-Type-Options
@@ -593,7 +593,7 @@ POLICY REGISTRATION:
 RINGKASAN UNTUK DOSEN
 ================================================================================
 
-"Pak/Bu, website ORBIT telah mengimplementasikan 7 layer keamanan sesuai 
+"Pak/Bu, website ORBIT telah mengimplementasikan 7 layer keamanan sesuai
 dengan best practice Laravel dan standar OWASP Top 10:
 
 1. Authentication & Authorization dengan Middleware + 4 Policies

@@ -22,9 +22,6 @@ export default function LaporanKegiatan() {
     pengajuan: PengajuanKegiatan[];
   }>().props;
 
-  // Debug data
-  console.log('Pengajuan data:', pengajuan);
-
   return (
     <DashboardLayout>
       {/* === KONTEN UTAMA === */}
@@ -77,30 +74,21 @@ export default function LaporanKegiatan() {
                     <td className="px-4 py-3 text-center">
                       {!item.hasLaporan ? (
                         <button
-                          onClick={() => {
-                            console.log('Klik Buat - Item:', item);
-                            router.visit(`/laporan-kegiatan/buatlaporanKegiatan/${item.id}`);
-                          }}
+                          onClick={() => router.visit(`/laporan-kegiatan/buatlaporanKegiatan/${item.id}`)}
                           className="text-blue-600 hover:text-blue-800 underline"
                         >
                           Buat
                         </button>
                       ) : item.laporanStatus === 'Direvisi' ? (
                         <button
-                          onClick={() => {
-                            console.log('Klik Revisi - Item:', item);
-                            router.visit(`/laporan-kegiatan/edit/${item.laporanId}`);
-                          }}
+                          onClick={() => router.visit(`/laporan-kegiatan/edit/${item.laporanId}`)}
                           className="text-orange-600 hover:text-orange-800 underline font-semibold"
                         >
                           Revisi
                         </button>
                       ) : (
                         <button
-                          onClick={() => {
-                            console.log('Klik Detail - Item:', item);
-                            router.visit(`/laporan-kegiatan/detail/${item.laporanId}`);
-                          }}
+                          onClick={() => router.visit(`/laporan-kegiatan/detail/${item.laporanId}`)}
                           className="text-blue-600 hover:text-blue-800 underline"
                         >
                           Detail

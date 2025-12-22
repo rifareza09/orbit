@@ -47,12 +47,6 @@ export default function BuatLaporanKegiatan() {
     jumlah_peserta: prefill?.jumlah_peserta || 0,
   });
 
-  // Debug log
-  console.log('Prefill data:', prefill);
-  console.log('Is Edit Mode:', isEdit);
-  console.log('Existing data:', existing);
-  console.log('Form data:', data);
-
   // Validasi prefill data exists
   if (!prefill) {
     return (
@@ -69,39 +63,23 @@ export default function BuatLaporanKegiatan() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('=== FORM SUBMISSION DEBUG ===');
-    console.log('isEdit:', isEdit);
-    console.log('laporanId:', laporanId);
-    console.log('Form data:', data);
-    console.log('Form errors:', errors);
-    console.log('Processing:', processing);
-    console.log('Files - LPJ:', data.lpj?.name, 'Size:', data.lpj?.size);
-    console.log('Files - Bukti:', data.bukti_pengeluaran.length, 'files', data.bukti_pengeluaran.map((f: File) => `${f.name} (${f.size})`));
-    console.log('Files - Dokumentasi:', data.dokumentasi.length, 'files', data.dokumentasi.map((f: File) => `${f.name} (${f.size})`));
-
     if (isEdit && laporanId) {
       // Update existing laporan
-      console.log(`📤 Submitting update to: /laporan-kegiatan/update/${laporanId}`);
       post(`/laporan-kegiatan/update/${laporanId}`, {
         onSuccess: () => {
-          console.log('✅ Update success!');
           router.visit('/laporan-kegiatan');
         },
         onError: (errors) => {
-          console.error('❌ Update error:', errors);
           showNotification('error', `❌ Update gagal: ${JSON.stringify(errors)}`);
         }
       });
     } else {
       // Create new laporan
-      console.log('📤 Submitting create to: /laporan-kegiatan');
       post('/laporan-kegiatan', {
         onSuccess: () => {
-          console.log('✅ Create success!');
           router.visit('/laporan-kegiatan');
         },
         onError: (errors) => {
-          console.error('❌ Create error:', errors);
           showNotification('error', `❌ Simpan gagal: ${JSON.stringify(errors)}`);
         }
       });
@@ -192,8 +170,6 @@ export default function BuatLaporanKegiatan() {
     const files = Array.from(e.target.files || []);
     const allowedTypes = ['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'];
 
-    console.log('📸 Dokumentasi change - Files selected:', files.length, files.map(f => `${f.name} (${formatFileSize(f.size)})`));
-
     const validFiles: File[] = [];
     let totalSize = 0;
     const errors: string[] = [];
@@ -202,14 +178,12 @@ export default function BuatLaporanKegiatan() {
       // Check file type
       if (!allowedTypes.includes(file.type)) {
         errors.push(`"${file.name}" - format tidak valid (harus PNG, JPG, JPEG, atau PDF)`);
-        console.log('❌ Invalid type:', file.name, file.type);
         return;
       }
 
       // Check individual file size
       if (file.size > MAX_FILE_SIZE) {
         errors.push(`"${file.name}" - terlalu besar (${formatFileSize(file.size)} > ${formatFileSize(MAX_FILE_SIZE)})`);
-        console.log('❌ File too large:', file.name, formatFileSize(file.size));
         return;
       }
 
@@ -217,21 +191,17 @@ export default function BuatLaporanKegiatan() {
       validFiles.push(file);
     });
 
-    console.log('Total size:', formatFileSize(totalSize), 'Max:', formatFileSize(MAX_TOTAL_SIZE));
-
     // Check total size
     if (totalSize > MAX_TOTAL_SIZE) {
       errors.push(`Total file terlalu besar (${formatFileSize(totalSize)} > ${formatFileSize(MAX_TOTAL_SIZE)})`);
       e.target.value = '';
     } else if (errors.length === 0) {
       setData('dokumentasi', validFiles);
-      console.log('✅ Dokumentasi valid, setting', validFiles.length, 'files');
       showNotification('success', `✅ ${validFiles.length} file dokumentasi (${formatFileSize(totalSize)}) siap upload`);
       return;
     }
 
     if (errors.length > 0) {
-      console.log('🔴 Errors found:', errors);
       showNotification('error', `❌ Dokumentasi:\n${errors.join('\n')}`);
       e.target.value = '';
     }
@@ -554,7 +524,6 @@ export default function BuatLaporanKegiatan() {
             <button
               type="submit"
               disabled={processing}
-              onClick={() => console.log('🔘 Submit button clicked! Processing:', processing)}
               className="px-6 py-2 bg-[#0B132B] text-white rounded-md hover:bg-gray-800 transition disabled:opacity-50"
             >
               {processing ? 'Menyimpan...' : (isEdit ? 'Update' : 'Simpan')}

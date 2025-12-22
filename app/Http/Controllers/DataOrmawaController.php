@@ -38,18 +38,18 @@ class DataOrmawaController extends Controller
             $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $numbers = '0123456789';
             $special = '!@#$%^&*()_+-=';
-            
-            $newPassword = 
+
+            $newPassword =
                 substr(str_shuffle($lowercase), 0, 4) .
                 substr(str_shuffle($uppercase), 0, 4) .
                 substr(str_shuffle($numbers), 0, 4) .
                 substr(str_shuffle($special), 0, 4);
-            
+
             // Shuffle the final password to make it truly random
             $newPassword = str_shuffle($newPassword);
 
             // === ARSIPKAN DATA SEBELUM DIHAPUS ===
-            
+
             // Ambil SEMUA data (tidak peduli status - fresh account)
             $programKerjaToDelete = ProgramKerja::where('user_id', $user->id)
                 ->get()
@@ -123,7 +123,7 @@ class DataOrmawaController extends Controller
             }
 
             // === HAPUS DATA ===
-            
+
             // Hapus SEMUA Program Kerja (fresh account)
             ProgramKerja::where('user_id', $user->id)->delete();
 
@@ -153,7 +153,7 @@ class DataOrmawaController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Reset akun error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'error' => 'Terjadi kesalahan saat reset akun: ' . $e->getMessage()
             ], 500);

@@ -80,7 +80,6 @@ export default function DataOrmawaPage() {
       }
     })
     .catch((error) => {
-      console.error('Error:', error);
       alert('Gagal mereset akun: ' + error.message);
       setShowResetModal(false);
     });
@@ -111,12 +110,8 @@ export default function DataOrmawaPage() {
       }),
     })
       .then((response) => {
-        console.log('Response status:', response.status);
-        console.log('Response ok:', response.ok);
-
         if (!response.ok) {
           return response.text().then((text) => {
-            console.log('Error response text:', text);
             try {
               const data = JSON.parse(text);
               throw new Error(data.error || data.message || 'Gagal mengubah status');
@@ -127,12 +122,10 @@ export default function DataOrmawaPage() {
         }
         return response.json();
       })
-      .then((data) => {
-        console.log('Success response:', data);
+      .then(() => {
         router.reload();
       })
       .catch((error) => {
-        console.error('Error detail:', error);
         alert('Gagal mengubah status: ' + error.message);
       })
       .finally(() => {

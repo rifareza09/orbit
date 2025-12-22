@@ -78,12 +78,6 @@ export default function DokumentasiKegiatan() {
                       src={item.foto_url}
                       alt={item.nama_kegiatan}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => {
-                        console.error('❌ Failed to load image:', item.foto_url);
-                      }}
-                      onLoad={() => {
-                        console.log('✅ Image loaded:', item.foto_url);
-                      }}
                     />
                     {/* Overlay saat hover */}
                     <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-40 transition-opacity duration-300 flex items-center justify-center">

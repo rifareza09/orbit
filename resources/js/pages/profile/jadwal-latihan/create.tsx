@@ -7,7 +7,8 @@ export default function CreateJadwalLatihan() {
   const { data, setData, post, processing, errors } = useForm({
     divisi: '',
     hari: '',
-    pukul: '',
+    waktu_mulai: '',
+    waktu_selesai: '',
     tempat: '',
   });
 
@@ -80,22 +81,39 @@ export default function CreateJadwalLatihan() {
               )}
             </div>
 
-            {/* Pukul */}
+            {/* Waktu Mulai */}
             <div>
-              <label htmlFor="pukul" className="block text-sm font-semibold text-gray-700 mb-2">
-                Waktu <span className="text-red-500">*</span>
+              <label htmlFor="waktu_mulai" className="block text-sm font-semibold text-gray-700 mb-2">
+                Waktu Mulai <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
-                id="pukul"
-                value={data.pukul}
-                onChange={(e) => setData('pukul', e.target.value)}
+                type="time"
+                id="waktu_mulai"
+                value={data.waktu_mulai}
+                onChange={(e) => setData('waktu_mulai', e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B132B] focus:border-transparent transition"
-                placeholder="Contoh: 16:00 - 18:00"
                 required
               />
-              {errors.pukul && (
-                <p className="mt-1 text-sm text-red-600">{errors.pukul}</p>
+              {errors.waktu_mulai && (
+                <p className="mt-1 text-sm text-red-600">{errors.waktu_mulai}</p>
+              )}
+            </div>
+
+            {/* Waktu Selesai */}
+            <div>
+              <label htmlFor="waktu_selesai" className="block text-sm font-semibold text-gray-700 mb-2">
+                Waktu Selesai <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="time"
+                id="waktu_selesai"
+                value={data.waktu_selesai}
+                onChange={(e) => setData('waktu_selesai', e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B132B] focus:border-transparent transition"
+                required
+              />
+              {errors.waktu_selesai && (
+                <p className="mt-1 text-sm text-red-600">{errors.waktu_selesai}</p>
               )}
             </div>
 
