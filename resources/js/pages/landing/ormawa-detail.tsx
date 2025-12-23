@@ -26,6 +26,14 @@ interface JadwalLatihan {
   tempat: string;
 }
 
+interface Kepengurusan {
+  id: number;
+  jabatan: string;
+  nama: string;
+  prodi: string;
+  npm: string;
+}
+
 interface Dokumentasi {
   id: number;
   nama_kegiatan: string;
@@ -49,9 +57,10 @@ interface Props {
   jadwalLatihan: JadwalLatihan[];
   dokumentasi: Dokumentasi[];
   prestasi: Prestasi[];
+  kepengurusan: Kepengurusan[];
 }
 
-export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = [], dokumentasi = [], prestasi = [] }: Props) {
+export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = [], dokumentasi = [], prestasi = [], kepengurusan = [] }: Props) {
   const [activeTab, setActiveTab] = useState<"kegiatan" | "jadwal" | "dokumentasi" | "prestasi">("kegiatan");
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const [imageType, setImageType] = useState<"dokumentasi" | "prestasi">("dokumentasi");
@@ -105,8 +114,91 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
           <div className="max-w-6xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-2">{ormawa.name}</h1>
             <p className="text-gray-300 text-lg capitalize mb-3">{ormawa.role}</p>
-            {ormawa.deskripsi && (
-              <p className="text-gray-200 text-base max-w-2xl">{ormawa.deskripsi}</p>
+          </div>
+        </div>
+
+        {/* Deskripsi & Struktur Kepengurusan */}
+        <div className="max-w-6xl mx-auto px-6 md:px-12 py-8 space-y-8">
+          {/* Deskripsi */}
+          <div className="bg-white rounded-xl shadow-md p-8 border border-gray-200">
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+              <div className="bg-[#0B132B] p-2 rounded-lg">
+                <FileText size={24} className="text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-[#0B132B]">Deskripsi Organisasi</h2>
+            </div>
+            <p className="text-gray-700 leading-relaxed text-justify whitespace-pre-line">
+              {ormawa.deskripsi || 'Organisasi mahasiswa yang aktif mengadakan kegiatan.'}
+            </p>
+          </div>
+
+          {/* Struktur Kepengurusan */}
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+            <div className="bg-gradient-to-r from-[#0B132B] to-[#1C2541] p-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-white/10 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white">Struktur Kepengurusan</h2>
+              </div>
+            </div>
+            
+            {kepengurusan.length > 0 ? (
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {kepengurusan.map((item) => (
+                    <div 
+                      key={item.id} 
+                      className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-lg p-5 hover:shadow-lg hover:border-[#0B132B]/30 transition-all duration-300"
+                    >
+                      {/* Jabatan Badge */}
+                      <div className="bg-[#0B132B] text-white px-3 py-1.5 rounded-md inline-block text-sm font-semibold mb-3">
+                        {item.jabatan}
+                      </div>
+                      
+                      {/* Nama */}
+                      <h3 className="text-lg font-bold text-[#0B132B] mb-2 line-clamp-2">
+                        {item.nama}
+                      </h3>
+                      
+                      {/* Prodi */}
+                      <div className="flex items-start gap-2 mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 mt-0.5 flex-shrink-0">
+                          <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                          <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                        </svg>
+                        <p className="text-sm text-gray-600 line-clamp-2">{item.prodi}</p>
+                      </div>
+                      
+                      {/* NPM */}
+                      <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <line x1="19" x2="19" y1="8" y2="14"></line>
+                          <line x1="22" x2="16" y1="11" y2="11"></line>
+                        </svg>
+                        <p className="text-sm font-mono text-gray-700 font-medium">{item.npm}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="p-12 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-gray-300 mb-4">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <p className="text-gray-500 text-lg">Belum ada data kepengurusan</p>
+              </div>
             )}
           </div>
         </div>

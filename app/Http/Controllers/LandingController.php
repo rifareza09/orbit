@@ -137,6 +137,20 @@ class LandingController extends Controller
                 ];
             });
 
+        // Get kepengurusan
+        $kepengurusan = \App\Models\Kepengurusan::where('user_id', $id)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(function ($k) {
+                return [
+                    'id' => $k->id,
+                    'jabatan' => $k->jabatan,
+                    'nama' => $k->nama,
+                    'prodi' => $k->prodi,
+                    'npm' => $k->npm,
+                ];
+            });
+
         return Inertia::render('landing/ormawa-detail', [
             'ormawa' => [
                 'id' => $user->id,
@@ -149,6 +163,7 @@ class LandingController extends Controller
             'jadwalLatihan' => $jadwalLatihan,
             'dokumentasi' => $dokumentasi,
             'prestasi' => $prestasi,
+            'kepengurusan' => $kepengurusan,
         ]);
     }
 }

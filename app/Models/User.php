@@ -26,6 +26,7 @@ class User extends Authenticatable
     'logo_path',
     'periode',
     'deskripsi',
+    'struktur_kepengurusan',
     ];
 
     /**

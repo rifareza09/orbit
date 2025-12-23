@@ -47,10 +47,26 @@ class ProfileController extends Controller
     public function changePassword(Request $request)
     {
         try {
-            $request->validate([
-                'current_password' => ['required', 'current_password'],
-                'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+            $validated = $request->validate([
+                'current_password' => ['required', 'string'],
+                'new_password' => ['required', 'string', 'min:8'],
+                'new_password_confirmation' => ['required', 'string'],
             ]);
+
+            // Check if current password is correct
+            if (!Hash::check($validated['current_password'], $request->user()->password)) {
+                return response()->json([
+                    'error' => 'Password saat ini tidak sesuai',
+                ], 422);
+            }
+
+            // Check if new password matches confirmation
+            if ($validated['new_password'] !== $validated['new_password_confirmation']) {
+                return response()->json([
+                    'error' => 'Password baru dan konfirmasi password tidak cocok',
+                ], 422);
+            }
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'error' => collect($e->errors())->flatten()->first() ?? 'Validasi gagal',
@@ -59,7 +75,7 @@ class ProfileController extends Controller
 
         $user = $request->user();
         $user->update([
-            'password' => Hash::make($request->new_password),
+            'password' => Hash::make($validated['new_password']),
         ]);
 
         return response()->json([

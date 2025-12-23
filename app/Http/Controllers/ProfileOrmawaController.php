@@ -35,6 +35,7 @@ class ProfileOrmawaController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $validated = $request->validate([

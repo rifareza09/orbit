@@ -74,6 +74,7 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
       headers: {
         'Content-Type': 'application/json',
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        'Accept': 'application/json',
       },
       body: JSON.stringify({
         current_password: passwordForm.currentPassword,
@@ -81,13 +82,22 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
         new_password_confirmation: passwordForm.confirmPassword,
       }),
     })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((data) => {
+      .then(async (response) => {
+        const contentType = response.headers.get('content-type');
+        
+        // Check if response is JSON
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          
+          if (!response.ok) {
             throw new Error(data.error || 'Gagal mengubah password');
-          });
+          }
+          
+          return data;
+        } else {
+          // If not JSON, likely HTML error page
+          throw new Error('Server mengembalikan response yang tidak valid. Silakan coba lagi.');
         }
-        return response.json();
       })
       .then((data) => {
         setPasswordSuccess('Password berhasil diubah!');
@@ -164,7 +174,7 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
             Deskripsi
           </div>
           <div className="bg-white border border-gray-200 border-t-0 rounded-b-xl p-6 shadow-sm">
-            <p className="text-gray-700 leading-relaxed text-justify text-sm">
+            <p className="text-gray-700 leading-relaxed text-justify text-sm whitespace-pre-line">
               {deskripsi || "Belum ada deskripsi yang ditambahkan."}
             </p>
           </div>
