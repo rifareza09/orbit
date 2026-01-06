@@ -20,6 +20,9 @@ use App\Http\Controllers\ProfileOrmawaController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('home');
+Route::get('/tentang-orbit', function () {
+    return Inertia::render('tentang-orbit/index');
+})->name('tentang-orbit');
 Route::get('/ormawa/{id}', [\App\Http\Controllers\LandingController::class, 'showOrmawa'])->name('landing.ormawa');
 
 /*

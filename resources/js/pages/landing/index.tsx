@@ -39,23 +39,22 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
 
       {/* --- UPDATE 1: CONTAINER UTAMA (SNAP SCROLL) --- */}
       <div className="h-screen w-full overflow-y-scroll snap-y snap-mandatory font-sans bg-white text-[#0B132B] scroll-smooth">
-        
+
         {/* NAVBAR (Sticky) */}
         <nav className="bg-[#0B132B] text-white py-4 px-6 md:px-12 flex justify-between items-center fixed top-0 w-full z-50 shadow-md">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => scrollToSection('home')}>
-  {/* LOGO IMAGE */}
-  <img 
-    src="/images/Logo.png"
-    alt="Logo ORBIT"
-    className="w-35 h-10"
-  />
-</div>
+            <img
+              src="/images/Logo.png"
+              alt="Logo ORBIT"
+              className="h-10 md:h-12 w-auto object-contain"
+            />
+          </div>
 
           <div className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
             <button onClick={() => scrollToSection('home')} className="hover:text-white transition">Home</button>
             <button onClick={() => scrollToSection('daftar-ormawa')} className="hover:text-white transition">Daftar Ormawa</button>
-            <button onClick={() => scrollToSection('kegiatan')} className="hover:text-white transition">Kegiatan</button>
-            <button onClick={() => scrollToSection('tentang')} className="hover:text-white transition">Tentang ORBIT</button>
+            <button onClick={() => scrollToSection('kegiatan')} className="hover:text-white transition">Kalender Kegiatan</button>
+            <Link href="/tentang-orbit" className="hover:text-white transition">Tentang ORBIT</Link>
           </div>
 
           <div>
@@ -68,11 +67,11 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
         </nav>
 
         {/* --- SECTION 1: HERO (FULL SCREEN) --- */}
-        <div 
-            id="home" 
+        <div
+            id="home"
             className="relative min-h-screen w-full flex items-center justify-center text-center text-white snap-start"
         >
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center z-0"
             style={{ backgroundImage: "url('/images/background.png')", filter: "brightness(0.4)" }}
           ></div>
@@ -86,7 +85,7 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
             <div className="mt-6 text-2xl tracking-[0.2em] font-serif opacity-90">
               UNIVERSITAS YARSI
             </div>
-            
+
             {/* Scroll Indicator */}
             <button onClick={() => scrollToSection('daftar-ormawa')} className="mt-16 animate-bounce text-white opacity-70 hover:opacity-100 transition">
                 <ChevronDown size={48} />
@@ -95,8 +94,8 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
         </div>
 
         {/* --- SECTION 2: DAFTAR ORMAWA (FULL SCREEN) --- */}
-        <div 
-            id="daftar-ormawa" 
+        <div
+            id="daftar-ormawa"
             className="min-h-screen w-full flex flex-col justify-center items-center bg-gray-50 px-6 md:px-16 pt-20 pb-10 snap-start"
         >
           <div className="w-full max-w-7xl">
@@ -110,9 +109,9 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
                   <div className="bg-white rounded-xl p-6 flex flex-col items-center justify-center shadow-sm hover:shadow-xl transition-all cursor-pointer group h-48 border border-gray-200 transform hover:-translate-y-1">
                       <div className="mb-4 text-gray-400 group-hover:text-[#0B132B] transition">
                         {item.logo_url ? (
-                          <img 
-                            src={item.logo_url} 
-                            alt={item.name} 
+                          <img
+                            src={item.logo_url}
+                            alt={item.name}
                             className="w-16 h-16 object-contain"
                           />
                         ) : (
@@ -128,7 +127,7 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
                   </div>
                 </Link>
                 ))}
-                
+
                 {ormawas.length === 0 && Array(10).fill(0).map((_, i) => (
                 <div key={i} className="bg-[#F3F4F6] rounded-xl p-6 flex flex-col items-center justify-center h-48 border border-gray-200">
                     <ImageIcon size={48} strokeWidth={1} className="text-gray-400 mb-4"/>
@@ -141,8 +140,8 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
         </div>
 
         {/* --- SECTION 3: KEGIATAN ORGANISASI (FULL SCREEN) --- */}
-        <div 
-            id="kegiatan" 
+        <div
+            id="kegiatan"
             className="min-h-screen w-full flex flex-col justify-center items-center bg-white px-6 md:px-16 pt-20 pb-10 snap-start"
         >
           <div className="w-full max-w-5xl">
@@ -174,11 +173,11 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
                             </p>
                             <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm text-gray-500">
                                 <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
-                                    <Calendar size={16} className="text-[#0B132B]" /> 
+                                    <Calendar size={16} className="text-[#0B132B]" />
                                     {item.tanggal_pelaksanaan}
                                 </div>
                                 <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
-                                    <MapPin size={16} className="text-[#0B132B]" /> 
+                                    <MapPin size={16} className="text-[#0B132B]" />
                                     {item.tempat_pelaksanaan}
                                 </div>
                             </div>
@@ -205,17 +204,11 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
           </div>
         </div>
 
-        {/* --- FOOTER (Bagian dari snap terakhir atau terpisah) --- */}
-        <footer id="tentang" className="bg-[#0B132B] text-white py-12 text-center text-sm snap-start flex items-center justify-center flex-col">
-            <h3 className="text-2xl font-bold mb-4">TENTANG ORBIT</h3>
-            <p className="max-w-2xl px-6 opacity-80 leading-relaxed mb-8">
-                ORBIT (Ormawa Berbasis Informasi Terpadu) adalah platform digital terintegrasi untuk Universitas YARSI 
-                yang memudahkan pengelolaan, pengajuan kegiatan, dan transparansi informasi bagi seluruh organisasi mahasiswa.
-                Tim Pengembang: Muhammad Raihan, Rifa Reza, Rafli Dika
-            </p>
-            <div className="opacity-50">
-                © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
-            </div>
+        {/* --- FOOTER --- */}
+        <footer className="bg-[#0B132B] text-white py-8 text-center text-sm snap-start">
+          <div className="opacity-70">
+            © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
+          </div>
         </footer>
 
       </div>

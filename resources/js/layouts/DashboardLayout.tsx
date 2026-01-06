@@ -98,10 +98,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
           )}
           <img
-            src="/images/logo.png"
+            src="/images/Logo.png"
             alt="Orbit Logo"
-            className={`transition-all duration-300 ${
-              collapsed ? 'w-10' : 'w-32'
+            className={`transition-all duration-300 object-contain ${
+              collapsed ? 'h-10 w-10' : 'h-12 w-auto max-w-[180px]'
             }`}
           />
           <button

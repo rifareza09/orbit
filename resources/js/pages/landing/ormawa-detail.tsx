@@ -106,7 +106,7 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
             <ArrowLeft size={20} />
             <span className="text-sm font-medium">Kembali</span>
           </Link>
-          <img src="/images/Logo.png" alt="Logo ORBIT" className="w-35 h-8 ml-4" />
+          <img src="/images/Logo.png" alt="Logo ORBIT" className="h-10 w-auto object-contain ml-4" />
         </nav>
 
         {/* Header */}
@@ -147,25 +147,25 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
                 <h2 className="text-2xl font-bold text-white">Struktur Kepengurusan</h2>
               </div>
             </div>
-            
+
             {kepengurusan.length > 0 ? (
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {kepengurusan.map((item) => (
-                    <div 
-                      key={item.id} 
+                    <div
+                      key={item.id}
                       className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-lg p-5 hover:shadow-lg hover:border-[#0B132B]/30 transition-all duration-300"
                     >
                       {/* Jabatan Badge */}
                       <div className="bg-[#0B132B] text-white px-3 py-1.5 rounded-md inline-block text-sm font-semibold mb-3">
                         {item.jabatan}
                       </div>
-                      
+
                       {/* Nama */}
                       <h3 className="text-lg font-bold text-[#0B132B] mb-2 line-clamp-2">
                         {item.nama}
                       </h3>
-                      
+
                       {/* Prodi */}
                       <div className="flex items-start gap-2 mb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 mt-0.5 flex-shrink-0">
@@ -174,7 +174,7 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
                         </svg>
                         <p className="text-sm text-gray-600 line-clamp-2">{item.prodi}</p>
                       </div>
-                      
+
                       {/* NPM */}
                       <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
