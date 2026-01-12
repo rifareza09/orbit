@@ -26,3 +26,15 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/tmpclaude-*
+/storage/framework/sessions/*
+/*.php
+/*.sql
+/*.txt
+/*.md
+!README.md
+!NOTIFICATION_SYSTEM_SETUP.md
+!UPLOAD_LIMITS.md
+!LARAGON_SETUP.md
+!SETUP_TEMAN.md
+!SECURITY.md

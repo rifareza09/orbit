@@ -30,6 +30,16 @@ export default function DetailLaporanKegiatan() {
   const { item } = usePage<{ item: LaporanKegiatanItem }>().props;
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  // Cek apakah semua data wajib sudah terisi
+  const isDataComplete = () => {
+    return (
+      item.ringkasan &&
+      item.ringkasan.trim() !== '' &&
+      item.anggaranRealisasi > 0 &&
+      item.lpjFile !== null
+    );
+  };
+
   const handleAjukan = () => {
     router.post(`/laporan-kegiatan/ajukan/${item.id}`, {}, {
       onSuccess: () => {
@@ -262,11 +272,17 @@ export default function DetailLaporanKegiatan() {
             </button>
           )}
 
-          {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak */}
+          {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak, dan semua data harus terisi */}
           {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
             <button
               onClick={() => setShowConfirmModal(true)}
-              className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition font-semibold"
+              disabled={!isDataComplete()}
+              className={`px-8 py-2 rounded-lg shadow transition font-semibold ${
+                isDataComplete()
+                  ? 'bg-[#0B132B] text-white hover:bg-[#1C2541]'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+              title={!isDataComplete() ? 'Lengkapi ringkasan, anggaran realisasi, dan upload LPJ terlebih dahulu' : ''}
             >
               Ajukan
             </button>

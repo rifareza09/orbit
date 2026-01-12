@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dokumentasi;
+use App\Models\LaporanKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,8 @@ class DokumentasiController extends Controller
 {
     public function index()
     {
-        $dokumentasi = Dokumentasi::where('user_id', Auth::id())
+        // Dokumentasi manual yang dibuat user
+        $dokumentasiManual = Dokumentasi::where('user_id', Auth::id())
             ->orderBy('tanggal_kegiatan', 'desc')
             ->get()
             ->map(function($item) {
@@ -26,11 +28,39 @@ class DokumentasiController extends Controller
                     'nama_kegiatan' => $item->nama_kegiatan,
                     'tanggal_kegiatan' => $item->tanggal_kegiatan->format('Y-m-d'),
                     'foto_url' => $fotoUrl,
+                    'source' => 'manual',
                 ];
             });
 
+        // Dokumentasi dari Laporan Kegiatan
+        $dokumentasiLaporan = LaporanKegiatan::where('user_id', Auth::id())
+            ->whereNotNull('dokumentasi')
+            ->with('pengajuanKegiatan')
+            ->get()
+            ->flatMap(function($laporan) {
+                $docs = [];
+                $dokumentasiFiles = $laporan->dokumentasi ?? [];
+
+                foreach ($dokumentasiFiles as $file) {
+                    $docs[] = [
+                        'id' => 'laporan_' . $laporan->id . '_' . md5($file),
+                        'nama_kegiatan' => $laporan->pengajuanKegiatan->nama_kegiatan ?? 'Kegiatan',
+                        'tanggal_kegiatan' => $laporan->pengajuanKegiatan->tanggal_pelaksanaan ?? $laporan->created_at->format('Y-m-d'),
+                        'foto_url' => asset('storage/' . $file),
+                        'source' => 'laporan',
+                    ];
+                }
+
+                return $docs;
+            });
+
+        // Gabungkan kedua sumber dokumentasi
+        $allDokumentasi = $dokumentasiManual->concat($dokumentasiLaporan)
+            ->sortByDesc('tanggal_kegiatan')
+            ->values();
+
         return Inertia::render('dokumentasi/index', [
-            'dokumentasi' => $dokumentasi
+            'dokumentasi' => $allDokumentasi
         ]);
     }
 

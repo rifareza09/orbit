@@ -74,18 +74,21 @@ export default function DetailPengajuanKegiatan() {
         <DashboardLayout>
             <div className="p-8 bg-[#F5F6FA] min-h-screen">
 
-                {/* Header + Tombol Hapus */}
+                {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-2xl font-bold text-[#0B132B]">
                         Detail Pengajuan Kegiatan
                     </h1>
 
-                    <button
-                      onClick={handleDelete}
-                      className="bg-[#8B0000] text-white px-6 py-2 rounded-md hover:bg-red-900 transition"
-                    >
-                        Hapus
-                    </button>
+                    {/* Tombol Hapus - hanya muncul jika status Belum Diajukan */}
+                    {pengajuan.status === 'Belum Diajukan' && (
+                        <button
+                          onClick={handleDelete}
+                          className="bg-[#8B0000] text-white px-6 py-2 rounded-md hover:bg-red-900 transition"
+                        >
+                            Hapus
+                        </button>
+                    )}
                 </div>
 
                 {/* CARD WRAPPER */}
@@ -305,11 +308,17 @@ export default function DetailPengajuanKegiatan() {
                         </button>
                     )}
 
-                    {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak */}
+                    {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak, dan harus ada proposal */}
                     {(pengajuan.status === 'Belum Diajukan' || pengajuan.status_review === 'Ditolak') && (
                         <button
                           onClick={() => setShowConfirmModal(true)}
-                          className="bg-[#0B132B] text-white px-8 py-2 rounded-lg shadow hover:bg-[#1C2541] transition"
+                          disabled={!pengajuan.proposal_path}
+                          className={`px-8 py-2 rounded-lg shadow transition ${
+                            pengajuan.proposal_path
+                              ? 'bg-[#0B132B] text-white hover:bg-[#1C2541]'
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          }`}
+                          title={!pengajuan.proposal_path ? 'Upload proposal terlebih dahulu sebelum mengajukan' : ''}
                         >
                           Ajukan
                         </button>

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Services\NotificationService;
 
 class ManajemenKegiatanController extends Controller
 {
@@ -167,6 +168,15 @@ class ManajemenKegiatanController extends Controller
             'catatan_puskaka' => $validated['catatan_puskaka'] ?? null,
             'reviewed_at' => now(),
         ]);
+
+        // Send notification to Ormawa
+        NotificationService::notifyPengajuanKegiatanStatus(
+            $pengajuan->user_id,
+            $validated['status_review'],
+            $pengajuan->nama_kegiatan,
+            $pengajuan->id,
+            $validated['catatan_puskaka'] ?? null
+        );
 
         // Jika disetujui: auto-create LaporanKegiatan
         if ($pengajuan->status === 'Disetujui') {

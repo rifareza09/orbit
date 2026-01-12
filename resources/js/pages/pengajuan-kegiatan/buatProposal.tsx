@@ -136,8 +136,10 @@ export default function BuatProposal() {
             return false;
         }
 
-        if (items.some(item => !item.nama_item || item.quantity <= 0 || item.harga_satuan <= 0)) {
-            alert('Mohon lengkapi semua item pengajuan dana dengan benar');
+        // Pengajuan Dana tidak wajib diisi - validasi hanya jika ada item yang diisi
+        const filledItems = items.filter(item => item.nama_item.trim() !== '');
+        if (filledItems.length > 0 && filledItems.some(item => item.quantity <= 0 || item.harga_satuan <= 0)) {
+            alert('Mohon lengkapi semua item pengajuan dana dengan benar (quantity dan harga satuan harus lebih dari 0)');
             return false;
         }
 
@@ -361,7 +363,7 @@ export default function BuatProposal() {
                         {/* Item Pengajuan Dana */}
                         <div className="mt-8">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold text-[#0B132B]">Pengajuan Dana*</h3>
+                                <h3 className="text-lg font-semibold text-[#0B132B]">Pengajuan Dana (Opsional)</h3>
                                 <button
                                     type="button"
                                     onClick={addItem}
@@ -376,14 +378,13 @@ export default function BuatProposal() {
                                     <div key={index} className="p-4 border border-gray-200 rounded-md bg-gray-50">
                                         <div className="grid grid-cols-2 gap-4 mb-3">
                                             <div>
-                                                <p className="font-medium text-sm mb-1">Nama Item*</p>
+                                                <p className="font-medium text-sm mb-1">Nama Item</p>
                                                 <input
                                                     type="text"
                                                     placeholder="Contoh: Spanduk"
                                                     value={item.nama_item}
                                                     onChange={(e) => updateItem(index, 'nama_item', e.target.value)}
                                                     className="w-full p-2 border border-gray-300 rounded-md"
-                                                    required
                                                 />
                                             </div>
                                             <div>
@@ -400,18 +401,17 @@ export default function BuatProposal() {
 
                                         <div className="grid grid-cols-4 gap-4 items-end">
                                             <div>
-                                                <p className="font-medium text-sm mb-1">Quantity*</p>
+                                                <p className="font-medium text-sm mb-1">Quantity</p>
                                                 <input
                                                     type="number"
                                                     min="1"
                                                     value={item.quantity}
                                                     onChange={(e) => updateItem(index, 'quantity', Number.parseInt(e.target.value) || 1)}
                                                     className="w-full p-2 border border-gray-300 rounded-md"
-                                                    required
                                                 />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-sm mb-1">Harga Satuan (Rp)*</p>
+                                                <p className="font-medium text-sm mb-1">Harga Satuan (Rp)</p>
                                                 <input
                                                     type="number"
                                                     min="0"
@@ -419,7 +419,6 @@ export default function BuatProposal() {
                                                     onChange={(e) => updateItem(index, 'harga_satuan', Number.parseFloat(e.target.value) || 0)}
                                                     className="w-full p-2 border border-gray-300 rounded-md"
                                                     placeholder="0"
-                                                    required
                                                 />
                                             </div>
                                             <div>

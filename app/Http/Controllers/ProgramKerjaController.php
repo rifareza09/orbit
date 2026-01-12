@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
+use App\Services\NotificationService;
 
 class ProgramKerjaController extends Controller
 {
@@ -121,6 +122,14 @@ public function ajukan($id)
     $program = ProgramKerja::findOrFail($id);
     $program->status = 'Diajukan';  // Mengubah status menjadi Diajukan
     $program->save();
+
+    // Send notification to Puskaka
+    $user = Auth::user();
+    NotificationService::notifyPuskakaNewProgramKerja(
+        $user->name,
+        $program->program_kerja,
+        $program->id
+    );
 
     return redirect()->route('program-kerja.index')->with('success', 'Program Kerja berhasil diajukan!');
 }

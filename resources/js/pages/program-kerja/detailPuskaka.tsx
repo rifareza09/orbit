@@ -168,9 +168,6 @@ export default function DetailPuskaka({ programKerja }: Props) {
                     disabled={programKerja.status === 'Disetujui'}
                     className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
                   >
-                    <option value="Belum Diajukan">Belum Diajukan</option>
-                    <option value="Diajukan">Diajukan</option>
-                    <option value="Direview">Direview</option>
                     <option value="Disetujui">Disetujui</option>
                     <option value="Ditolak">Ditolak</option>
                     <option value="Direvisi">Direvisi</option>

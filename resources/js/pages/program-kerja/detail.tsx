@@ -46,13 +46,15 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                         Program Kerja
                     </h1>
 
-                    {/* Tombol Hapus */}
-                    <button
-                        onClick={handleDelete}
-                        className="bg-[#8B0000] text-white px-6 py-2 rounded-md hover:bg-red-900 transition"
-                    >
-                        Hapus
-                    </button>
+                    {/* Tombol Hapus - hanya muncul jika status Belum Diajukan */}
+                    {item.status === 'Belum Diajukan' && (
+                        <button
+                            onClick={handleDelete}
+                            className="bg-[#8B0000] text-white px-6 py-2 rounded-md hover:bg-red-900 transition"
+                        >
+                            Hapus
+                        </button>
+                    )}
                 </div>
 
                 {/* Card Wrapper */}

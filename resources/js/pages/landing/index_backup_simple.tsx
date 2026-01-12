@@ -122,24 +122,10 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
         {/* --- SECTION 1: HERO (FULL SCREEN) --- */}
         <div
             id="home"
-            className="relative min-h-screen w-full flex items-center justify-center text-center text-white snap-start overflow-hidden"
+            className="relative min-h-screen w-full flex items-center justify-center text-center text-white snap-start bg-gradient-to-br from-[#0B132B] via-[#1C2541] to-[#0B132B]"
         >
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: 'url(/images/background.png)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
-          >
-            {/* Overlay gelap agar text lebih terbaca */}
-            <div className="absolute inset-0 bg-black/40"></div>
-          </div>
-
           <motion.div
-            className="relative z-10 px-4"
+            className="px-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}

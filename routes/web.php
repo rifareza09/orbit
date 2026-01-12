@@ -460,6 +460,12 @@ Route::middleware(['auth', 'verified', 'puskaka'])->get('/program-kerja/{id}/det
 
     $programKerja = \App\Models\ProgramKerja::with('user')->findOrFail($id);
 
+    // Auto-update status ke "Direview" jika status saat ini "Diajukan"
+    if ($programKerja->status === 'Diajukan') {
+        $programKerja->status = 'Direview';
+        $programKerja->save();
+    }
+
     return Inertia::render('program-kerja/detailPuskaka', [
         'programKerja' => [
             'id' => $programKerja->id,
@@ -651,6 +657,36 @@ Route::middleware(['auth', 'verified'])->prefix('profile/jadwal-latihan')->group
     Route::get('/{jadwalLatihan}/edit', [JadwalLatihanController::class, 'edit'])->name('jadwal-latihan.edit');
     Route::put('/{jadwalLatihan}', [JadwalLatihanController::class, 'update'])->name('jadwal-latihan.update');
     Route::delete('/{jadwalLatihan}', [JadwalLatihanController::class, 'destroy'])->name('jadwal-latihan.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Notifications
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->get('/notifications', function () {
+    $notifications = \App\Models\Notification::where('user_id', Auth::id())
+        ->orderBy('created_at', 'desc')
+        ->paginate(20);
+
+    return Inertia::render('notifications/index', [
+        'notifications' => $notifications
+    ]);
+})->name('notifications.index');
+
+/*
+|--------------------------------------------------------------------------
+| Notification API Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth'])->prefix('api/notifications')->group(function () {
+    Route::get('/', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::get('/recent', [App\Http\Controllers\NotificationController::class, 'recent']);
+    Route::get('/unread-count', [App\Http\Controllers\NotificationController::class, 'unreadCount']);
+    Route::post('/{id}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+    Route::delete('/{id}', [App\Http\Controllers\NotificationController::class, 'destroy']);
+    Route::delete('/clear-read', [App\Http\Controllers\NotificationController::class, 'clearRead']);
 });
 
 /*

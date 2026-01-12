@@ -6,6 +6,7 @@ use App\Models\LaporanKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Services\NotificationService;
 
 class EvaluasiLaporanController extends Controller
 {
@@ -188,6 +189,15 @@ class EvaluasiLaporanController extends Controller
             'catatan_puskaka' => $validated['catatan_puskaka'] ?? $laporan->catatan_puskaka,
             'reviewed_at' => now(),
         ]);
+
+        // Send notification to Ormawa
+        NotificationService::notifyLaporanKegiatanStatus(
+            $laporan->user_id,
+            $finalStatus,
+            $laporan->nama_kegiatan ?? $laporan->judul,
+            $laporan->id,
+            $validated['catatan_puskaka'] ?? null
+        );
 
         // Redirect ke index dengan success message
         return redirect()

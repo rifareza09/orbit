@@ -7,6 +7,7 @@ use App\Models\PengajuanKegiatan;
 use App\Models\LaporanKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class PuskakaController extends Controller
 {
@@ -46,6 +47,15 @@ class PuskakaController extends Controller
         $programKerja->catatan_puskaka = $validated['catatan_puskaka'] ?? null;
         $programKerja->reviewed_at = now();
         $programKerja->save();
+
+        // Send notification to Ormawa
+        NotificationService::notifyProgramKerjaStatus(
+            $programKerja->user_id,
+            $newStatus,
+            $programKerja->program_kerja,
+            $programKerja->id,
+            $validated['catatan_puskaka'] ?? null
+        );
 
         // Jika disetujui: buat/siapkan PengajuanKegiatan terkait agar ormawa bisa lanjut
         if ($newStatus === 'Disetujui') {

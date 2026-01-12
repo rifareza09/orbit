@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Services\NotificationService;
 
 class LaporanKegiatanController extends Controller
 {
@@ -288,6 +289,27 @@ class LaporanKegiatanController extends Controller
         return redirect()->route('laporan.index')->with('success', 'Laporan kegiatan berhasil diperbarui!');
     }
 
+    public function ajukan($id)
+    {
+        $laporan = LaporanKegiatan::where('user_id', Auth::id())->findOrFail($id);
+        
+        // Update status to Diajukan
+        $laporan->update(['status' => 'Diajukan']);
+
+        // Send notification to Puskaka
+        $user = Auth::user();
+        $pengajuan = $laporan->pengajuanKegiatan;
+        
+        NotificationService::notifyPuskakaNewLaporan(
+            $user->name,
+            $pengajuan->nama_kegiatan ?? 'Laporan Kegiatan',
+            $laporan->id
+        );
+
+        return redirect()->route('laporan.index')
+            ->with('success', 'Laporan kegiatan berhasil diajukan!');
+    }
+
     public function destroy($id)
     {
         $laporan = LaporanKegiatan::where('user_id', Auth::id())->findOrFail($id);
@@ -357,23 +379,5 @@ class LaporanKegiatanController extends Controller
         }
 
         abort(404, 'Tipe file tidak valid');
-    }
-
-    public function ajukan($id)
-    {
-        $laporan = LaporanKegiatan::where('user_id', Auth::id())
-            ->where('id', $id)
-            ->firstOrFail();
-
-        // Izinkan ajukan dari status Belum Diajukan, Ditolak, atau Direvisi
-        if (in_array($laporan->status, ['Belum Diajukan', 'Ditolak', 'Direvisi'])) {
-            $laporan->update(['status' => 'Diajukan']);
-
-            return redirect()->route('laporan.index')
-                ->with('success', 'Laporan kegiatan berhasil diajukan!');
-        }
-
-        return redirect()->route('laporan.index')
-            ->with('error', 'Laporan tidak dapat diajukan.');
     }
 }

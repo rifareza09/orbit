@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Services\NotificationService;
 
 class PengajuanKegiatanController extends Controller
 {
@@ -244,6 +245,14 @@ class PengajuanKegiatanController extends Controller
             'status' => 'Diajukan',
             'status_review' => 'Menunggu Review'
         ]);
+
+        // Send notification to Puskaka
+        $user = Auth::user();
+        NotificationService::notifyPuskakaNewPengajuan(
+            $user->name,
+            $pengajuan->nama_kegiatan,
+            $pengajuan->id
+        );
 
         return redirect('/pengajuan-kegiatan')
             ->with('success', 'Proposal kegiatan berhasil diajukan!');
