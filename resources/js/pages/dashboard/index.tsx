@@ -63,7 +63,7 @@ export default function DashboardPage() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0B132B] to-[#1C2541] bg-clip-text text-transparent">
-            Halo, {userName || 'UKM'}! 👋
+            Halo, {userName || 'UKM'}! <span className="text-[#0B132B]">👋</span>
           </h1>
         </motion.div>
 

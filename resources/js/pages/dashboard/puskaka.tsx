@@ -66,15 +66,15 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
 
   return (
     <DashboardLayout>
-      <div className="space-y-10">
+      <div className="space-y-10 p-6">
         {/* HEADER */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-semibold bg-gradient-to-r from-[#0B132B] via-[#1C2541] to-[#0B132B] bg-clip-text text-transparent">
-            ⚡ Ringkasan Aktivitas Puskaka
+          <h1 className="text-3xl font-semibold bg-gradient-to-r from-[#0B132B] to-[#1C2541] bg-clip-text text-transparent">
+            <span className="text-[#0B132B]">⚡</span> Ringkasan Aktivitas Puskaka
           </h1>
         </motion.div>
 
@@ -355,14 +355,16 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
         </motion.div>
 
         {/* FOOTER */}
-        <motion.p 
-          className="text-center text-xs text-gray-500 mt-10"
+        <motion.div
+          className="text-center text-sm mt-10 py-6 border-t border-gray-200"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.5 }}
         >
-          ©ORBIT 2025 | Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
-        </motion.p>
+          <p className="text-gray-400">
+            © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
+          </p>
+        </motion.div>
       </div>
     </DashboardLayout>
   );

@@ -166,33 +166,42 @@ export default function TentangOrbitPage() {
                         </div>
                         <div className="flex flex-wrap gap-8 justify-center items-center">
                             {[
-                              
+
                               {
                                 name: "Rifa Reza Fahlevi",
                                 nim: "1402023060",
                                 role: "Fullstack Developer",
-                                photo: "/images/Reza.png"
+                                photo: "/images/Reza.png",
+                                instagram: "https://www.instagram.com/rifareza_/",
+                                linkedin: "https://www.linkedin.com/in/rifarezafahlevi",
+                                github: "https://github.com/rifareza09"
                               },
                               {
                                 name: "Muhammad Raihan",
                                 nim: "1402023041",
                                 role: "UI/UX & Frontend Developer",
                                 photo: "/images/Raihan.png",
-                                position: "object-[50%_60%]"
+                                position: "object-[50%_60%]",
+                                instagram: "https://www.instagram.com/raihanyustin/",
+                                linkedin: "https://www.linkedin.com/in/muhammad-raihan-yustin/",
+                                github: "https://github.com/raihanyustin"
                               },
                               {
                                 name: "Rafli Dika Narendra",
                                 nim: "14020230XX",
                                 role: "Backend Developer",
-                                photo: "/images/Rafli.png"
+                                photo: "/images/Rafli.png",
+                                instagram: "https://www.instagram.com/nareeenv/",
+                                linkedin: "https://www.linkedin.com/in/rafli-dika-a06037290/",
+                                github: "https://github.com/rendra-v"
                               },
                             ].map((dev, index) => (
                             <div key={index} className="w-72 bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden group hover:-translate-y-2 transition-all duration-300 relative z-10">
                                 <div className="h-72 w-full relative overflow-hidden bg-gray-100">
-                                    <img 
-                                        src={dev.photo} 
+                                    <img
+                                        src={dev.photo}
                                         alt={dev.name}
-                                        className={`w-full h-full object-cover ${dev.position} group-hover:scale-105 transition-transform duration-500`}
+                                        className={`w-full h-full object-cover ${dev.position || ''} group-hover:scale-105 transition-transform duration-500`}
                                         onError={(e) => {
                                             e.currentTarget.style.display = 'none';
                                             e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -208,11 +217,41 @@ export default function TentangOrbitPage() {
                                     <h3 className="font-bold text-xl text-[#0B132B] mb-1 leading-tight">
                                         {dev.name}
                                     </h3>
-                                    <p className="text-sm text-gray-500 font-medium mb-4">
+                                    <p className="text-sm text-gray-500 font-medium mb-3">
                                         {dev.nim}
                                     </p>
-                                    <div className="inline-block px-4 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wide">
+                                    <div className="inline-block px-4 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-wide mb-4">
                                         {dev.role}
+                                    </div>
+                                    {/* Social Media Links */}
+                                    <div className="flex justify-center gap-2 pt-4 border-t border-gray-100">
+                                        <a
+                                            href={dev.instagram}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group relative w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gradient-to-br hover:from-purple-500 hover:via-pink-500 hover:to-orange-400 hover:text-white hover:border-transparent hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+                                            title="Instagram"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="18" cy="6" r="1.5" fill="currentColor" stroke="none" /></svg>
+                                        </a>
+                                        <a
+                                            href={dev.linkedin}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group relative w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gradient-to-br hover:from-blue-600 hover:to-blue-700 hover:text-white hover:border-transparent hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+                                            title="LinkedIn"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" /><path d="M7 10v7M7 7v.01M11 17v-4a2 2 0 0 1 4 0v4M11 10v7M15 10v7" /></svg>
+                                        </a>
+                                        <a
+                                            href={dev.github}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group relative w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gradient-to-br hover:from-gray-800 hover:to-gray-900 hover:text-white hover:border-transparent hover:shadow-lg hover:shadow-gray-500/30 transition-all duration-300 hover:-translate-y-1 hover:scale-110"
+                                            title="GitHub"
+                                        >
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z" /></svg>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -270,14 +309,9 @@ export default function TentangOrbitPage() {
 
         {/* --- FOOTER --- */}
         <footer className="bg-[#0B132B] text-white py-10 text-center text-sm border-t border-gray-800 relative z-10">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="mb-4">
-              
-            </div>
-            <p className="opacity-50 text-xs">
-              © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
-            </p>
-          </div>
+          <p className="opacity-50">
+            © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
+          </p>
         </footer>
 
       </div>
