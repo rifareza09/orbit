@@ -258,7 +258,7 @@ git push origin feature/nama-fitur
 
 - [Rifa Reza](https://github.com/rifareza09)
 - [Rendra](https://github.com/rendra-v)
-
+- [Raihan](https://github.com/raihanyustin)
 ## 📄 License
 
 This project is for educational purposes - Universitas YARSI.
