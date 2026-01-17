@@ -152,21 +152,6 @@ http://orbit.test
 
 Herd otomatis menjalankan server PHP, tidak perlu `php artisan serve`!
 
-## 👥 Default User Accounts
-
-Setelah seeder berjalan, gunakan akun berikut untuk login:
-
-| Role | Username | Password |
-|------|----------|----------|
-| UKM | `ldk` | `ldk123` |
-| UKM | `voyage` | `voyage123` |
-| UKM | `himasi` | `himasi123` |
-| UKM | `ybbc` | `ybbc123` |
-| UKM | `smaka` | `smaka123` |
-| BEM | `bem` | `bem123` |
-| Kongres | `kongres` | `kongres123` |
-| Admin (Puskaka) | `puskaka` | `puskaka123` |
-
 ## 🐛 Troubleshooting
 
 ### 504 Gateway Timeout
@@ -272,8 +257,8 @@ git push origin feature/nama-fitur
 ## 👨‍💻 Contributors
 
 - [Rifa Reza](https://github.com/rifareza09)
-- [Rendra] (https://github.com/rendra-v)
-
+- [Rendra](https://github.com/rendra-v)
+- [Raihan](https://github.com/raihanyustin)
 ## 📄 License
 
 This project is for educational purposes - Universitas YARSI.
