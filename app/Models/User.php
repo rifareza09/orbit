@@ -30,6 +30,24 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['logo_url'];
+
+    /**
+     * Get the logo URL for the user.
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if ($this->logo_path) {
+            return asset('storage/' . $this->logo_path);
+        }
+        return null;
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

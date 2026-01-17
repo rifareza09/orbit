@@ -38,9 +38,10 @@ export default function TambahProgramKerja() {
     };
 
     router.post("/program-kerja", submitData, {
+      preserveState: true,
+      preserveScroll: true,
       onSuccess: () => {
         setProcessing(false);
-        router.visit("/program-kerja");
       },
       onError: (newErrors) => {
         setProcessing(false);

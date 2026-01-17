@@ -67,7 +67,17 @@ export default function ManajemenKegiatanIndex({
   };
 
   const handleExport = () => {
-    alert('Fitur export akan segera tersedia');
+    // Build query params from current filters
+    const params = new URLSearchParams();
+    if (tahunFilter) params.append('tahun_akademik', tahunFilter);
+    if (ormawaFilter) params.append('ormawa', ormawaFilter);
+    if (searchQuery) params.append('search', searchQuery);
+
+    const queryString = params.toString();
+    const exportUrl = '/manajemen-kegiatan/export' + (queryString ? '?' + queryString : '');
+
+    // Trigger download
+    window.location.href = exportUrl;
   };
 
   const getStatusStyle = (status: string) => {

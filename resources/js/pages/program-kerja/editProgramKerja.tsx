@@ -14,7 +14,7 @@ interface ProgramKerjaItem {
 }
 
 export default function EditProgramKerja() {
-  const { item } = usePage<{ item: ProgramKerjaItem }>().props;
+  const { item, errors: serverErrors } = usePage<{ item: ProgramKerjaItem; errors?: Record<string, string> }>().props;
 
   const [formData, setFormData] = useState({
     program_kerja: "",
@@ -24,6 +24,9 @@ export default function EditProgramKerja() {
     estimasi_anggaran: "",
     status: "Belum Diajukan",
   });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (item) {
@@ -38,16 +41,28 @@ export default function EditProgramKerja() {
     }
   }, [item]);
 
+  // Sync server errors to local state
+  useEffect(() => {
+    if (serverErrors) {
+      setErrors(serverErrors);
+    }
+  }, [serverErrors]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: name === 'estimasi_anggaran' ? formatCurrencyInput(value) : value
     });
+    // Clear error when user starts editing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setProcessing(true);
     // Convert formatted currency back to number before submit
     const submitData = {
       ...formData,
@@ -56,7 +71,15 @@ export default function EditProgramKerja() {
     // jangan kirim status, biar tidak berubah
     const { status, ...payload } = submitData;
     router.put(`/program-kerja/${item.id}`, payload, {
-      onSuccess: () => router.visit("/program-kerja"),
+      preserveState: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        setProcessing(false);
+      },
+      onError: (newErrors) => {
+        setProcessing(false);
+        setErrors(newErrors as Record<string, string>);
+      },
     });
   };
 
@@ -100,8 +123,11 @@ export default function EditProgramKerja() {
                 name="program_kerja"
                 value={formData.program_kerja}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className={`w-full px-4 py-2 border rounded-lg ${errors.program_kerja ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
               />
+              {errors.program_kerja && (
+                <p className="text-red-600 text-sm mt-1">{errors.program_kerja}</p>
+              )}
 
               <label htmlFor="deskripsi_kegiatan" className="block font-semibold text-[#0B132B] mb-2 mt-4">Deskripsi Kegiatan</label>
               <textarea
@@ -109,8 +135,11 @@ export default function EditProgramKerja() {
                 name="deskripsi_kegiatan"
                 value={formData.deskripsi_kegiatan}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg h-32"
+                className={`w-full px-4 py-2 border rounded-lg h-32 ${errors.deskripsi_kegiatan ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
               />
+              {errors.deskripsi_kegiatan && (
+                <p className="text-red-600 text-sm mt-1">{errors.deskripsi_kegiatan}</p>
+              )}
 
               <label htmlFor="estimasi_anggaran" className="block font-semibold text-[#0B132B] mb-2 mt-4">Estimasi Anggaran</label>
               <input
@@ -119,8 +148,11 @@ export default function EditProgramKerja() {
                 name="estimasi_anggaran"
                 value={formData.estimasi_anggaran}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className={`w-full px-4 py-2 border rounded-lg ${errors.estimasi_anggaran ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
               />
+              {errors.estimasi_anggaran && (
+                <p className="text-red-600 text-sm mt-1">{errors.estimasi_anggaran}</p>
+              )}
             </div>
 
             <div>
@@ -131,8 +163,11 @@ export default function EditProgramKerja() {
                 name="kegiatan"
                 value={formData.kegiatan}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className={`w-full px-4 py-2 border rounded-lg ${errors.kegiatan ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
               />
+              {errors.kegiatan && (
+                <p className="text-red-600 text-sm mt-1">{errors.kegiatan}</p>
+              )}
 
               <label htmlFor="jenis_kegiatan" className="block font-semibold text-[#0B132B] mb-2 mt-4">Jenis Kegiatan</label>
               <select
@@ -140,7 +175,7 @@ export default function EditProgramKerja() {
                 name="jenis_kegiatan"
                 value={formData.jenis_kegiatan}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className={`w-full px-4 py-2 border rounded-lg ${errors.jenis_kegiatan ? 'border-red-500 bg-red-50' : 'border-gray-300'}`}
               >
                 <option value="">Pilih</option>
                 <option value="Pengembangan Sumber Daya Mahasiswa">Pengembangan Sumber Daya Mahasiswa</option>
@@ -150,6 +185,9 @@ export default function EditProgramKerja() {
                 <option value="Internal Ormawa">Internal Ormawa</option>
                 <option value="Teknologi dan Inovasi">Teknologi dan Inovasi</option>
               </select>
+              {errors.jenis_kegiatan && (
+                <p className="text-red-600 text-sm mt-1">{errors.jenis_kegiatan}</p>
+              )}
             </div>
           </div>
 

@@ -138,8 +138,8 @@ export default function BuatProposal() {
 
         // Pengajuan Dana tidak wajib diisi - validasi hanya jika ada item yang diisi
         const filledItems = items.filter(item => item.nama_item.trim() !== '');
-        if (filledItems.length > 0 && filledItems.some(item => item.quantity <= 0 || item.harga_satuan <= 0)) {
-            alert('Mohon lengkapi semua item pengajuan dana dengan benar (quantity dan harga satuan harus lebih dari 0)');
+        if (filledItems.length > 0 && filledItems.some(item => item.quantity <= 0 || item.harga_satuan < 0)) {
+            alert('Mohon lengkapi semua item pengajuan dana dengan benar (quantity harus lebih dari 0 dan harga satuan tidak boleh negatif)');
             return false;
         }
 

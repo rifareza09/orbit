@@ -21,7 +21,7 @@ class EvaluasiLaporanController extends Controller
         }
 
         // Build query
-        $query = LaporanKegiatan::with(['user', 'pengajuanKegiatan']);
+        $query = LaporanKegiatan::with(['user', 'pengajuanKegiatan.programKerja']);
 
         // Filter by tahun akademik (dari tanggal laporan)
         if ($request->filled('tahun_akademik')) {
@@ -52,7 +52,7 @@ class EvaluasiLaporanController extends Controller
                     'id' => $laporan->id,
                     'nama_kegiatan' => $pengajuan->nama_kegiatan ?? '-',
                     'ormawa' => $laporan->user->name ?? '-',
-                    'jenis' => 'Akademik', // Default, bisa disesuaikan
+                    'jenis' => $pengajuan->programKerja->jenis_kegiatan ?? 'Lainnya',
                     'tanggal_pelaksanaan' => $pengajuan && $pengajuan->tanggal_pelaksanaan
                         ? (is_string($pengajuan->tanggal_pelaksanaan)
                             ? $pengajuan->tanggal_pelaksanaan
@@ -203,6 +203,68 @@ class EvaluasiLaporanController extends Controller
         return redirect()
             ->route('evaluasi-laporan.index')
             ->with('success', 'Status laporan berhasil diperbarui!');
+    }
+
+    /**
+     * Export data laporan kegiatan to Excel/CSV
+     */
+    public function export(Request $request)
+    {
+        // Cek role puskaka
+        if (Auth::user()->role !== 'puskaka') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Build query with same filters as index
+        $query = LaporanKegiatan::with(['user', 'pengajuanKegiatan.programKerja']);
+
+        if ($request->filled('tahun_akademik')) {
+            $query->whereYear('created_at', $request->tahun_akademik);
+        }
+
+        if ($request->filled('ormawa')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', $request->ormawa);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $query->whereHas('pengajuanKegiatan', function($q) use ($request) {
+                $q->where('nama_kegiatan', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $data = $query->orderBy('created_at', 'desc')->get();
+
+        // Generate CSV content
+        $csvContent = "\xEF\xBB\xBF"; // BOM for UTF-8 Excel compatibility
+        $csvContent .= "No,Nama Kegiatan,Ormawa,Jenis Kegiatan,Tanggal Pelaksanaan,Anggaran Disetujui,Anggaran Realisasi,Status,Tanggal Laporan\n";
+
+        foreach ($data as $index => $laporan) {
+            $pengajuan = $laporan->pengajuanKegiatan;
+            $tanggalPelaksanaan = $pengajuan && $pengajuan->tanggal_pelaksanaan
+                ? (is_string($pengajuan->tanggal_pelaksanaan) ? $pengajuan->tanggal_pelaksanaan : $pengajuan->tanggal_pelaksanaan->format('d/m/Y'))
+                : '-';
+            $tanggalLaporan = is_string($laporan->created_at) ? $laporan->created_at : $laporan->created_at->format('d/m/Y');
+
+            $csvContent .= implode(',', [
+                $index + 1,
+                '"' . str_replace('"', '""', $pengajuan->nama_kegiatan ?? '-') . '"',
+                '"' . str_replace('"', '""', $laporan->user->name ?? '-') . '"',
+                '"' . str_replace('"', '""', $pengajuan->programKerja->jenis_kegiatan ?? 'Lainnya') . '"',
+                '"' . $tanggalPelaksanaan . '"',
+                $laporan->anggaran_disetujui ?? 0,
+                $laporan->anggaran_realisasi ?? 0,
+                '"' . ($laporan->status ?? '-') . '"',
+                '"' . $tanggalLaporan . '"',
+            ]) . "\n";
+        }
+
+        $filename = 'laporan_kegiatan_' . date('Y-m-d_His') . '.csv';
+
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }
 

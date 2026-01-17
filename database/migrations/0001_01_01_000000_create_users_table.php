@@ -15,14 +15,19 @@ return new class extends Migration
     $table->id();
     $table->string('name'); // Nama Organisasi: LDK KAHFI, VOYAGE, BEM, dsb.
     $table->string('username')->unique(); // LOGIN pakai username, bukan email
+    $table->string('email')->unique(); // Email untuk notifikasi & testing purposes
+    $table->timestamp('email_verified_at')->nullable();
     $table->string('password');
-    $table->enum('role', ['puskaka', 'ukm', 'bem', 'kongres', 'guest'])->default('guest');
+    $table->enum('role', ['puskaka', 'ormawa', 'ukm', 'bem', 'kongres', 'guest'])->default('guest');
     $table->unsignedBigInteger('ormawa_id')->nullable(); // kalau nanti mau hubungan FK
+    $table->string('two_factor_secret', 255)->nullable();
+    $table->text('two_factor_recovery_codes')->nullable();
+    $table->timestamp('two_factor_confirmed_at')->nullable();
     $table->rememberToken();
     $table->timestamps();
 });
 
-        
+
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();

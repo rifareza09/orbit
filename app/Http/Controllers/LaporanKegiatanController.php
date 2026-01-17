@@ -292,14 +292,14 @@ class LaporanKegiatanController extends Controller
     public function ajukan($id)
     {
         $laporan = LaporanKegiatan::where('user_id', Auth::id())->findOrFail($id);
-        
+
         // Update status to Diajukan
         $laporan->update(['status' => 'Diajukan']);
 
         // Send notification to Puskaka
         $user = Auth::user();
         $pengajuan = $laporan->pengajuanKegiatan;
-        
+
         NotificationService::notifyPuskakaNewLaporan(
             $user->name,
             $pengajuan->nama_kegiatan ?? 'Laporan Kegiatan',

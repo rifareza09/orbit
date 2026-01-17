@@ -74,7 +74,7 @@ class DokumentasiController extends Controller
         $validated = $request->validate([
             'nama_kegiatan' => 'required|string|max:255',
             'tanggal_kegiatan' => 'required|date',
-            'foto' => 'required|image|mimes:png,jpg,jpeg|max:5120', // max 5MB
+            'foto' => 'required|image|mimes:png,jpg,jpeg|max:102400', // max 100MB
         ]);
 
         // Handle foto upload

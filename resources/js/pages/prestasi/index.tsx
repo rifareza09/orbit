@@ -41,7 +41,7 @@ export default function PrestasiPage({ prestasis }: Props) {
     <DashboardLayout>
       <div className="p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 relative z-20">
           <div>
             <h1 className="text-3xl font-bold text-[#0B132B] flex items-center gap-2">
               <Award size={32} />
@@ -51,7 +51,7 @@ export default function PrestasiPage({ prestasis }: Props) {
           </div>
           <Link
             href="/prestasi/tambah"
-            className="bg-[#0B132B] text-white px-6 py-3 rounded-lg hover:bg-[#1C2541] transition font-medium flex items-center gap-2"
+            className="bg-[#0B132B] text-white px-6 py-3 rounded-lg hover:bg-[#1C2541] transition font-medium flex items-center gap-2 cursor-pointer"
           >
             <Plus size={20} />
             Tambah Prestasi

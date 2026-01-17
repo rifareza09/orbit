@@ -99,12 +99,12 @@ class PengajuanKegiatanController extends Controller
             'jumlah_peserta' => 'required|integer|min:1',
             'tanggal_pelaksanaan' => 'required|date',
             'deskripsi' => 'nullable|string',
-            'proposal' => 'nullable|file|mimes:pdf|max:10000',
-            'items' => 'required|array|min:1',
-            'items.*.nama_item' => 'required|string|max:255',
+            'proposal' => 'nullable|file|mimes:pdf|max:102400', // max 100MB
+            'items' => 'nullable|array',
+            'items.*.nama_item' => 'nullable|string|max:255',
             'items.*.deskripsi_item' => 'nullable|string',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
+            'items.*.quantity' => 'nullable|integer|min:1',
+            'items.*.harga_satuan' => 'nullable|numeric|min:0',
         ]);
 
         // Handle file upload
@@ -130,14 +130,18 @@ class PengajuanKegiatanController extends Controller
             'status' => 'Belum Diajukan',
         ]);
 
-        // Create items
-        foreach ($validated['items'] as $item) {
+        // Create items (hanya jika ada item yang valid)
+        $itemsToCreate = $validated['items'] ?? [];
+        foreach ($itemsToCreate as $item) {
+            // Skip item yang kosong
+            if (empty($item['nama_item'])) continue;
+
             ItemPengajuanDana::create([
                 'pengajuan_kegiatan_id' => $pengajuan->id,
                 'nama_item' => $item['nama_item'],
-                'deskripsi_item' => $item['deskripsi_item'],
-                'quantity' => $item['quantity'],
-                'harga_satuan' => $item['harga_satuan'],
+                'deskripsi_item' => $item['deskripsi_item'] ?? null,
+                'quantity' => $item['quantity'] ?? 1,
+                'harga_satuan' => $item['harga_satuan'] ?? 0,
             ]);
         }
 
@@ -185,12 +189,12 @@ class PengajuanKegiatanController extends Controller
             'jumlah_peserta' => 'required|integer|min:1',
             'tanggal_pelaksanaan' => 'required|date',
             'deskripsi' => 'nullable|string',
-            'proposal' => 'nullable|file|mimes:pdf|max:10000',
-            'items' => 'required|array|min:1',
-            'items.*.nama_item' => 'required|string|max:255',
+            'proposal' => 'nullable|file|mimes:pdf|max:102400', // max 100MB
+            'items' => 'nullable|array',
+            'items.*.nama_item' => 'nullable|string|max:255',
             'items.*.deskripsi_item' => 'nullable|string',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
+            'items.*.quantity' => 'nullable|integer|min:1',
+            'items.*.harga_satuan' => 'nullable|numeric|min:0',
         ]);
 
         // Handle file upload
@@ -223,13 +227,17 @@ class PengajuanKegiatanController extends Controller
         // Delete existing items and create new ones
         $pengajuan->itemPengajuanDana()->delete();
 
-        foreach ($validated['items'] as $item) {
+        $itemsToCreate = $validated['items'] ?? [];
+        foreach ($itemsToCreate as $item) {
+            // Skip item yang kosong
+            if (empty($item['nama_item'])) continue;
+
             ItemPengajuanDana::create([
                 'pengajuan_kegiatan_id' => $pengajuan->id,
                 'nama_item' => $item['nama_item'],
-                'deskripsi_item' => $item['deskripsi_item'],
-                'quantity' => $item['quantity'],
-                'harga_satuan' => $item['harga_satuan'],
+                'deskripsi_item' => $item['deskripsi_item'] ?? null,
+                'quantity' => $item['quantity'] ?? 1,
+                'harga_satuan' => $item['harga_satuan'] ?? 0,
             ]);
         }
 

@@ -53,7 +53,7 @@ class ManajemenKegiatanController extends Controller
                     'id' => $pk->id,
                     'nama_kegiatan' => $pk->nama_kegiatan,
                     'ormawa' => $pk->user->name ?? '-',
-                    'jenis' => 'Akademik', // Default, bisa disesuaikan
+                    'jenis' => $pk->programKerja->jenis_kegiatan ?? 'Lainnya',
                     'program_kerja' => $pk->programKerja->program_kerja ?? '-',
                     'ketua_pelaksana' => $pk->ketua_pelaksana,
                     'tanggal_pelaksanaan' => is_string($pk->tanggal_pelaksanaan) ? $pk->tanggal_pelaksanaan : $pk->tanggal_pelaksanaan->format('d/m/Y'),
@@ -197,5 +197,61 @@ class ManajemenKegiatanController extends Controller
         return redirect()
             ->route('manajemen-kegiatan.index')
             ->with('success', 'Review berhasil disimpan');
+    }
+
+    /**
+     * Export data pengajuan kegiatan to Excel/CSV
+     */
+    public function export(Request $request)
+    {
+        // Cek role puskaka
+        if (Auth::user()->role !== 'puskaka') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Build query with same filters as index
+        $query = PengajuanKegiatan::with(['user', 'programKerja']);
+        $query->where('status', '!=', 'Belum Diajukan');
+
+        if ($request->filled('tahun_akademik')) {
+            $query->whereYear('tanggal_pelaksanaan', $request->tahun_akademik);
+        }
+
+        if ($request->filled('ormawa')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', $request->ormawa);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $query->where('nama_kegiatan', 'like', '%' . $request->search . '%');
+        }
+
+        $data = $query->orderBy('created_at', 'desc')->get();
+
+        // Generate CSV content
+        $csvContent = "\xEF\xBB\xBF"; // BOM for UTF-8 Excel compatibility
+        $csvContent .= "No,Nama Kegiatan,Ormawa,Jenis Kegiatan,Program Kerja,Ketua Pelaksana,Tanggal Pelaksanaan,Total Anggaran,Status Review\n";
+
+        foreach ($data as $index => $pk) {
+            $tanggal = is_string($pk->tanggal_pelaksanaan) ? $pk->tanggal_pelaksanaan : $pk->tanggal_pelaksanaan->format('d/m/Y');
+            $csvContent .= implode(',', [
+                $index + 1,
+                '"' . str_replace('"', '""', $pk->nama_kegiatan) . '"',
+                '"' . str_replace('"', '""', $pk->user->name ?? '-') . '"',
+                '"' . str_replace('"', '""', $pk->programKerja->jenis_kegiatan ?? 'Lainnya') . '"',
+                '"' . str_replace('"', '""', $pk->programKerja->program_kerja ?? '-') . '"',
+                '"' . str_replace('"', '""', $pk->ketua_pelaksana) . '"',
+                '"' . $tanggal . '"',
+                $pk->total_anggaran ?? 0,
+                '"' . ($pk->status_review ?? '-') . '"',
+            ]) . "\n";
+        }
+
+        $filename = 'pengajuan_kegiatan_' . date('Y-m-d_His') . '.csv';
+
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }

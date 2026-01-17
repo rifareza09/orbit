@@ -27,9 +27,11 @@ class StoreLaporanRequest extends FormRequest
             'anggaran_realisasi'    => 'nullable|numeric|min:0',
             'ringkasan'             => 'nullable|string',
             'status'                => 'nullable|in:Belum Diajukan,Diajukan,Direview,Disetujui,Direvisi,Ditolak',
-            'lpj'                   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
-            'bukti_pengeluaran.*'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
-            'dokumentasi.*'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:20480',
+            'lpj'                   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:102400', // max 100MB
+            'bukti_pengeluaran'     => 'nullable|array',
+            'bukti_pengeluaran.*'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:102400', // max 100MB per file
+            'dokumentasi'           => 'nullable|array',
+            'dokumentasi.*'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:102400', // max 100MB per file
         ];
     }
 

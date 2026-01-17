@@ -35,6 +35,17 @@ class ProgramKerjaController extends Controller
         'estimasi_anggaran'    => 'required|numeric|min:0',
     ]);
 
+    // Cek apakah nama program kerja sudah ada untuk user yang sama
+    $existingProgram = ProgramKerja::where('user_id', Auth::id())
+        ->where('program_kerja', $validated['program_kerja'])
+        ->first();
+
+    if ($existingProgram) {
+        return back()
+            ->withInput()
+            ->withErrors(['program_kerja' => 'Nama Program Kerja "' . $validated['program_kerja'] . '" sudah terdaftar. Silakan gunakan nama yang berbeda.']);
+    }
+
     ProgramKerja::create([
         'user_id'             => Auth::id(),
         'program_kerja'       => $validated['program_kerja'],
@@ -108,6 +119,18 @@ class ProgramKerjaController extends Controller
             'jenis_kegiatan'       => 'required|string',
             'estimasi_anggaran'    => 'required|numeric|min:0',
         ]);
+
+        // Cek apakah nama program kerja sudah ada untuk user yang sama (kecuali program ini sendiri)
+        $existingProgram = ProgramKerja::where('user_id', Auth::id())
+            ->where('program_kerja', $validated['program_kerja'])
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existingProgram) {
+            return back()
+                ->withInput()
+                ->withErrors(['program_kerja' => 'Nama Program Kerja "' . $validated['program_kerja'] . '" sudah terdaftar. Silakan gunakan nama yang berbeda.']);
+        }
 
         // ✅ status tidak disentuh
         $program->update($validated);

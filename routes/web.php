@@ -509,6 +509,11 @@ Route::middleware(['auth', 'verified', 'puskaka'])->post('/manajemen-kegiatan/{i
     'updateReview'
 ])->name('manajemen-kegiatan.updateReview');
 
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/manajemen-kegiatan/export', [
+    \App\Http\Controllers\ManajemenKegiatanController::class,
+    'export'
+])->name('manajemen-kegiatan.export');
+
 /*
 |--------------------------------------------------------------------------
 | Evaluasi & Laporan
@@ -528,6 +533,11 @@ Route::middleware(['auth', 'verified', 'puskaka'])->post('/evaluasi-laporan/{id}
     \App\Http\Controllers\EvaluasiLaporanController::class,
     'updateStatus'
 ])->name('evaluasi-laporan.updateStatus');
+
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/evaluasi-laporan/export', [
+    \App\Http\Controllers\EvaluasiLaporanController::class,
+    'export'
+])->name('evaluasi-laporan.export');
 
 });
 

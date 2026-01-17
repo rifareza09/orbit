@@ -12,8 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add "Selesai" to laporan_kegiatans status enum
-        DB::statement("ALTER TABLE laporan_kegiatans MODIFY COLUMN status ENUM('Belum Diajukan', 'Diajukan', 'Direview', 'Disetujui', 'Direvisi', 'Ditolak', 'Selesai') DEFAULT 'Belum Diajukan'");
+        // Add "Selesai" to laporan_kegiatans status enum (skip for SQLite in testing)
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE laporan_kegiatans MODIFY COLUMN status ENUM('Belum Diajukan', 'Diajukan', 'Direview', 'Disetujui', 'Direvisi', 'Ditolak', 'Selesai') DEFAULT 'Belum Diajukan'");
+        }
     }
 
     /**
@@ -21,7 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert back to original enum without "Selesai"
-        DB::statement("ALTER TABLE laporan_kegiatans MODIFY COLUMN status ENUM('Belum Diajukan', 'Diajukan', 'Direview', 'Disetujui', 'Direvisi', 'Ditolak') DEFAULT 'Belum Diajukan'");
+        // Revert back to original enum without "Selesai" (skip for SQLite in testing)
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE laporan_kegiatans MODIFY COLUMN status ENUM('Belum Diajukan', 'Diajukan', 'Direview', 'Disetujui', 'Direvisi', 'Ditolak') DEFAULT 'Belum Diajukan'");
+        }
     }
 };

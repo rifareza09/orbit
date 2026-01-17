@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { Link, router } from "@inertiajs/react";
-import { Search, FileDown, Calendar } from "lucide-react";
+import { Search, FileDown, Calendar, RotateCcw } from "lucide-react";
 
 interface LaporanKegiatan {
   id: number;
@@ -63,6 +63,20 @@ export default function EvaluasiLaporanIndex({
     setOrmawaFilter('');
     setSearchQuery('');
     router.get('/evaluasi-laporan');
+  };
+
+  const handleExport = () => {
+    // Build query params from current filters
+    const params = new URLSearchParams();
+    if (tahunFilter) params.append('tahun_akademik', tahunFilter);
+    if (ormawaFilter) params.append('ormawa', ormawaFilter);
+    if (searchQuery) params.append('search', searchQuery);
+
+    const queryString = params.toString();
+    const exportUrl = '/evaluasi-laporan/export' + (queryString ? '?' + queryString : '');
+
+    // Trigger download
+    window.location.href = exportUrl;
   };
 
   return (
@@ -178,6 +192,13 @@ export default function EvaluasiLaporanIndex({
                   className="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-semibold transition-colors"
                 >
                   Reset
+                </button>
+                <button
+                  onClick={handleExport}
+                  className="px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm flex items-center gap-2"
+                >
+                  <FileDown size={16} />
+                  Export
                 </button>
               </div>
             </div>

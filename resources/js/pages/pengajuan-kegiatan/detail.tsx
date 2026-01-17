@@ -30,7 +30,6 @@ interface PengajuanKegiatan {
   tanggal_pelaksanaan: string;
   total_anggaran: number;
   status: string;
-  status_review: string;
   catatan_puskaka: string | null;
   reviewed_at: string | null;
   deskripsi: string;
@@ -207,23 +206,18 @@ export default function DetailPengajuanKegiatan() {
                         {/* Status */}
                         <div>
                             <p className="font-bold text-sm text-gray-800">
-                                Status Review Puskaka
+                                Status Pengajuan
                             </p>
                             <span className={`mt-1 inline-block text-xs font-medium px-3 py-1 rounded-full ${
-                              pengajuan.status_review === 'Menunggu Review' ? 'bg-yellow-200 text-yellow-800' :
-                              pengajuan.status_review === 'Direview' ? 'bg-blue-200 text-blue-800' :
-                              pengajuan.status_review === 'Disetujui' ? 'bg-green-200 text-green-800' :
-                              pengajuan.status_review === 'Ditolak' ? 'bg-red-200 text-red-800' :
-                              pengajuan.status_review === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
+                              pengajuan.status === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
+                              pengajuan.status === 'Diajukan' ? 'bg-yellow-200 text-yellow-800' :
+                              pengajuan.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
+                              pengajuan.status === 'Ditolak' ? 'bg-red-200 text-red-800' :
+                              pengajuan.status === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
                               'bg-gray-200 text-gray-800'
                             }`}>
-                                {pengajuan.status_review}
+                                {pengajuan.status}
                             </span>
-                            {pengajuan.reviewed_at && (
-                              <p className="mt-1 text-xs text-gray-500">
-                                Direview pada: {pengajuan.reviewed_at}
-                              </p>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -289,7 +283,7 @@ export default function DetailPengajuanKegiatan() {
                     </button>
 
                     {/* Tombol Edit untuk status Belum Diajukan atau Ditolak */}
-                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status_review === 'Ditolak') && (
+                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status === 'Ditolak') && (
                         <button
                           onClick={() => router.visit(`/pengajuan-kegiatan/edit/${pengajuan.id}`)}
                           className="bg-blue-500 text-white px-8 py-2 rounded-lg shadow hover:bg-blue-600 transition"
@@ -299,7 +293,7 @@ export default function DetailPengajuanKegiatan() {
                     )}
 
                     {/* Tombol Revisi khusus untuk status Direvisi - hanya tombol ini yang muncul */}
-                    {pengajuan.status_review === 'Direvisi' && (
+                    {pengajuan.status === 'Direvisi' && (
                         <button
                           onClick={() => router.visit(`/pengajuan-kegiatan/edit/${pengajuan.id}`)}
                           className="bg-orange-500 text-white px-8 py-2 rounded-lg shadow hover:bg-orange-600 transition font-semibold"
@@ -309,7 +303,7 @@ export default function DetailPengajuanKegiatan() {
                     )}
 
                     {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak, dan harus ada proposal */}
-                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status_review === 'Ditolak') && (
+                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status === 'Ditolak') && (
                         <button
                           onClick={() => setShowConfirmModal(true)}
                           disabled={!pengajuan.proposal_path}
