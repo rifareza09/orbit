@@ -195,7 +195,7 @@ export default function DataOrmawaPage() {
                   >
                     <td className="px-4 py-3">{index + 1}</td>
                     <td className="px-4 py-3">{org.nama}</td>
-                    <td className="px-4 py-3">{org.jenis}</td>
+                    <td className="px-4 py-3">{org.jenis.toUpperCase()}</td>
                     <td className="px-4 py-3">{org.ketua}</td>
                     <td className="px-4 py-3">
                       {String(org.anggota).padStart(2, "0")}
@@ -355,9 +355,9 @@ export default function DataOrmawaPage() {
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B132B]"
                   >
-                    <option value="ukm">UKM</option>
-                    <option value="bem">BEM</option>
-                    <option value="kongres">Kongres</option>
+                    <option value="UKM">UKM</option>
+                    <option value="BEM">BEM</option>
+                    <option value="Kongres">Kongres</option>
                   </select>
                 </div>
 

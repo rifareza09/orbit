@@ -142,9 +142,9 @@ class ManajemenKegiatanController extends Controller
                     return [
                         'id' => $item->id,
                         'nama_item' => $item->nama_item,
-                        'kuantitas' => $item->kuantitas,
+                        'kuantitas' => $item->quantity,
                         'harga_satuan' => $item->harga_satuan,
-                        'total' => $item->kuantitas * $item->harga_satuan,
+                        'total' => $item->total_harga,
                     ];
                 }),
             ]

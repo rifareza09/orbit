@@ -56,6 +56,10 @@ export default function BuatProposal() {
 
     const [proposalFile, setProposalFile] = useState<File | null>(null);
     const [fileError, setFileError] = useState<string>("");
+    const [fileSuccess, setFileSuccess] = useState<string>("");
+
+    // Konstanta batas ukuran file (5MB)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB dalam bytes
 
     const [items, setItems] = useState<ItemPengajuanDana[]>([
         { nama_item: "", deskripsi_item: "", quantity: 0, harga_satuan: 0 },
@@ -101,24 +105,30 @@ export default function BuatProposal() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setFileError('');
+            setFileSuccess('');
+
             // Validasi apakah file adalah PDF
             if (file.type !== 'application/pdf') {
-                setFileError('File harus berformat PDF!');
+                setFileError('❌ File harus berformat PDF! File yang Anda upload bukan PDF.');
                 setProposalFile(null);
                 e.target.value = ''; // Reset input
                 return;
             }
 
-            // Validasi ukuran file (max 100MB)
-            const maxSize = 100 * 1024 * 1024; // 100MB dalam bytes
-            if (file.size > maxSize) {
-                setFileError('Ukuran file maksimal 100MB!');
+            // Validasi ukuran file (max 5MB)
+            if (file.size > MAX_FILE_SIZE) {
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                const maxSizeMB = (MAX_FILE_SIZE / (1024 * 1024)).toFixed(0);
+                setFileError(`❌ Ukuran file terlalu besar! File Anda ${fileSizeMB}MB, maksimal ${maxSizeMB}MB. Silakan kompres file atau pilih file yang lebih kecil.`);
                 setProposalFile(null);
                 e.target.value = ''; // Reset input
                 return;
             }
 
-            setFileError('');
+            // Sukses
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            setFileSuccess(`✅ File berhasil dipilih: ${file.name} (${fileSizeMB}MB)`);
             setProposalFile(file);
         }
     };
@@ -259,26 +269,23 @@ export default function BuatProposal() {
 
                             {/* Program Kerja Selection */}
                             <div className="col-span-2">
-                                <p className="font-semibold text-sm mb-1">Pilih Program Kerja yang Sudah Diajukan*</p>
-                                <select
-                                    name="program_kerja_id"
-                                    value={form.program_kerja_id}
-                                    onChange={handleFormChange}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
-                                    required
-                                >
-                                    <option value="">Pilih Program Kerja</option>
-                                    {programKerjasDiajukan.map((program) => (
-                                        <option key={program.id} value={program.id}>
-                                            {program.kegiatan} - {formatCurrency(program.estimasi_anggaran)}
-                                        </option>
-                                    ))}
-                                </select>
+                                <p className="font-semibold text-sm mb-1">Program Kerja dan Estimasi Anggaran</p>
+                                <input
+                                    type="text"
+                                    value={
+                                        (() => {
+                                            const program = programKerjasDiajukan.find(p => p.id.toString() === form.program_kerja_id);
+                                            return program ? `${program.program_kerja} - ${formatCurrency(program.estimasi_anggaran)}` : '';
+                                        })()
+                                    }
+                                    readOnly
+                                    className="w-full p-2 rounded-md border border-gray-300 bg-gray-50"
+                                />
                             </div>
 
                             {/* Nama Kegiatan (Read Only) */}
                             <div>
-                                <p className="font-semibold text-sm mb-1">Nama Kegiatan*</p>
+                                <p className="font-semibold text-sm mb-1">Nama Kegiatan</p>
                                 <input
                                     type="text"
                                     name="nama_kegiatan"
@@ -352,6 +359,7 @@ export default function BuatProposal() {
                             {/* Proposal PDF Upload */}
                             <div className="col-span-2">
                                 <p className="font-semibold text-sm mb-1">Proposal (PDF)</p>
+                                <p className="text-xs text-gray-500 mb-2">Ukuran maksimal: 5MB</p>
                                 <input
                                     type="file"
                                     accept="application/pdf"
@@ -359,18 +367,18 @@ export default function BuatProposal() {
                                     className="w-full p-2 rounded-md border border-gray-300 bg-white"
                                 />
                                 {fileError && (
-                                    <p className="text-sm text-red-600 mt-1 font-semibold flex items-center gap-1">
-                                        <span>⚠️</span> {fileError}
-                                    </p>
+                                    <div className="mt-2 p-3 bg-red-50 border border-red-300 rounded-md">
+                                        <p className="text-sm text-red-700 font-semibold">{fileError}</p>
+                                    </div>
+                                )}
+                                {fileSuccess && (
+                                    <div className="mt-2 p-3 bg-green-50 border border-green-300 rounded-md">
+                                        <p className="text-sm text-green-700 font-semibold">{fileSuccess}</p>
+                                    </div>
                                 )}
                                 {pengajuan?.proposal_path && !proposalFile && !fileError && (
-                                    <p className="text-sm text-gray-600 mt-1">
-                                        File saat ini: {pengajuan.proposal_path.split('/').pop()}
-                                    </p>
-                                )}
-                                {proposalFile && !fileError && (
-                                    <p className="text-sm text-green-600 mt-1 font-semibold flex items-center gap-1">
-                                        <span>✓</span> File baru: {proposalFile.name}
+                                    <p className="text-sm text-gray-600 mt-2 p-2 bg-gray-100 rounded">
+                                        📄 File saat ini: {pengajuan.proposal_path.split('/').pop()}
                                     </p>
                                 )}
                             </div>

@@ -27,30 +27,83 @@ interface LaporanEvaluasi {
 export default function EvaluasiLaporanDetail() {
   const { laporan, flash } = usePage<{ laporan: LaporanEvaluasi; flash?: any }>().props;
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmCallback, setConfirmCallback] = useState<(() => void) | null>(null);
 
   const { data, setData } = useForm({
     status: laporan.status,
     catatan_puskaka: laporan.catatan_puskaka || '',
   });
 
+  const openConfirmation = (message: string, callback: () => void) => {
+    setConfirmMessage(message);
+    setConfirmCallback(() => callback);
+    setShowConfirm(true);
+  };
+
+  const handleConfirm = () => {
+    setShowConfirm(false);
+    if (confirmCallback) {
+      confirmCallback();
+    }
+  };
+
+  const handleCancel = () => {
+    setShowConfirm(false);
+    setConfirmCallback(null);
+  };
+
   const handleApprove = () => {
-    setIsLoading(true);
-    router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
-      status: 'Disetujui',
-      catatan_puskaka: data.catatan_puskaka,
+    openConfirmation('Apakah Anda yakin ingin menyetujui laporan kegiatan ini?', () => {
+      setIsLoading(true);
+      router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
+        status: 'Disetujui',
+        catatan_puskaka: data.catatan_puskaka,
+      });
     });
   };
 
   const handleReview = () => {
-    setIsLoading(true);
-    router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
-      status: 'Direvisi',
-      catatan_puskaka: data.catatan_puskaka,
+    if (!data.catatan_puskaka.trim()) {
+      alert('⚠️ Catatan Puskaka wajib diisi saat meminta revisi!');
+      return;
+    }
+    openConfirmation('Apakah Anda yakin ingin meminta revisi laporan kegiatan ini?', () => {
+      setIsLoading(true);
+      router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
+        status: 'Direvisi',
+        catatan_puskaka: data.catatan_puskaka,
+      });
     });
   };
 
   return (
     <DashboardLayout>
+      {/* Confirmation Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Konfirmasi Aksi</h2>
+            <p className="text-gray-700 mb-6">{confirmMessage}</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={handleCancel}
+                className="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirm}
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Lanjutkan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="p-10 bg-[#F5F6FA] min-h-screen">
         {/* Header */}
         <h1 className="text-2xl font-bold text-[#0B132B] mb-6">Evaluasi Laporan Kegiatan</h1>
@@ -109,9 +162,10 @@ export default function EvaluasiLaporanDetail() {
               <div>
                 <p className="text-sm font-semibold text-gray-700">Status</p>
                 <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full mt-2 ${
-                  laporan.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
-                  laporan.status === 'Direview' ? 'bg-blue-200 text-blue-800' :
-                  laporan.status === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
+                  laporan.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                  laporan.status === 'Direview' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25' :
+                  laporan.status === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-orange-500/25':
+                  laporan.status === 'Selesai' ?  'bg-gradient-to-r from-purple-400 to-violet-500 text-white shadow-purple-500/25':
                   'bg-yellow-200 text-yellow-800'
                 }`}>
                   {laporan.status}

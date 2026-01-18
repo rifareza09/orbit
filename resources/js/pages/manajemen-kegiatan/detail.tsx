@@ -36,23 +36,62 @@ interface Props {
 export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
   const { flash } = usePage().props as any;
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmCallback, setConfirmCallback] = useState<(() => void) | null>(null);
 
   const { data, setData, post, processing, errors } = useForm({
     status_review: pengajuan.status_review,
     catatan_puskaka: pengajuan.catatan_puskaka || '',
   });
 
+  // Helper function to calculate total for an item
+  const calculateItemTotal = (item: ItemPengajuanDana): number => {
+    const hargaSatuan = typeof item.harga_satuan === 'string' 
+      ? Number.parseFloat(item.harga_satuan.replaceAll(/[^\d.-]/g, '')) 
+      : item.harga_satuan;
+    const kuantitas = item.kuantitas || 0;
+    return hargaSatuan * kuantitas;
+  };
+
+  // Calculate total anggaran
+  const calculateTotalAnggaran = (): number => {
+    return pengajuan.item_pengajuan_dana.reduce((sum, item) => {
+      return sum + calculateItemTotal(item);
+    }, 0);
+  };
+
+  const openConfirmation = (message: string, callback: () => void) => {
+    setConfirmMessage(message);
+    setConfirmCallback(() => callback);
+    setShowConfirm(true);
+  };
+
+  const handleConfirm = () => {
+    setShowConfirm(false);
+    if (confirmCallback) {
+      confirmCallback();
+    }
+  };
+
+  const handleCancel = () => {
+    setShowConfirm(false);
+    setConfirmCallback(null);
+  };
+
   const handleApprove = () => {
-    setIsLoading(true);
-    router.post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
-      status_review: 'Disetujui',
-      catatan_puskaka: data.catatan_puskaka,
-    }, {
-      preserveScroll: true,
-      onSuccess: () => {
-        router.visit('/manajemen-kegiatan');
-      },
-      onFinish: () => setIsLoading(false),
+    openConfirmation('Apakah Anda yakin ingin menyetujui pengajuan kegiatan ini?', () => {
+      setIsLoading(true);
+      router.post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
+        status_review: 'Disetujui',
+        catatan_puskaka: data.catatan_puskaka,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => {
+          router.visit('/manajemen-kegiatan');
+        },
+        onFinish: () => setIsLoading(false),
+      });
     });
   };
 
@@ -61,16 +100,18 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
       alert('⚠️ Catatan wajib diisi saat menolak!');
       return;
     }
-    setIsLoading(true);
-    router.post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
-      status_review: 'Ditolak',
-      catatan_puskaka: data.catatan_puskaka,
-    }, {
-      preserveScroll: true,
-      onSuccess: () => {
-        router.visit('/manajemen-kegiatan');
-      },
-      onFinish: () => setIsLoading(false),
+    openConfirmation('Apakah Anda yakin ingin menolak pengajuan kegiatan ini?', () => {
+      setIsLoading(true);
+      router.post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
+        status_review: 'Ditolak',
+        catatan_puskaka: data.catatan_puskaka,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => {
+          router.visit('/manajemen-kegiatan');
+        },
+        onFinish: () => setIsLoading(false),
+      });
     });
   };
 
@@ -79,21 +120,47 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
       alert('⚠️ Catatan wajib diisi saat meminta revisi!');
       return;
     }
-    setIsLoading(true);
-    router.post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
-      status_review: 'Direvisi',
-      catatan_puskaka: data.catatan_puskaka,
-    }, {
-      preserveScroll: true,
-      onSuccess: () => {
-        router.visit('/manajemen-kegiatan');
-      },
-      onFinish: () => setIsLoading(false),
+    openConfirmation('Apakah Anda yakin ingin meminta revisi pengajuan kegiatan ini?', () => {
+      setIsLoading(true);
+      router.post(`/manajemen-kegiatan/${pengajuan.id}/update-review`, {
+        status_review: 'Direvisi',
+        catatan_puskaka: data.catatan_puskaka,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => {
+          router.visit('/manajemen-kegiatan');
+        },
+        onFinish: () => setIsLoading(false),
+      });
     });
   };
 
   return (
     <DashboardLayout>
+      {/* Confirmation Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Konfirmasi Aksi</h2>
+            <p className="text-gray-700 mb-6">{confirmMessage}</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={handleCancel}
+                className="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirm}
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Lanjutkan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white border-b">
@@ -115,20 +182,18 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
           )}
 
           {/* Detail Kegiatan Section */}
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 border-b">
-              <div className="flex items-center justify-between">
-                <h2 className="font-bold text-white text-lg">Detail Kegiatan</h2>
-                <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-lg ${
-                  pengajuan.status_review === 'Disetujui' ? 'bg-green-500 text-white' :
-                  pengajuan.status_review === 'Ditolak' ? 'bg-red-500 text-white' :
-                  pengajuan.status_review === 'Direview' ? 'bg-blue-400 text-white' :
-                  pengajuan.status_review === 'Direvisi' ? 'bg-orange-500 text-white' :
-                  'bg-yellow-500 text-white'
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold flex items-center justify-between">
+              <h2 className="font-bold text-white text-lg">Detail Kegiatan</h2>
+              <span className={`px-4 py-1.5 rounded-full text-xs font-bold shadow-lg ${
+                  pengajuan.status_review === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                  pengajuan.status_review === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-red-500 text-white' :
+                  pengajuan.status_review === 'Direview' ? 'bg-gradient-to-r from-blue-400 to-blue-500 text-white shadow-blue-500/25' :
+                  pengajuan.status_review === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-orange-500/25' :
+                  'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-amber-500/25'
                 }`}>
                   {pengajuan.status_review}
                 </span>
-              </div>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-2 gap-6">
@@ -214,8 +279,8 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
           </div>
 
           {/* Rencana Anggaran Section */}
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4 border-b">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
               <h2 className="font-bold text-white text-lg">Rencana Anggaran</h2>
             </div>
             <div className="overflow-x-auto">
@@ -235,12 +300,12 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
                       <tr key={item.id}>
                         <td className="px-6 py-3 text-gray-600">{index + 1}</td>
                         <td className="px-6 py-3 text-gray-700">{item.nama_item}</td>
-                        <td className="px-6 py-3 text-gray-700">{item.kuantitas}</td>
+                        <td className="px-6 py-3 text-gray-700 font-semibold">{item.kuantitas || 0}</td>
                         <td className="px-6 py-3 text-gray-700 font-mono">
-                          Rp {parseFloat(item.harga_satuan).toLocaleString('id-ID')}
+                          Rp {Number.parseFloat(item.harga_satuan).toLocaleString('id-ID')}
                         </td>
                         <td className="px-6 py-3 text-gray-700 font-mono font-semibold">
-                          Rp {item.total.toLocaleString('id-ID')}
+                          Rp {calculateItemTotal(item).toLocaleString('id-ID')}
                         </td>
                       </tr>
                     ))
@@ -257,7 +322,7 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
                         Total Anggaran:
                       </td>
                       <td className="px-6 py-3 text-gray-900 font-mono text-lg">
-                        Rp {parseFloat(pengajuan.total_anggaran).toLocaleString('id-ID')}
+                        Rp {calculateTotalAnggaran().toLocaleString('id-ID')}
                       </td>
                     </tr>
                   )}
@@ -268,8 +333,8 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
 
           {/* File Proposal */}
           {pengajuan.proposal_path && (
-            <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-              <div className="px-6 py-4 border-b bg-gradient-to-r from-purple-500 to-pink-600">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+              <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
                 <h2 className="font-bold text-white text-lg">File Proposal</h2>
               </div>
               <div className="p-6">
@@ -287,8 +352,8 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
           )}
 
           {/* Review & Evaluasi */}
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-900 to-indigo-900 px-6 py-4 border-b">
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
               <h2 className="font-bold text-white text-lg">Review & Evaluasi</h2>
               <p className="text-xs text-white/90 mt-1">Program kerja yang sudah disetujui tidak dapat diubah statusnya lagi.</p>
             </div>
@@ -309,8 +374,6 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
                 )}
               </div>
             </div>
-
-            {/* Action Buttons */}
             <div className="flex justify-center gap-4 pb-8 mt-6">
               <Link
                 href="/manajemen-kegiatan"

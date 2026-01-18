@@ -24,17 +24,40 @@ export default function DetailPuskaka({ programKerja }: Props) {
   const [activeTab, setActiveTab] = useState<'program-kerja' | 'pengajuan-dana'>('program-kerja');
   const { flash } = usePage().props as any;
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmCallback, setConfirmCallback] = useState<(() => void) | null>(null);
 
   const { data, setData, post, processing, errors } = useForm({
     status: programKerja.status,
     catatan_puskaka: programKerja.catatan_puskaka || '',
   });
 
+  const openConfirmation = (message: string, callback: () => void) => {
+    setConfirmMessage(message);
+    setConfirmCallback(() => callback);
+    setShowConfirm(true);
+  };
+
+  const handleConfirm = () => {
+    setShowConfirm(false);
+    if (confirmCallback) {
+      confirmCallback();
+    }
+  };
+
+  const handleCancel = () => {
+    setShowConfirm(false);
+    setConfirmCallback(null);
+  };
+
   const handleApprove = () => {
-    setIsLoading(true);
-    post(`/program-kerja/${programKerja.id}/update-status`, {
-      preserveScroll: true,
-      onFinish: () => setIsLoading(false),
+    openConfirmation('Apakah Anda yakin ingin menyetujui program kerja ini?', () => {
+      setIsLoading(true);
+      post(`/program-kerja/${programKerja.id}/update-status`, {
+        preserveScroll: true,
+        onFinish: () => setIsLoading(false),
+      });
     });
   };
 
@@ -43,11 +66,13 @@ export default function DetailPuskaka({ programKerja }: Props) {
       alert('Catatan wajib diisi saat menolak');
       return;
     }
-    setData('status', 'Ditolak');
-    setIsLoading(true);
-    post(`/program-kerja/${programKerja.id}/update-status`, {
-      preserveScroll: true,
-      onFinish: () => setIsLoading(false),
+    openConfirmation('Apakah Anda yakin ingin menolak program kerja ini?', () => {
+      setData('status', 'Ditolak');
+      setIsLoading(true);
+      post(`/program-kerja/${programKerja.id}/update-status`, {
+        preserveScroll: true,
+        onFinish: () => setIsLoading(false),
+      });
     });
   };
 
@@ -56,11 +81,13 @@ export default function DetailPuskaka({ programKerja }: Props) {
       alert('Catatan wajib diisi saat meminta revisi');
       return;
     }
-    setData('status', 'Direvisi');
-    setIsLoading(true);
-    post(`/program-kerja/${programKerja.id}/update-status`, {
-      preserveScroll: true,
-      onFinish: () => setIsLoading(false),
+    openConfirmation('Apakah Anda yakin ingin meminta revisi program kerja ini?', () => {
+      setData('status', 'Direvisi');
+      setIsLoading(true);
+      post(`/program-kerja/${programKerja.id}/update-status`, {
+        preserveScroll: true,
+        onFinish: () => setIsLoading(false),
+      });
     });
   };
 
@@ -73,6 +100,30 @@ export default function DetailPuskaka({ programKerja }: Props) {
 
   return (
     <DashboardLayout>
+      {/* Confirmation Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96 text-center">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Konfirmasi Aksi</h2>
+            <p className="text-gray-700 mb-6">{confirmMessage}</p>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={handleCancel}
+                className="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleConfirm}
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+              >
+                Lanjutkan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white border-b">
@@ -124,7 +175,7 @@ export default function DetailPuskaka({ programKerja }: Props) {
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    organisasi
+                    Organisasi
                   </label>
                   <select
                     value={programKerja.ormawa}

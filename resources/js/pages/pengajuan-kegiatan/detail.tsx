@@ -141,7 +141,14 @@ export default function DetailPengajuanKegiatan() {
                                 <p className="mt-1 text-gray-800">
                                     {pengajuan.program_kerja.nama_kegiatan}
                                 </p>
-                                <span className="inline-block mt-1 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                <span className={`mt-1 inline-block text-xs font-medium px-3 py-1 rounded-full ${
+                                  pengajuan.program_kerja.status === 'Belum Diajukan' ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white' :
+                                  pengajuan.program_kerja.status === 'Diajukan' ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-amber-500/25' :
+                                  pengajuan.program_kerja.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                                  pengajuan.program_kerja.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-red-500 text-white' :
+                                  pengajuan.program_kerja.status === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-orange-500/25' :
+                                  'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
+                                }`}>
                                     {pengajuan.program_kerja.status}
                                 </span>
                             </div>
@@ -200,12 +207,12 @@ export default function DetailPengajuanKegiatan() {
                                 Status Pengajuan
                             </p>
                             <span className={`mt-1 inline-block text-xs font-medium px-3 py-1 rounded-full ${
-                              pengajuan.status === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
-                              pengajuan.status === 'Diajukan' ? 'bg-yellow-200 text-yellow-800' :
-                              pengajuan.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
-                              pengajuan.status === 'Ditolak' ? 'bg-red-200 text-red-800' :
-                              pengajuan.status === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
-                              'bg-gray-200 text-gray-800'
+                              pengajuan.status === 'Belum Diajukan' ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-white' :
+                              pengajuan.status === 'Diajukan' ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-amber-500/25' :
+                              pengajuan.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                              pengajuan.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-red-500 text-white' :
+                              pengajuan.status === 'Direvisi' ?  'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-orange-500/25' :
+                              'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
                             }`}>
                                 {pengajuan.status}
                             </span>
@@ -318,7 +325,7 @@ export default function DetailPengajuanKegiatan() {
 
             {/* CONFIRMATION MODAL */}
             {showConfirmModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl shadow-lg p-6 w-96">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-bold text-[#0B132B]">Konfirmasi Pengajuan</h2>
