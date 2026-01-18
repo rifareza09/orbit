@@ -49,15 +49,16 @@ export default function BuatProposal() {
         nama_kegiatan: "",
         ketua_pelaksana: "",
         tempat_pelaksanaan: "",
-        jumlah_peserta: 1,
+        jumlah_peserta: 0,
         tanggal_pelaksanaan: "",
         deskripsi: "",
     });
 
     const [proposalFile, setProposalFile] = useState<File | null>(null);
+    const [fileError, setFileError] = useState<string>("");
 
     const [items, setItems] = useState<ItemPengajuanDana[]>([
-        { nama_item: "", deskripsi_item: "", quantity: 1, harga_satuan: 0 },
+        { nama_item: "", deskripsi_item: "", quantity: 0, harga_satuan: 0 },
     ]);
 
     useEffect(() => {
@@ -67,13 +68,13 @@ export default function BuatProposal() {
                 nama_kegiatan: pengajuan.nama_kegiatan,
                 ketua_pelaksana: pengajuan.ketua_pelaksana,
                 tempat_pelaksanaan: pengajuan.tempat_pelaksanaan,
-                jumlah_peserta: pengajuan.jumlah_peserta || 1,
+                jumlah_peserta: pengajuan.jumlah_peserta || 0,
                 tanggal_pelaksanaan: pengajuan.tanggal_pelaksanaan,
                 deskripsi: pengajuan.deskripsi || "",
             });
             setItems(pengajuan.item_pengajuan_dana.length > 0
                 ? pengajuan.item_pengajuan_dana
-                : [{ nama_item: "", deskripsi_item: "", quantity: 1, harga_satuan: 0 }]
+                : [{ nama_item: "", deskripsi_item: "", quantity: 0, harga_satuan: 0 }]
             );
         }
     }, [pengajuan]);
@@ -100,6 +101,24 @@ export default function BuatProposal() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Validasi apakah file adalah PDF
+            if (file.type !== 'application/pdf') {
+                setFileError('File harus berformat PDF!');
+                setProposalFile(null);
+                e.target.value = ''; // Reset input
+                return;
+            }
+
+            // Validasi ukuran file (max 100MB)
+            const maxSize = 100 * 1024 * 1024; // 100MB dalam bytes
+            if (file.size > maxSize) {
+                setFileError('Ukuran file maksimal 100MB!');
+                setProposalFile(null);
+                e.target.value = ''; // Reset input
+                return;
+            }
+
+            setFileError('');
             setProposalFile(file);
         }
     };
@@ -107,7 +126,7 @@ export default function BuatProposal() {
     const addItem = () => {
         setItems([
             ...items,
-            { nama_item: "", deskripsi_item: "", quantity: 1, harga_satuan: 0 },
+            { nama_item: "", deskripsi_item: "", quantity: 0, harga_satuan: 0 },
         ]);
     };
 
@@ -129,15 +148,15 @@ export default function BuatProposal() {
     };
 
     const validateForm = () => {
-        if (!form.program_kerja_id || !form.ketua_pelaksana || !form.tempat_pelaksanaan || form.jumlah_peserta < 1 || !form.tanggal_pelaksanaan) {
+        if (!form.program_kerja_id || !form.ketua_pelaksana || !form.tempat_pelaksanaan || form.jumlah_peserta < 0 || !form.tanggal_pelaksanaan) {
             alert('Mohon lengkapi semua field yang wajib diisi');
             return false;
         }
 
         // Pengajuan Dana tidak wajib diisi - validasi hanya jika ada item yang diisi
         const filledItems = items.filter(item => item.nama_item.trim() !== '');
-        if (filledItems.length > 0 && filledItems.some(item => item.quantity <= 0 || item.harga_satuan < 0)) {
-            alert('Mohon lengkapi semua item pengajuan dana dengan benar (quantity harus lebih dari 0 dan harga satuan tidak boleh negatif)');
+        if (filledItems.length > 0 && filledItems.some(item => item.quantity < 0 || item.harga_satuan < 0)) {
+            alert('Mohon lengkapi semua item pengajuan dana dengan benar (quantity dan harga satuan tidak boleh negatif)');
             return false;
         }
 
@@ -301,12 +320,18 @@ export default function BuatProposal() {
                             <div>
                                 <p className="font-semibold text-sm mb-1">Jumlah Peserta*</p>
                                 <input
-                                    type="number"
+                                    type="text"
                                     name="jumlah_peserta"
                                     value={form.jumlah_peserta}
-                                    onChange={handleFormChange}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^0-9]/g, '');
+                                        setForm(prev => ({
+                                            ...prev,
+                                            jumlah_peserta: value === '' ? 0 : Number.parseInt(value)
+                                        }));
+                                    }}
                                     className="w-full p-2 rounded-md border border-gray-300 bg-white"
-                                    min="1"
+                                    placeholder="0"
                                     required
                                 />
                             </div>
@@ -333,14 +358,19 @@ export default function BuatProposal() {
                                     onChange={handleFileChange}
                                     className="w-full p-2 rounded-md border border-gray-300 bg-white"
                                 />
-                                {pengajuan?.proposal_path && (
+                                {fileError && (
+                                    <p className="text-sm text-red-600 mt-1 font-semibold flex items-center gap-1">
+                                        <span>⚠️</span> {fileError}
+                                    </p>
+                                )}
+                                {pengajuan?.proposal_path && !proposalFile && !fileError && (
                                     <p className="text-sm text-gray-600 mt-1">
                                         File saat ini: {pengajuan.proposal_path.split('/').pop()}
                                     </p>
                                 )}
-                                {proposalFile && (
-                                    <p className="text-sm text-green-600 mt-1">
-                                        File baru: {proposalFile.name}
+                                {proposalFile && !fileError && (
+                                    <p className="text-sm text-green-600 mt-1 font-semibold flex items-center gap-1">
+                                        <span>✓</span> File baru: {proposalFile.name}
                                     </p>
                                 )}
                             </div>
@@ -401,11 +431,14 @@ export default function BuatProposal() {
                                             <div>
                                                 <p className="font-medium text-sm mb-1">Quantity</p>
                                                 <input
-                                                    type="number"
-                                                    min="1"
-                                                    value={item.quantity}
-                                                    onChange={(e) => updateItem(index, 'quantity', Number.parseInt(e.target.value) || 1)}
+                                                    type="text"
+                                                    value={item.quantity === 0 ? '' : item.quantity.toString()}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value.replace(/[^0-9]/g, '');
+                                                        updateItem(index, 'quantity', value === '' ? 0 : Number.parseInt(value));
+                                                    }}
                                                     className="w-full p-2 border border-gray-300 rounded-md"
+                                                    placeholder="0"
                                                 />
                                             </div>
                                             <div>

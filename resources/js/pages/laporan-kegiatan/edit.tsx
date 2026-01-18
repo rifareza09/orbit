@@ -10,6 +10,8 @@ interface LaporanItem {
   ringkasan: string;
   catatan: string;
   status: string;
+  catatan_puskaka: string | null;
+  reviewed_at: string | null;
   lpj_file: string | null;
   bukti_pengeluaran: string[];
   dokumentasi: string[];
@@ -260,6 +262,7 @@ export default function EditLaporan() {
     form.append('ringkasan', formData.ringkasan);
     form.append('catatan', formData.catatan);
     form.append('anggaran_realisasi', anggaranRealisasiNumber.toString());
+    form.append('submit', 'true'); // Parameter untuk mengubah status ke Diajukan
 
     if (formData.lpjFile) {
       form.append('lpj', formData.lpjFile);
@@ -281,22 +284,17 @@ export default function EditLaporan() {
       form.append('remove_dokumentasi[]', file);
     });
 
-    // Simpan perubahan dulu
+    // Update dengan parameter submit=true untuk mengubah status ke Diajukan
     router.post(`/laporan-kegiatan/update/${laporan.id}`, form, {
       onSuccess: () => {
-        // Setelah berhasil update, ajukan kembali
-        router.post(`/laporan-kegiatan/ajukan/${laporan.id}`, {}, {
-          onSuccess: () => {
-            alert('✅ Laporan kegiatan berhasil diajukan kembali ke Puskaka!');
-            router.visit('/laporan-kegiatan');
-          },
-          onError: () => {
-            alert('❌ Gagal mengajukan kembali laporan kegiatan. Silakan coba lagi.');
-          },
-          onFinish: () => setIsSubmitting(false),
-        });
+        alert('✅ Laporan kegiatan berhasil diajukan kembali ke Puskaka!');
+        router.visit('/laporan-kegiatan');
       },
-      onError: () => setIsSubmitting(false),
+      onError: () => {
+        alert('❌ Gagal mengajukan kembali laporan kegiatan. Silakan coba lagi.');
+        setIsSubmitting(false);
+      },
+      onFinish: () => setIsSubmitting(false),
     });
   };
 
@@ -307,6 +305,28 @@ export default function EditLaporan() {
         <h1 className="text-2xl font-bold text-[#0B132B] mb-6">
           Laporan Kegiatan
         </h1>
+
+        {/* Catatan Puskaka - Tampilkan jika status Direvisi */}
+        {laporan.status === 'Direvisi' && laporan.catatan_puskaka && (
+          <div className="bg-orange-50 rounded-lg shadow-sm border border-orange-200 overflow-hidden mb-6">
+            <div className="bg-orange-100 text-orange-900 px-6 py-3 font-semibold border-b border-orange-200 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              Catatan dari Puskaka - Perlu Revisi
+            </div>
+            <div className="p-6">
+              <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+                {laporan.catatan_puskaka}
+              </p>
+              {laporan.reviewed_at && (
+                <p className="mt-3 text-xs text-gray-500">
+                  Direview pada: {laporan.reviewed_at}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* CARD */}
         <div className="bg-white shadow-xl rounded-xl overflow-hidden border">
@@ -714,10 +734,19 @@ export default function EditLaporan() {
                   disabled={isSubmitting}
                   className="bg-yellow-500 text-white px-8 py-2 rounded-lg hover:bg-yellow-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Mengajukan...' : 'Ajukan Kembali'}
+                  {isSubmitting ? 'Mengajukan...' : 'Ajukan Kembali ke Puskaka'}
                 </button>
               )}
             </div>
+            {laporan.status === 'Direvisi' && (
+              <div className="mt-3 text-sm text-orange-600 bg-orange-50 p-3 rounded-lg border border-orange-200">
+                <p><strong>Catatan:</strong></p>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li><strong>Simpan Laporan:</strong> Menyimpan perubahan tanpa mengajukan ke Puskaka</li>
+                  <li><strong>Ajukan Kembali ke Puskaka:</strong> Mengajukan ulang setelah revisi selesai</li>
+                </ul>
+              </div>
+            )}
           </form>
         </div>
       </div>

@@ -22,12 +22,12 @@ class AttemptToAuthenticate
 
     public function __invoke(Request $request)
     {
-        // Cek rate limit
+        // Cek rate limit: 5 percobaan per menit
         if ($this->limiter->tooManyAttempts($request)) {
-            $this->limiter->increment($request);
+            $seconds = $this->limiter->availableIn($request);
 
             throw ValidationException::withMessages([
-                'username' => __('Too many login attempts.'),
+                'username' => "Terlalu banyak percobaan login. Silakan coba lagi dalam {$seconds} detik.",
             ]);
         }
 
@@ -40,11 +40,13 @@ class AttemptToAuthenticate
             $this->limiter->increment($request);
 
             throw ValidationException::withMessages([
-                Fortify::username() => __('auth.failed'),
+                Fortify::username() => 'Username atau password salah.',
             ]);
         }
 
         // Reset limit saat berhasil login
         $this->limiter->clear($request);
+
+        return Auth::user();
     }
 }

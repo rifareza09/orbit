@@ -41,14 +41,6 @@ export default function EvaluasiLaporanDetail() {
     });
   };
 
-  const handleReject = () => {
-    setIsLoading(true);
-    router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
-      status: 'Ditolak',
-      catatan_puskaka: data.catatan_puskaka,
-    });
-  };
-
   const handleReview = () => {
     setIsLoading(true);
     router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
@@ -118,10 +110,9 @@ export default function EvaluasiLaporanDetail() {
                 <p className="text-sm font-semibold text-gray-700">Status</p>
                 <span className={`inline-block text-xs font-medium px-3 py-1 rounded-full mt-2 ${
                   laporan.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
-                  laporan.status === 'Ditolak' ? 'bg-red-200 text-red-800' :
-                  laporan.status === 'Direview' ? 'bg-yellow-200 text-yellow-800' :
+                  laporan.status === 'Direview' ? 'bg-blue-200 text-blue-800' :
                   laporan.status === 'Direvisi' ? 'bg-orange-200 text-orange-800' :
-                  'bg-blue-200 text-blue-800'
+                  'bg-yellow-200 text-yellow-800'
                 }`}>
                   {laporan.status}
                 </span>
@@ -243,15 +234,6 @@ export default function EvaluasiLaporanDetail() {
                 className="bg-yellow-500 text-white px-8 py-2 rounded-lg shadow hover:bg-yellow-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Memproses...' : 'Perlu Revisi'}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleReject}
-                disabled={isLoading || laporan.status === 'Selesai'}
-                className="bg-red-500 text-white px-8 py-2 rounded-lg shadow hover:bg-red-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Memproses...' : 'Tolak'}
               </button>
 
               <button

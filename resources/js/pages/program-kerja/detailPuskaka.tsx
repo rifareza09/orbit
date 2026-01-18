@@ -77,23 +77,11 @@ export default function DetailPuskaka({ programKerja }: Props) {
         {/* Header */}
         <div className="bg-white border-b">
           <div className="px-8 py-6">
-            <h1 className="text-2xl font-bold text-[#0B132B]">Manajemen Kegiatan</h1>
+            <h1 className="text-2xl font-bold text-[#0B132B]">Detail Program Kerja</h1>
           </div>
 
           {/* Tabs */}
-          <div className="px-8 flex gap-4">
-            <button
-              onClick={() => setActiveTab('program-kerja')}
-              className={`pb-3 px-4 font-semibold border-b-2 transition-colors ${
-                activeTab === 'program-kerja'
-                  ? 'border-[#0B132B] text-[#0B132B]'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Program Kerja
-            </button>
-
-          </div>
+          
         </div>
 
         {/* Content */}

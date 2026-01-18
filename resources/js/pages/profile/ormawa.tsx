@@ -14,9 +14,10 @@ interface Props {
   jadwal: Jadwal[];
   logo_url?: string | null;
   isPuskaka?: boolean;
+  userRole?: string;
 }
 
-export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, logo_url, isPuskaka = false }: Props) {
+export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, logo_url, isPuskaka = false, userRole = 'ukm' }: Props) {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -139,7 +140,14 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
             {/* Info Unit */}
             <div className="flex-1 min-w-0">
               <div className="text-xs md:text-sm font-semibold text-gray-500 mb-1">
-                {isPuskaka ? 'Profil Administrator' : 'Unit Kegiatan Mahasiswa'}
+                {isPuskaka 
+                  ? 'Profil Administrator' 
+                  : userRole === 'bem' 
+                    ? 'Badan Eksekutif Mahasiswa'
+                    : userRole === 'kongres'
+                      ? 'Keluarga Mahasiswa'
+                      : 'Unit Kegiatan Mahasiswa'
+                }
               </div>
               <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight truncate">{unit?.nama || 'Nama Organisasi'}</h1>
               <div className="text-xs md:text-sm text-gray-500 mt-1 font-medium">Periode {unit?.periode || '-'}</div>

@@ -197,6 +197,9 @@ class LaporanKegiatanController extends Controller
                 'pengajuan_kegiatan_id' => $laporan->pengajuan_kegiatan_id,
                 'ringkasan' => $laporan->ringkasan,
                 'catatan' => $laporan->catatan,
+                'status' => $laporan->status,
+                'catatan_puskaka' => $laporan->catatan_puskaka,
+                'reviewed_at' => $laporan->reviewed_at ? (is_string($laporan->reviewed_at) ? $laporan->reviewed_at : $laporan->reviewed_at->format('d/m/Y H:i')) : null,
                 'lpj_file' => $laporan->lpj_file,
                 'bukti_pengeluaran' => $laporan->bukti_pengeluaran ?? [],
                 'dokumentasi' => $laporan->dokumentasi ?? [],
@@ -225,8 +228,9 @@ class LaporanKegiatanController extends Controller
             'catatan' => $validated['catatan'] ?? $laporan->catatan,
         ];
 
-        // Jika status saat ini "Direvisi", ubah menjadi "Diajukan" untuk direview ulang
-        if ($laporan->status === 'Direvisi') {
+        // Jika ada parameter 'submit' = true, ubah status Direvisi menjadi Diajukan untuk direview ulang
+        // Jika tidak ada parameter 'submit', berarti hanya save tanpa mengubah status
+        if ($request->has('submit') && $request->input('submit') === 'true' && $laporan->status === 'Direvisi') {
             $updateData['status'] = 'Diajukan';
         }
 

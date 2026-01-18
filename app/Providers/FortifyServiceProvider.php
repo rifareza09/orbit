@@ -35,6 +35,11 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Ensure routes are registered
+        if (! $this->app->routesAreCached()) {
+            // Fortify will auto-register routes
+        }
+
         Fortify::authenticateUsing(function ($request) {
     return app(AttemptToAuthenticate::class)($request);
 });

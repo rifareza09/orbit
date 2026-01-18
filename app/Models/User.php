@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
        'name',
     'username',
+    'email',
     'password',
     'role',
     'status',
@@ -67,7 +68,6 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];

@@ -30,7 +30,7 @@ Route::get('/ormawa/{id}', [\App\Http\Controllers\LandingController::class, 'sho
 | Dashboard
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', function () {
         $user = Auth::user();
@@ -247,6 +247,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'jadwal' => $jadwal,
             'logo_url' => $user->logo_path ? asset('storage/' . $user->logo_path) : null,
             'isPuskaka' => $isPuskaka,
+            'userRole' => $user->role,
         ]);
     })->name('profile.ormawa');
 

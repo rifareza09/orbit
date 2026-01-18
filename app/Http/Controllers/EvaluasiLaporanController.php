@@ -22,7 +22,7 @@ class EvaluasiLaporanController extends Controller
 
         // Build query
         $query = LaporanKegiatan::with(['user', 'pengajuanKegiatan.programKerja'])
-            ->whereIn('status', ['Diajukan', 'Direview', 'Disetujui', 'Direvisi', 'Ditolak']);
+            ->whereIn('status', ['Diajukan', 'Direview', 'Disetujui', 'Direvisi', 'Ditolak', 'Selesai']);
 
         // Filter by tahun akademik (dari tanggal laporan)
         if ($request->filled('tahun_akademik')) {
@@ -126,6 +126,14 @@ class EvaluasiLaporanController extends Controller
         $laporan = LaporanKegiatan::with(['user', 'pengajuanKegiatan.itemPengajuanDana'])
             ->findOrFail($id);
 
+        // Auto-update status dari "Diajukan" ke "Direview" saat pertama kali dilihat
+        if ($laporan->status === 'Diajukan') {
+            $laporan->update([
+                'status' => 'Direview',
+                'reviewed_at' => now(),
+            ]);
+        }
+
         $pengajuan = $laporan->pengajuanKegiatan;
 
         return Inertia::render('evaluasi-laporan/detail', [
@@ -173,8 +181,8 @@ class EvaluasiLaporanController extends Controller
             'catatan_puskaka' => 'nullable|string|max:2000',
         ]);
 
-        // Find laporan kegiatan
-        $laporan = LaporanKegiatan::findOrFail($id);
+        // Find laporan kegiatan with relationship
+        $laporan = LaporanKegiatan::with('pengajuanKegiatan')->findOrFail($id);
 
         // Cek: jika status sudah Selesai (final), tidak boleh di-ubah lagi
         if ($laporan->status === 'Selesai') {
@@ -195,7 +203,7 @@ class EvaluasiLaporanController extends Controller
         NotificationService::notifyLaporanKegiatanStatus(
             $laporan->user_id,
             $finalStatus,
-            $laporan->nama_kegiatan ?? $laporan->judul,
+            $laporan->pengajuanKegiatan->nama_kegiatan ?? 'Laporan Kegiatan',
             $laporan->id,
             $validated['catatan_puskaka'] ?? null
         );

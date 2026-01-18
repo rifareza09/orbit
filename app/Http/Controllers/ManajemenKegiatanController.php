@@ -113,6 +113,15 @@ class ManajemenKegiatanController extends Controller
         $pengajuan = PengajuanKegiatan::with(['user', 'programKerja', 'itemPengajuanDana'])
             ->findOrFail($id);
 
+        // Auto-update status dari "Diajukan" ke "Direview" saat pertama kali dilihat
+        if ($pengajuan->status === 'Diajukan' || $pengajuan->status_review === 'Diajukan') {
+            $pengajuan->update([
+                'status' => 'Direview',
+                'status_review' => 'Direview',
+                'reviewed_at' => now(),
+            ]);
+        }
+
         return Inertia::render('manajemen-kegiatan/detail', [
             'pengajuan' => [
                 'id' => $pengajuan->id,

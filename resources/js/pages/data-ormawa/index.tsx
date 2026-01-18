@@ -135,8 +135,8 @@ export default function DataOrmawaPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold text-[#0B132B]">
+      <div className="space-y-6 p-6">
+        <h1 className="text-2xl font-semibold text-[#0B132B] mb-6">
           Data Organisasi Mahasiswa
         </h1>
 

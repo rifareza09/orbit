@@ -29,6 +29,8 @@ export default function PengajuanKegiatan() {
         return 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25';
       case 'Ditolak':
         return 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25';
+      case 'Direview':
+        return 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25';
       case 'Diajukan':
         return 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-amber-500/25';
       case 'Direvisi':
