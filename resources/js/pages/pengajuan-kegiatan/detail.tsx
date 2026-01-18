@@ -28,6 +28,7 @@ interface PengajuanKegiatan {
   tempat_pelaksanaan: string;
   jumlah_peserta: number;
   tanggal_pelaksanaan: string;
+  estimasi_anggaran: number;
   total_anggaran: number;
   status: string;
   catatan_puskaka: string | null;
@@ -59,16 +60,6 @@ export default function DetailPengajuanKegiatan() {
     handleAjukan();
   };
 
-  const handleDelete = () => {
-    if (confirm('Apakah Anda yakin ingin menghapus pengajuan kegiatan ini?')) {
-      router.delete(`/pengajuan-kegiatan/${pengajuan.id}`, {
-        onSuccess: () => {
-          router.visit('/pengajuan-kegiatan');
-        }
-      });
-    }
-  };
-
     return (
         <DashboardLayout>
             <div className="p-8 bg-[#F5F6FA] min-h-screen">
@@ -78,16 +69,6 @@ export default function DetailPengajuanKegiatan() {
                     <h1 className="text-2xl font-bold text-[#0B132B]">
                         Detail Pengajuan Kegiatan
                     </h1>
-
-                    {/* Tombol Hapus - hanya muncul jika status Belum Diajukan */}
-                    {pengajuan.status === 'Belum Diajukan' && (
-                        <button
-                          onClick={handleDelete}
-                          className="bg-[#8B0000] text-white px-6 py-2 rounded-md hover:bg-red-900 transition"
-                        >
-                            Hapus
-                        </button>
-                    )}
                 </div>
 
                 {/* CARD WRAPPER */}
@@ -193,18 +174,28 @@ export default function DetailPengajuanKegiatan() {
                             </p>
                         </div>
 
+                        {/* Estimasi Anggaran */}
+                        <div>
+                            <p className="font-bold text-sm text-gray-800">
+                                Estimasi Anggaran (dari Program Kerja)
+                            </p>
+                            <p className="mt-1 text-gray-600 font-semibold text-lg">
+                                {formatCurrency(pengajuan.estimasi_anggaran)}
+                            </p>
+                        </div>
+
                         {/* Total Anggaran */}
                         <div>
                             <p className="font-bold text-sm text-gray-800">
-                                Total Anggaran
+                                Anggaran yang Diajukan
                             </p>
-                            <p className="mt-1 text-gray-800 font-semibold text-lg">
+                            <p className="mt-1 text-green-600 font-semibold text-lg">
                                 {formatCurrency(pengajuan.total_anggaran)}
                             </p>
                         </div>
 
                         {/* Status */}
-                        <div>
+                        <div className="col-span-2">
                             <p className="font-bold text-sm text-gray-800">
                                 Status Pengajuan
                             </p>

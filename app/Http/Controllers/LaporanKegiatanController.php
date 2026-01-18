@@ -169,7 +169,7 @@ class LaporanKegiatanController extends Controller
                 'tempatPelaksanaan' => $laporan->pengajuanKegiatan->tempat_pelaksanaan ?? '-',
                 'tanggalPelaksanaan' => $laporan->pengajuanKegiatan->tanggal_pelaksanaan ?? null,
                 'jumlahPeserta' => $laporan->pengajuanKegiatan->jumlah_peserta ?? 0,
-                'estimasiAnggaran' => $laporan->pengajuanKegiatan->programKerja->estimasi_anggaran ?? 0,
+                'estimasiAnggaran' => $laporan->pengajuanKegiatan->total_anggaran ?? 0,
                 'anggaranRealisasi' => $laporan->anggaran_realisasi,
                 'ringkasan' => $laporan->ringkasan,
                 'catatan' => $laporan->catatan,
@@ -208,7 +208,7 @@ class LaporanKegiatanController extends Controller
                 'tempat_pelaksanaan' => $laporan->pengajuanKegiatan->tempat_pelaksanaan ?? '-',
                 'tanggal_pelaksanaan' => $laporan->pengajuanKegiatan->tanggal_pelaksanaan ?? null,
                 'jumlah_peserta' => $laporan->pengajuanKegiatan->jumlah_peserta ?? 0,
-                'anggaran_yang_disetujui' => $laporan->pengajuanKegiatan->anggaran_yang_disetujui ?? 0,
+                'anggaran_disetujui' => $laporan->pengajuanKegiatan->total_anggaran ?? 0,
             ]
         ]);
     }

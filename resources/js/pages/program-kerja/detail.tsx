@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { Link, router } from '@inertiajs/react';
-import { X, ArrowLeft, Edit3, Send, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
+import { X, ArrowLeft, Edit3, Send, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface ProgramKerjaItem {
     id: number;
@@ -17,12 +17,6 @@ interface ProgramKerjaItem {
 
 export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem }) {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-    const handleDelete = () => {
-        if (window.confirm('Apakah Anda yakin ingin menghapus program kerja ini?')) {
-            router.delete(`/program-kerja/${item.id}`);
-        }
-    };
 
     const confirmAjukan = () => {
         setShowConfirmModal(false);
@@ -58,24 +52,11 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
             <div className="p-8 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
 
                 {/* Header */}
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0B132B] to-[#1C2541] bg-clip-text text-transparent">
-                            Detail Program Kerja
-                        </h1>
-                        <p className="text-gray-500 mt-1">Lihat informasi lengkap program kerja</p>
-                    </div>
-
-                    {/* Tombol Hapus - hanya muncul jika status Belum Diajukan */}
-                    {item.status === 'Belum Diajukan' && (
-                        <button
-                            onClick={handleDelete}
-                            className="group flex items-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-red-500/25 transition-all duration-300 transform hover:-translate-y-0.5"
-                        >
-                            <Trash2 size={18} className="group-hover:scale-110 transition-transform" />
-                            Hapus
-                        </button>
-                    )}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-[#0B132B] to-[#1C2541] bg-clip-text text-transparent">
+                        Detail Program Kerja
+                    </h1>
+                    <p className="text-gray-500 mt-1">Lihat informasi lengkap program kerja</p>
                 </div>
 
                 {/* Card Wrapper */}

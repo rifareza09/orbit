@@ -109,9 +109,9 @@ export default function BuatLaporanKegiatan() {
   const handleLpjChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const allowedTypes = ['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'];
+      const allowedTypes = ['application/pdf'];
       if (!allowedTypes.includes(file.type)) {
-        showNotification('error', `❌ File "${file.name}" tidak valid. Harus berformat PNG, JPG, JPEG, atau PDF`);
+        showNotification('error', `❌ File "${file.name}" tidak valid. Harus berformat PDF`);
         e.target.value = '';
         return;
       }
@@ -404,7 +404,7 @@ export default function BuatLaporanKegiatan() {
                 <input
                   type="file"
                   onChange={handleLpjChange}
-                  accept=".pdf,.png,.jpg,.jpeg"
+                  accept=".pdf"
                   className="hidden"
                   id="lpj-upload"
                 />

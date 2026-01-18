@@ -21,7 +21,8 @@ class EvaluasiLaporanController extends Controller
         }
 
         // Build query
-        $query = LaporanKegiatan::with(['user', 'pengajuanKegiatan.programKerja']);
+        $query = LaporanKegiatan::with(['user', 'pengajuanKegiatan.programKerja'])
+            ->whereIn('status', ['Diajukan', 'Direview', 'Disetujui', 'Direvisi', 'Ditolak']);
 
         // Filter by tahun akademik (dari tanggal laporan)
         if ($request->filled('tahun_akademik')) {

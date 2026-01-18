@@ -94,8 +94,18 @@ export default function DetailLaporanKegiatan() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-gray-700">Estimasi Anggaran</p>
-                <p className="mt-2 text-gray-900">{formatCurrency(item.estimasiAnggaran)}</p>
+                <p className="text-sm font-semibold text-gray-700">Estimasi Anggaran (dari Program Kerja)</p>
+                <p className="mt-2 text-gray-600 font-semibold">{formatCurrency(item.estimasiAnggaran)}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Anggaran Disetujui (dari Pengajuan)</p>
+                <p className="mt-2 text-green-600 font-semibold">{formatCurrency(item.estimasiAnggaran)}</p>
+              </div>
+
+              <div>
+                <p className="text-sm font-semibold text-gray-700">Dana Digunakan (Realisasi)</p>
+                <p className="mt-2 text-blue-600 font-semibold text-lg">{formatCurrency(item.anggaranRealisasi)}</p>
               </div>
 
               <div>
@@ -119,11 +129,6 @@ export default function DetailLaporanKegiatan() {
               <div>
                 <p className="text-sm font-semibold text-gray-700">Jumlah Peserta</p>
                 <p className="mt-2 text-gray-900">{item.jumlahPeserta} orang</p>
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold text-gray-700">Dana Digunakan</p>
-                <p className="mt-2 text-gray-900">{formatCurrency(item.anggaranRealisasi)}</p>
               </div>
             </div>
 

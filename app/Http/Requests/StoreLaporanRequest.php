@@ -27,7 +27,7 @@ class StoreLaporanRequest extends FormRequest
             'anggaran_realisasi'    => 'nullable|numeric|min:0',
             'ringkasan'             => 'nullable|string',
             'status'                => 'nullable|in:Belum Diajukan,Diajukan,Direview,Disetujui,Direvisi,Ditolak',
-            'lpj'                   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:102400', // max 100MB
+            'lpj'                   => 'nullable|file|mimes:pdf|max:102400', // max 100MB
             'bukti_pengeluaran'     => 'nullable|array',
             'bukti_pengeluaran.*'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:102400', // max 100MB per file
             'dokumentasi'           => 'nullable|array',
@@ -45,7 +45,7 @@ class StoreLaporanRequest extends FormRequest
             'pengajuan_kegiatan_id.exists' => 'Pengajuan kegiatan tidak valid.',
             'anggaran_disetujui.numeric' => 'Anggaran disetujui harus berupa angka.',
             'anggaran_realisasi.numeric' => 'Anggaran realisasi harus berupa angka.',
-            'lpj.mimes' => 'File LPJ harus berformat PDF, JPG, JPEG, atau PNG.',
+            'lpj.mimes' => 'File LPJ harus berformat PDF.',
             'lpj.max' => 'File LPJ maksimal 20MB.',
             'bukti_pengeluaran.*.mimes' => 'File bukti pengeluaran harus berformat PDF, JPG, JPEG, atau PNG.',
             'bukti_pengeluaran.*.max' => 'File bukti pengeluaran maksimal 20MB per file.',

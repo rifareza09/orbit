@@ -112,9 +112,7 @@ export default function BuatProposal() {
     };
 
     const removeItem = (index: number) => {
-        if (items.length > 1) {
-            setItems(items.filter((_, i) => i !== index));
-        }
+        setItems(items.filter((_, i) => i !== index));
     };
 
     const updateItem = (index: number, field: keyof ItemPengajuanDana, value: string | number) => {
@@ -413,10 +411,12 @@ export default function BuatProposal() {
                                             <div>
                                                 <p className="font-medium text-sm mb-1">Harga Satuan (Rp)</p>
                                                 <input
-                                                    type="number"
-                                                    min="0"
-                                                    value={item.harga_satuan}
-                                                    onChange={(e) => updateItem(index, 'harga_satuan', Number.parseFloat(e.target.value) || 0)}
+                                                    type="text"
+                                                    value={item.harga_satuan.toString()}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value.replace(/[^0-9]/g, '');
+                                                        updateItem(index, 'harga_satuan', value === '' ? 0 : Number.parseInt(value));
+                                                    }}
                                                     className="w-full p-2 border border-gray-300 rounded-md"
                                                     placeholder="0"
                                                 />
@@ -428,15 +428,13 @@ export default function BuatProposal() {
                                                 </p>
                                             </div>
                                             <div>
-                                                {items.length > 1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeItem(index)}
-                                                        className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                                    >
-                                                        Hapus
-                                                    </button>
-                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeItem(index)}
+                                                    className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                                >
+                                                    Hapus
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

@@ -23,11 +23,46 @@ interface Props {
 export default function DetailPuskaka({ programKerja }: Props) {
   const [activeTab, setActiveTab] = useState<'program-kerja' | 'pengajuan-dana'>('program-kerja');
   const { flash } = usePage().props as any;
+  const [isLoading, setIsLoading] = useState(false);
 
   const { data, setData, post, processing, errors } = useForm({
     status: programKerja.status,
     catatan_puskaka: programKerja.catatan_puskaka || '',
   });
+
+  const handleApprove = () => {
+    setIsLoading(true);
+    post(`/program-kerja/${programKerja.id}/update-status`, {
+      preserveScroll: true,
+      onFinish: () => setIsLoading(false),
+    });
+  };
+
+  const handleReject = () => {
+    if (!data.catatan_puskaka) {
+      alert('Catatan wajib diisi saat menolak');
+      return;
+    }
+    setData('status', 'Ditolak');
+    setIsLoading(true);
+    post(`/program-kerja/${programKerja.id}/update-status`, {
+      preserveScroll: true,
+      onFinish: () => setIsLoading(false),
+    });
+  };
+
+  const handleRevise = () => {
+    if (!data.catatan_puskaka) {
+      alert('Catatan wajib diisi saat meminta revisi');
+      return;
+    }
+    setData('status', 'Direvisi');
+    setIsLoading(true);
+    post(`/program-kerja/${programKerja.id}/update-status`, {
+      preserveScroll: true,
+      onFinish: () => setIsLoading(false),
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +107,8 @@ export default function DetailPuskaka({ programKerja }: Props) {
 
           {/* Detail Kegiatan Section */}
           <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="bg-yellow-100 px-6 py-3 border-b border-yellow-200">
-              <h2 className="font-bold text-[#0B132B] text-sm">Detail Kegiatan</h2>
+            <div className="bg-gradient-to-r from-[#0B132B] to-[#1C2541] px-6 py-3 border-b">
+              <h2 className="font-bold text-white text-sm">Detail Kegiatan</h2>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-2 gap-6">
@@ -151,34 +186,16 @@ export default function DetailPuskaka({ programKerja }: Props) {
           {/* Status Pengajuan Section */}
           <form onSubmit={handleSubmit}>
             <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-              <div className="bg-blue-100 px-6 py-3 border-b border-blue-200">
-                <h2 className="font-bold text-[#0B132B] text-sm">Status Pengajuan</h2>
+              <div className="bg-gradient-to-r from-[#0B132B] to-[#1C2541] px-6 py-3 border-b">
+                <h2 className="font-bold text-white text-sm">Review & Evaluasi</h2>
                 {programKerja.status === 'Disetujui' && (
-                  <p className="text-xs text-blue-700 mt-1">Program kerja yang sudah disetujui tidak dapat diubah statusnya lagi.</p>
+                  <p className="text-xs text-gray-300 mt-1">Program kerja yang sudah disetujui tidak dapat diubah statusnya lagi.</p>
                 )}
               </div>
               <div className="p-6 space-y-4">
                 <div>
                   <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={data.status}
-                    onChange={(e) => setData('status', e.target.value)}
-                    disabled={programKerja.status === 'Disetujui'}
-                    className="w-full px-4 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-[#0B132B] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-600"
-                  >
-                    <option value="Disetujui">Disetujui</option>
-                    <option value="Ditolak">Ditolak</option>
-                    <option value="Direvisi">Direvisi</option>
-                  </select>
-                  {errors.status && (
-                    <p className="text-red-600 text-xs mt-1">{errors.status}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 block mb-2">
-                    Catatan
+                    Catatan Puskaka
                   </label>
                   <textarea
                     value={data.catatan_puskaka}
@@ -196,19 +213,45 @@ export default function DetailPuskaka({ programKerja }: Props) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pb-8 mt-6">
+            <div className="flex justify-center gap-4 pb-8 mt-6">
               <Link
                 href="/program-kerja/indexPuskaka"
-                className="px-6 py-2.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-colors text-sm"
+                className="px-8 py-2.5 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 font-semibold transition-colors text-sm shadow"
               >
                 Kembali
               </Link>
               <button
-                type="submit"
-                disabled={processing || programKerja.status === 'Disetujui'}
-                className="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-[#0B132B] rounded font-semibold transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                type="button"
+                onClick={() => {
+                  setData('status', 'Direvisi');
+                  handleRevise();
+                }}
+                disabled={isLoading || programKerja.status === 'Disetujui'}
+                className="px-8 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold transition-colors text-sm shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {processing ? 'Menyimpan...' : 'Simpan Status'}
+                {isLoading ? 'Memproses...' : 'Perlu Revisi'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setData('status', 'Ditolak');
+                  handleReject();
+                }}
+                disabled={isLoading || programKerja.status === 'Disetujui'}
+                className="px-8 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors text-sm shadow disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Memproses...' : 'Tolak'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setData('status', 'Disetujui');
+                  handleApprove();
+                }}
+                disabled={isLoading || programKerja.status === 'Disetujui'}
+                className="px-8 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors text-sm shadow disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Memproses...' : 'Setujui'}
               </button>
             </div>
           </form>

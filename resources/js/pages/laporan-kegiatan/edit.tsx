@@ -22,7 +22,7 @@ interface PengajuanKegiatan {
   tempat_pelaksanaan: string;
   tanggal_pelaksanaan: string;
   jumlah_peserta: number;
-  anggaran_yang_disetujui: number;
+  anggaran_disetujui: number;
 }
 
 export default function EditLaporan() {
@@ -34,7 +34,7 @@ export default function EditLaporan() {
   const [formData, setFormData] = useState({
     ringkasan: laporan.ringkasan || '',
     catatan: laporan.catatan || '',
-    anggaran_realisasi: formatCurrencyInput(pengajuan.anggaran_yang_disetujui.toString()),
+    anggaran_realisasi: formatCurrencyInput(pengajuan.anggaran_disetujui.toString()),
     lpjFile: null as File | null,
     buktiPengeluaran: [] as File[],
     dokumentasi: [] as File[],
@@ -82,11 +82,12 @@ export default function EditLaporan() {
   ) => {
     const files = Array.from(e.target.files || []);
     const allowedTypes = ['application/pdf', 'image/png', 'image/jpg', 'image/jpeg'];
+    const lpjAllowedTypes = ['application/pdf'];
 
     if (type === 'lpj' && files.length > 0) {
       const file = files[0];
-      if (!allowedTypes.includes(file.type)) {
-        showNotification('error', `❌ File "${file.name}" tidak valid. Harus PDF, PNG, JPG, atau JPEG`);
+      if (!lpjAllowedTypes.includes(file.type)) {
+        showNotification('error', `❌ File "${file.name}" tidak valid. Harus berformat PDF`);
         e.target.value = '';
         return;
       }
@@ -373,7 +374,7 @@ export default function EditLaporan() {
                   <p className="font-semibold text-sm mb-1">Anggaran Disetujui</p>
                   <input
                     type="text"
-                    value={formatCurrency(pengajuan.anggaran_yang_disetujui)}
+                    value={formatCurrency(pengajuan.anggaran_disetujui)}
                     className="w-full p-2 rounded-md border border-gray-300 bg-gray-50"
                     readOnly
                   />
@@ -429,11 +430,11 @@ export default function EditLaporan() {
               )}
 
               <div>
-                <p className="font-semibold text-sm mb-3">Upload LPJ Baru (PDF/DOC/DOCX)</p>
+                <p className="font-semibold text-sm mb-3">Upload LPJ Baru (PDF)</p>
                 <label className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-[#0B132B] hover:bg-blue-50 cursor-pointer transition">
                   <input
                     type="file"
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf"
                     onChange={(e) => handleFileChange(e, 'lpj')}
                     className="hidden"
                   />

@@ -60,6 +60,7 @@ class PengajuanKegiatanController extends Controller
                 'tempat_pelaksanaan' => $pengajuan->tempat_pelaksanaan,
                 'jumlah_peserta' => $pengajuan->jumlah_peserta,
                 'tanggal_pelaksanaan' => $pengajuan->tanggal_pelaksanaan,
+                'estimasi_anggaran' => $pengajuan->programKerja->estimasi_anggaran ?? 0,
                 'total_anggaran' => $pengajuan->total_anggaran,
                 'status' => $pengajuan->status,
                 'status_review' => $pengajuan->status_review,
@@ -128,22 +129,32 @@ class PengajuanKegiatanController extends Controller
             'deskripsi' => $validated['deskripsi'],
             'proposal_path' => $proposalPath,
             'status' => 'Belum Diajukan',
+            'total_anggaran' => 0,
         ]);
 
-        // Create items (hanya jika ada item yang valid)
+        // Create items (hanya jika ada item yang valid) and calculate total
+        $totalAnggaran = 0;
         $itemsToCreate = $validated['items'] ?? [];
         foreach ($itemsToCreate as $item) {
             // Skip item yang kosong
             if (empty($item['nama_item'])) continue;
 
+            $quantity = $item['quantity'] ?? 1;
+            $hargaSatuan = $item['harga_satuan'] ?? 0;
+
             ItemPengajuanDana::create([
                 'pengajuan_kegiatan_id' => $pengajuan->id,
                 'nama_item' => $item['nama_item'],
                 'deskripsi_item' => $item['deskripsi_item'] ?? null,
-                'quantity' => $item['quantity'] ?? 1,
-                'harga_satuan' => $item['harga_satuan'] ?? 0,
+                'quantity' => $quantity,
+                'harga_satuan' => $hargaSatuan,
             ]);
+
+            $totalAnggaran += ($quantity * $hargaSatuan);
         }
+
+        // Update total_anggaran
+        $pengajuan->update(['total_anggaran' => $totalAnggaran]);
 
         return redirect('/pengajuan-kegiatan')
             ->with('success', 'Proposal kegiatan berhasil dibuat!');
@@ -227,19 +238,28 @@ class PengajuanKegiatanController extends Controller
         // Delete existing items and create new ones
         $pengajuan->itemPengajuanDana()->delete();
 
+        $totalAnggaran = 0;
         $itemsToCreate = $validated['items'] ?? [];
         foreach ($itemsToCreate as $item) {
             // Skip item yang kosong
             if (empty($item['nama_item'])) continue;
 
+            $quantity = $item['quantity'] ?? 1;
+            $hargaSatuan = $item['harga_satuan'] ?? 0;
+
             ItemPengajuanDana::create([
                 'pengajuan_kegiatan_id' => $pengajuan->id,
                 'nama_item' => $item['nama_item'],
                 'deskripsi_item' => $item['deskripsi_item'] ?? null,
-                'quantity' => $item['quantity'] ?? 1,
-                'harga_satuan' => $item['harga_satuan'] ?? 0,
+                'quantity' => $quantity,
+                'harga_satuan' => $hargaSatuan,
             ]);
+
+            $totalAnggaran += ($quantity * $hargaSatuan);
         }
+
+        // Update total_anggaran field
+        $pengajuan->update(['total_anggaran' => $totalAnggaran]);
 
         return redirect('/pengajuan-kegiatan')
             ->with('success', 'Proposal kegiatan berhasil diperbarui!');
