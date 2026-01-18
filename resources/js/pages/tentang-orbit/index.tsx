@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Head } from "@inertiajs/react";
 import { Image as ImageIcon, ChevronDown, ArrowLeft, ChevronRight, ChevronLeft } from "lucide-react";
-import OrbitAnimation from "@/components/OrbitAnimation"; 
+import OrbitAnimation from "@/components/OrbitAnimation";
 
 export default function TentangOrbitPage() {
   const [currentTeamSlide, setCurrentTeamSlide] = useState(0);
@@ -26,17 +26,17 @@ export default function TentangOrbitPage() {
         ::-webkit-scrollbar-thumb { background-color: #1C2541; border-radius: 6px; border: 2px solid #0B132B; }
         html { scroll-behavior: smooth; }
       `}</style>
-      
+
       <div className="min-h-screen w-full font-sans text-[#0B132B] relative">
         <div className="absolute top-0 left-0 w-full h-full">
-            <div 
+            <div
                 className="w-full h-full"
-                style={{ 
-                    backgroundImage: "url('/images/Background-Full.jpg')", 
-                    backgroundSize: "100% auto", 
+                style={{
+                    backgroundImage: "url('/images/Background-Full.jpg')",
+                    backgroundSize: "100% auto",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "top center"
-                }} 
+                }}
             ></div>
         </div>
 
@@ -91,7 +91,7 @@ export default function TentangOrbitPage() {
             className="min-h-screen w-full flex items-center justify-center p-6 md:px-16 relative z-10"
         >
           <div className="w-full max-w-7xl grid md:grid-cols-2 gap-20 items-center">
-            
+
             {/* --- Animasi Orbit --- */}
             <div className="flex justify-center items-center h-[400px] md:h-auto order-2 md:order-1">
                <OrbitAnimation />
@@ -102,9 +102,9 @@ export default function TentangOrbitPage() {
               {/* --- CARD VISI --- */}
               <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300">
                   <h3 className="text-[#0B132B] font-bold text-3xl mb-4 flex items-center gap-4 border-b border-gray-100 pb-4">
-                    <img 
+                    <img
                         src="/images/visi.png"
-                        alt="Icon Visi" 
+                        alt="Icon Visi"
                         className="w-12 h-12 object-contain opacity-80"
                     />
                     Visi
@@ -117,9 +117,9 @@ export default function TentangOrbitPage() {
               {/* --- CARD MISI --- */}
               <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300">
                   <h3 className="text-[#0B132B] font-bold text-3xl mb-4 flex items-center gap-4 border-b border-gray-100 pb-4">
-                    <img 
+                    <img
                         src="/images/misi.png"
-                        alt="Icon Misi" 
+                        alt="Icon Misi"
                         className="w-12 h-12 object-contain opacity-80"
                     />
                     Misi
@@ -160,7 +160,7 @@ export default function TentangOrbitPage() {
                     <div className="w-full max-w-7xl">
                         <div className="text-center mb-16 relative z-10">
                             <div className="inline-block bg-white/90 backdrop-blur-sm px-10 py-4 rounded-2xl shadow-md border border-gray-100">
-                            
+
                                 <h2 className="text-4xl md:text-5xl font-bold text-[#0B132B]">ORBIT Developer Team</h2>
                             </div>
                         </div>
@@ -187,8 +187,8 @@ export default function TentangOrbitPage() {
                                 github: "https://github.com/raihanyustin"
                               },
                               {
-                                name: "Rafli Dika Narendra",
-                                nim: "14020230XX",
+                                name: "Rafli Dika Rendra Arifin",
+                                nim: "1402023053",
                                 role: "Backend Developer",
                                 photo: "/images/Rafli.png",
                                 instagram: "https://www.instagram.com/nareeenv/",
@@ -277,7 +277,7 @@ export default function TentangOrbitPage() {
                                 <div className="inline-block bg-[#0B132B] text-white border border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] rounded-full px-4 py-1.5 text-xs font-bold mb-6 uppercase tracking-wider">
                                     Trek Pengembangan Aplikasi Multiplatform
                                 </div>
-                                
+
                                 <h2 className="text-5xl md:text-6xl font-bold mb-8 leading-tight text-[#0B132B]">
                                     Tim MCL
                                 </h2>

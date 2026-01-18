@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -46,6 +47,17 @@ class ProfileController extends Controller
      */
     public function changePassword(Request $request)
     {
+        // Rate limiting: 5 attempts per minute per user
+        $key = 'change-password:' . $request->user()->id;
+        
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            
+            return response()->json([
+                'error' => "Terlalu banyak percobaan. Silakan coba lagi dalam {$seconds} detik.",
+            ], 429);
+        }
+
         try {
             $validated = $request->validate([
                 'current_password' => ['required', 'string'],
@@ -55,6 +67,8 @@ class ProfileController extends Controller
 
             // Check if current password is correct
             if (!Hash::check($validated['current_password'], $request->user()->password)) {
+                RateLimiter::hit($key, 60); // Hit rate limiter on failed attempt
+                
                 return response()->json([
                     'error' => 'Password saat ini tidak sesuai',
                 ], 422);
@@ -77,6 +91,9 @@ class ProfileController extends Controller
         $user->update([
             'password' => Hash::make($validated['new_password']),
         ]);
+
+        // Clear rate limiter on successful password change
+        RateLimiter::clear($key);
 
         return response()->json([
             'success' => true,

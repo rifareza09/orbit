@@ -215,8 +215,8 @@ export default function DetailPengajuanKegiatan() {
 
                 {/* CATATAN PUSKAKA */}
                 {pengajuan.catatan_puskaka && (
-                  <div className="bg-blue-50 rounded-xl shadow-sm border border-blue-200 overflow-hidden mt-6">
-                    <div className="bg-blue-100 text-blue-900 px-6 py-3 font-semibold border-b border-blue-200">
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mt-6">
+                    <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
                       Catatan dari Puskaka
                     </div>
                     <div className="p-6">

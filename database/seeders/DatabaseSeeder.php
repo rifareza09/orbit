@@ -15,27 +15,23 @@ class DatabaseSeeder extends Seeder
     {
         $users = [
             // UKM Role
-            ['name' => 'LDK KAHFI', 'username' => 'ldk', 'role' => 'ukm'],
-            ['name' => 'VOYAGE', 'username' => 'voyage', 'role' => 'ukm'],
-            ['name' => 'HIMASI', 'username' => 'himasi', 'role' => 'ukm'],
-            ['name' => 'IMASI', 'username' => 'imasi', 'role' => 'ukm'],
-            ['name' => 'YBBC', 'username' => 'ybbc', 'role' => 'ukm'],
-            ['name' => 'SMAKA', 'username' => 'smaka', 'role' => 'ukm'],
-            ['name' => 'HMSI', 'username' => 'hmsi', 'role' => 'ukm'],
-            ['name' => 'KARIR ALUMNI', 'username' => 'karir', 'role' => 'ukm'],
-            ['name' => 'OASIS', 'username' => 'oasis', 'role' => 'ukm'],
-            ['name' => 'TDM', 'username' => 'tdm', 'role' => 'ukm'],
-            ['name' => 'LPM', 'username' => 'lpm', 'role' => 'ukm'],
-            ['name' => 'KREASI', 'username' => 'kreasi', 'role' => 'ukm'],
+            ['name' => 'LDK KAHFI', 'username' => 'ldk', 'email' => 'ldk@example.com', 'role' => 'ukm'],
+            ['name' => 'VOYAGE', 'username' => 'voyage', 'email' => 'voyage@example.com', 'role' => 'ukm'],
+            ['name' => 'IMASI', 'username' => 'imasi', 'email' => 'imasi@example.com', 'role' => 'ukm'],
+            ['name' => 'YBBC', 'username' => 'ybbc', 'email' => 'ybbc@example.com', 'role' => 'ukm'],
+            ['name' => 'SMAKA', 'username' => 'smaka', 'email' => 'smaka@example.com', 'role' => 'ukm'],
+            ['name' => 'TDM', 'username' => 'tdm', 'email' => 'tdm@example.com', 'role' => 'ukm'],
+            ['name' => 'LPM', 'username' => 'lpm', 'email' => 'lpm@example.com', 'role' => 'ukm'],
+            ['name' => 'KREASI', 'username' => 'kreasi', 'email' => 'kreasi@example.com', 'role' => 'ukm'],
 
             // BEM Role
-            ['name' => 'BEM', 'username' => 'bem', 'role' => 'bem'],
+            ['name' => 'BEM', 'username' => 'bem', 'email' => 'bem@example.com', 'role' => 'bem'],
 
             // Kongres Role
-            ['name' => 'KONGRES', 'username' => 'kongres', 'role' => 'kongres'],
+            ['name' => 'KONGRES', 'username' => 'kongres', 'email' => 'kongres@example.com', 'role' => 'kongres'],
 
             // Admin Role (Puskaka)
-            ['name' => 'PUSKAKA', 'username' => 'puskaka', 'role' => 'puskaka'],
+            ['name' => 'PUSKAKA', 'username' => 'puskaka', 'email' => 'puskaka@example.com', 'role' => 'puskaka'],
         ];
 
         foreach ($users as $user) {
@@ -44,6 +40,7 @@ class DatabaseSeeder extends Seeder
                 [
                     'name' => $user['name'],
                     'username' => $user['username'],
+                    'email' => $user['email'],
                     'password' => Hash::make($user['username'] . '123'),
                     'role' => $user['role'],
                 ]

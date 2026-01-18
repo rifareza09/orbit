@@ -18,42 +18,49 @@ class UserSeeder extends Seeder
             [
                 'name' => 'LDK KAHFI',
                 'username' => 'ldk',
+                'email' => 'ldk@example.com',
                 'password' => Hash::make('ldk123'),
                 'role' => 'ukm',
             ],
             [
                 'name' => 'VOYAGE',
                 'username' => 'voyage',
+                'email' => 'voyage@example.com',
                 'password' => Hash::make('voyage123'),
                 'role' => 'ukm',
             ],
             [
                 'name' => 'HIMASI',
                 'username' => 'himasi',
+                'email' => 'himasi@example.com',
                 'password' => Hash::make('himasi123'),
                 'role' => 'ukm',
             ],
             [
                 'name' => 'IMASI',
                 'username' => 'imasi',
+                'email' => 'imasi@example.com',
                 'password' => Hash::make('imasi123'),
                 'role' => 'ukm',
             ],
             [
                 'name' => 'YBBC',
                 'username' => 'ybbc',
+                'email' => 'ybbc@example.com',
                 'password' => Hash::make('ybbc123'),
                 'role' => 'ukm',
             ],
             [
                 'name' => 'SMAKA',
                 'username' => 'smaka',
+                'email' => 'smaka@example.com',
                 'password' => Hash::make('smaka123'),
                 'role' => 'ukm',
             ],
             [
                 'name' => 'KREASI',
                 'username' => 'kreasi',
+                'email' => 'kreasi@example.com',
                 'password' => Hash::make('kreasi123'),
                 'role' => 'ukm',
             ],
@@ -62,6 +69,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'BEM',
                 'username' => 'bem',
+                'email' => 'bem@example.com',
                 'password' => Hash::make('bem123'),
                 'role' => 'bem',
             ],
@@ -70,6 +78,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'KONGRES',
                 'username' => 'kongres',
+                'email' => 'kongres@example.com',
                 'password' => Hash::make('kongres123'),
                 'role' => 'kongres',
             ],
@@ -78,6 +87,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'PUSKAKA',
                 'username' => 'puskaka',
+                'email' => 'puskaka@example.com',
                 'password' => Hash::make('puskaka123'),
                 'role' => 'puskaka',
             ],

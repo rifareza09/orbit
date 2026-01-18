@@ -36,8 +36,8 @@ interface Props {
   tahunList: number[];
 }
 
-export default function EvaluasiLaporanIndex({ 
-  laporanKegiatan = [], 
+export default function EvaluasiLaporanIndex({
+  laporanKegiatan = [],
   statistik,
   filters,
   ormawaList = [],
@@ -230,8 +230,8 @@ export default function EvaluasiLaporanIndex({
                         <td className="px-4 py-3 text-gray-700">{item.tanggal_pelaksanaan}</td>
                         <td className="px-4 py-3">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            item.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
-                            item.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                            item.status === 'Selesai' ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md' :
+                            item.status === 'Disetujui' ? 'bg-emerald-100 text-emerald-700' :
                             item.status === 'Direview' ? 'bg-blue-100 text-blue-700' :
                             item.status === 'Direvisi' ? 'bg-orange-100 text-orange-700' :
                             item.status === 'Diajukan' ? 'bg-yellow-100 text-yellow-700' :
@@ -253,8 +253,8 @@ export default function EvaluasiLaporanIndex({
                   ) : (
                     <tr>
                       <td colSpan={7} className="px-6 py-12 text-center text-gray-400 italic">
-                        {filters.search || filters.ormawa || filters.tahun_akademik 
-                          ? 'Tidak ada data yang sesuai dengan filter' 
+                        {filters.search || filters.ormawa || filters.tahun_akademik
+                          ? 'Tidak ada data yang sesuai dengan filter'
                           : 'Belum ada laporan kegiatan'}
                       </td>
                     </tr>
