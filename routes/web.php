@@ -16,6 +16,28 @@ use App\Http\Controllers\ProfileOrmawaController;
 
 /*
 |--------------------------------------------------------------------------
+| CSRF Token Refresh Route
+|--------------------------------------------------------------------------
+| This route is used to get a fresh CSRF token when the current one expires.
+| It sets the XSRF-TOKEN cookie that axios will automatically use.
+*/
+Route::get('/sanctum/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set'])
+        ->withCookie(cookie(
+            'XSRF-TOKEN',
+            csrf_token(),
+            config('session.lifetime'),
+            '/',
+            config('session.domain'),
+            config('session.secure'),
+            false, // httpOnly must be false so JS can read it
+            false,
+            config('session.same_site', 'lax')
+        ));
+})->name('csrf.cookie');
+
+/*
+|--------------------------------------------------------------------------
 | Public Route
 |--------------------------------------------------------------------------
 */

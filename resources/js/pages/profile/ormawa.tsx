@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import { Link, Head, router } from '@inertiajs/react';
 import { Image as ImageIcon, Edit2, Trash2, Eye, Lock, X, Eye as EyeIcon, EyeOff } from 'lucide-react';
+import axios from '@/lib/axios';
 
 interface UnitInfo { nama: string; periode: string }
 interface Pengurus { id: number; jabatan: string; nama: string; prodi: string; npm: string }
@@ -70,37 +71,12 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
 
     setIsSubmittingPassword(true);
 
-    fetch('/profile/change-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        current_password: passwordForm.currentPassword,
-        new_password: passwordForm.newPassword,
-        new_password_confirmation: passwordForm.confirmPassword,
-      }),
+    axios.post('/profile/change-password', {
+      current_password: passwordForm.currentPassword,
+      new_password: passwordForm.newPassword,
+      new_password_confirmation: passwordForm.confirmPassword,
     })
-      .then(async (response) => {
-        const contentType = response.headers.get('content-type');
-        
-        // Check if response is JSON
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          
-          if (!response.ok) {
-            throw new Error(data.error || 'Gagal mengubah password');
-          }
-          
-          return data;
-        } else {
-          // If not JSON, likely HTML error page
-          throw new Error('Server mengembalikan response yang tidak valid. Silakan coba lagi.');
-        }
-      })
-      .then((data) => {
+      .then((response) => {
         setPasswordSuccess('Password berhasil diubah!');
         setPasswordForm({
           currentPassword: '',
@@ -113,7 +89,8 @@ export default function OrmawaProfile({ unit, deskripsi, kepengurusan, jadwal, l
         }, 2000);
       })
       .catch((error) => {
-        setPasswordError(error.message || 'Gagal mengubah password');
+        const message = error.response?.data?.error || error.message || 'Gagal mengubah password';
+        setPasswordError(message);
       })
       .finally(() => {
         setIsSubmittingPassword(false);

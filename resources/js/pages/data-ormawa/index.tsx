@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import { ChevronDown, Search, Plus, X, RotateCw, Copy, Check, Power } from "lucide-react";
 import { Link, usePage, router } from "@inertiajs/react";
+import axios from "@/lib/axios";
 
 interface Ormawa {
   id: number;
@@ -60,29 +61,17 @@ export default function DataOrmawaPage() {
   const confirmResetAkun = () => {
     if (!selectedOrmawaForReset) return;
 
-    fetch(`/ormawa/reset-akun/${selectedOrmawaForReset.id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      },
-      body: JSON.stringify({}),
-    })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Gagal mereset akun');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      if (data.success && data.newPassword) {
-        setNewPassword(data.newPassword);
-      }
-    })
-    .catch((error) => {
-      alert('Gagal mereset akun: ' + error.message);
-      setShowResetModal(false);
-    });
+    axios.post(`/ormawa/reset-akun/${selectedOrmawaForReset.id}`, {})
+      .then((response) => {
+        const data = response.data;
+        if (data.success && data.newPassword) {
+          setNewPassword(data.newPassword);
+        }
+      })
+      .catch((error) => {
+        alert('Gagal mereset akun: ' + (error.response?.data?.message || error.message));
+        setShowResetModal(false);
+      });
   };
 
   const copyToClipboard = () => {
@@ -99,34 +88,14 @@ export default function DataOrmawaPage() {
 
     setIsTogglingStatus(true);
 
-    fetch(`/ormawa/toggle-status/${ormawa.id}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      },
-      body: JSON.stringify({
-        status: newStatus,
-      }),
+    axios.post(`/ormawa/toggle-status/${ormawa.id}`, {
+      status: newStatus,
     })
-      .then((response) => {
-        if (!response.ok) {
-          return response.text().then((text) => {
-            try {
-              const data = JSON.parse(text);
-              throw new Error(data.error || data.message || 'Gagal mengubah status');
-            } catch (e) {
-              throw new Error('Server error: ' + text.substring(0, 100));
-            }
-          });
-        }
-        return response.json();
-      })
       .then(() => {
         router.reload();
       })
       .catch((error) => {
-        alert('Gagal mengubah status: ' + error.message);
+        alert('Gagal mengubah status: ' + (error.response?.data?.error || error.response?.data?.message || error.message));
       })
       .finally(() => {
         setIsTogglingStatus(false);
