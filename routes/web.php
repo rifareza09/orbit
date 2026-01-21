@@ -43,7 +43,22 @@ Route::get('/sanctum/csrf-cookie', function () {
 */
 Route::get('/', [\App\Http\Controllers\LandingController::class, 'index'])->name('home');
 Route::get('/tentang-orbit', function () {
-    return Inertia::render('tentang-orbit/index');
+    // Ambil semua ormawa (UKM/BEM/Kongres) yang statusnya Aktif
+    $ormawaList = \App\Models\User::where('role', '!=', 'puskaka')
+        ->where('status', 'Aktif')
+        ->select('id', 'name', 'logo_path')
+        ->get()
+        ->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'logo_url' => $user->logo_url ?? '/images/Logo-Yarsi.png', // Fallback ke logo YARSI
+            ];
+        });
+    
+    return Inertia::render('tentang-orbit/index', [
+        'ormawaList' => $ormawaList,
+    ]);
 })->name('tentang-orbit');
 Route::get('/ormawa/{id}', [\App\Http\Controllers\LandingController::class, 'showOrmawa'])->name('landing.ormawa');
 
@@ -325,6 +340,12 @@ Route::middleware(['auth', 'verified', 'puskaka'])->get('/data-ormawa', function
             'stats' => $stats,
         ]);
     })->name('data.ormawa');
+
+// Export Data Ormawa
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/data-ormawa/export', [
+    \App\Http\Controllers\DataOrmawaController::class,
+    'export'
+])->name('data.ormawa.export');
 
 Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/create', function () {
 

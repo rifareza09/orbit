@@ -35,25 +35,24 @@ class LandingController extends Controller
             ];
         });
 
-        // Get latest kegiatan (LaporanKegiatan yang sudah disetujui)
-        $latestKegiatan = LaporanKegiatan::with(['pengajuanKegiatan.programKerja', 'user'])
+        // Get latest kegiatan (dari PengajuanKegiatan yang sudah disetujui)
+        $latestKegiatan = PengajuanKegiatan::with(['user', 'programKerja'])
             ->where('status', 'Disetujui')
-            ->orderBy('updated_at', 'desc')
+            ->orderBy('tanggal_pelaksanaan', 'desc')
             ->limit(8)
             ->get()
-            ->map(function ($laporan) {
-                $pengajuan = $laporan->pengajuanKegiatan;
+            ->map(function ($pengajuan) {
                 return [
-                    'id' => $laporan->id,
+                    'id' => $pengajuan->id,
                     'nama_kegiatan' => $pengajuan->nama_kegiatan ?? '-',
-                    'ormawa' => $laporan->user->name ?? '-',
-                    'tanggal_pelaksanaan' => $pengajuan && $pengajuan->tanggal_pelaksanaan
+                    'ormawa' => $pengajuan->user->name ?? '-',
+                    'tanggal_pelaksanaan' => $pengajuan->tanggal_pelaksanaan
                         ? (is_string($pengajuan->tanggal_pelaksanaan)
-                            ? $pengajuan->tanggal_pelaksanaan
+                            ? date('d/m/Y', strtotime($pengajuan->tanggal_pelaksanaan))
                             : $pengajuan->tanggal_pelaksanaan->format('d/m/Y'))
                         : '-',
                     'tempat_pelaksanaan' => $pengajuan->tempat_pelaksanaan ?? 'Kampus YARSI',
-                    'status' => $laporan->status,
+                    'status' => $pengajuan->status,
                 ];
             });
 

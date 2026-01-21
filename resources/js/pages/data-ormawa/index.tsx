@@ -244,7 +244,10 @@ export default function DataOrmawaPage() {
               </p>
             </div>
 
-            <button className="w-full bg-[#0B132B] text-white px-4 py-2 rounded-lg hover:bg-[#0A1025] transition">
+            <button
+              onClick={() => window.location.href = '/data-ormawa/export'}
+              className="w-full bg-[#0B132B] text-white px-4 py-2 rounded-lg hover:bg-[#0A1025] transition"
+            >
               Export Data
             </button>
           </div>

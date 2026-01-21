@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { router, usePage } from "@inertiajs/react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ZoomIn, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 
 interface DokumentasiItem {
-  id: number;
+  id: number | string;
   nama_kegiatan: string;
   tanggal_kegiatan: string;
   foto_url: string | null;
+  source?: string;
 }
 
 export default function DokumentasiKegiatan() {
@@ -16,6 +17,8 @@ export default function DokumentasiKegiatan() {
   }>().props;
 
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filter hanya dokumentasi yang punya foto
   const dokumentasiWithPhoto = dokumentasi.filter(item => item.foto_url);
@@ -40,6 +43,22 @@ export default function DokumentasiKegiatan() {
   const showNextImage = () => {
     if (selectedImageIndex !== null && selectedImageIndex < dokumentasiWithPhoto.length - 1) {
       setSelectedImageIndex(selectedImageIndex + 1);
+    }
+  };
+
+  const handleDelete = (id: number | string) => {
+    setDeleteConfirm(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirm && typeof deleteConfirm === 'number') {
+      setIsDeleting(true);
+      router.delete(`/dokumentasi/${deleteConfirm}`, {
+        onFinish: () => {
+          setIsDeleting(false);
+          setDeleteConfirm(null);
+        },
+      });
     }
   };
 
@@ -95,6 +114,19 @@ export default function DokumentasiKegiatan() {
                 <p className="text-xs text-gray-500 mt-1">
                   {new Date(item.tanggal_kegiatan).toLocaleDateString('id-ID')}
                 </p>
+                {/* Tombol hapus hanya untuk dokumentasi manual */}
+                {item.source === 'manual' && typeof item.id === 'number' && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(item.id);
+                    }}
+                    className="mt-2 text-red-500 hover:text-red-700 transition text-xs flex items-center justify-center gap-1 mx-auto"
+                  >
+                    <Trash2 size={14} />
+                    Hapus
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -168,6 +200,34 @@ export default function DokumentasiKegiatan() {
                   {selectedImageIndex !== null && `${selectedImageIndex + 1} / ${dokumentasiWithPhoto.length}`}
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-[#0B132B] mb-3">Konfirmasi Hapus</h3>
+            <p className="text-gray-600 mb-6">
+              Apakah Anda yakin ingin menghapus dokumentasi ini? Tindakan ini tidak dapat dibatalkan.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeleting ? 'Menghapus...' : 'Hapus'}
+              </button>
             </div>
           </div>
         </div>

@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, Head } from "@inertiajs/react";
-import { Image as ImageIcon, ChevronDown, ArrowLeft, ChevronRight, ChevronLeft } from "lucide-react";
+import { Image as ImageIcon, ChevronDown, ArrowLeft } from "lucide-react";
 import OrbitAnimation from "@/components/OrbitAnimation";
 
-export default function TentangOrbitPage() {
-  const [currentTeamSlide, setCurrentTeamSlide] = useState(0);
+interface Ormawa {
+  id: number;
+  name: string;
+  logo_url: string;
+}
+
+interface TentangOrbitPageProps {
+  ormawaList: Ormawa[];
+}
+
+export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPageProps) {
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -12,9 +21,6 @@ export default function TentangOrbitPage() {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
-
-  const nextSlide = () => setCurrentTeamSlide(1);
-  const prevSlide = () => setCurrentTeamSlide(0);
 
   return (
     <>
@@ -94,7 +100,7 @@ export default function TentangOrbitPage() {
 
             {/* --- Animasi Orbit --- */}
             <div className="flex justify-center items-center h-[400px] md:h-auto order-2 md:order-1">
-               <OrbitAnimation />
+               <OrbitAnimation ormawaList={ormawaList} />
             </div>
 
             {/* Visi Misi Cards */}
@@ -136,35 +142,21 @@ export default function TentangOrbitPage() {
           </div>
         </div>
 
-        {/* --- SECTION 3: TIM PENGEMBANG & TIM MCL --- */}
+        {/* --- SECTION 3: TIM PENGEMBANG --- */}
         <div
             id="tim-section"
             className="min-h-screen w-full relative flex items-center justify-center overflow-hidden py-20 z-10"
         >
-            {/* Tombol Navigasi */}
-            {currentTeamSlide === 1 && (
-                <button onClick={prevSlide} className="absolute left-4 md:left-10 z-20 bg-white hover:bg-gray-50 p-4 rounded-full border border-gray-200 transition transform hover:scale-110 shadow-lg text-[#0B132B]">
-                    <ChevronLeft size={32} />
-                </button>
-            )}
+            {/* SLIDE 1: Tim Pengembang */}
+            <div className="min-w-full w-full flex flex-col justify-center items-center px-6">
+                <div className="w-full max-w-7xl">
+                    <div className="text-center mb-16 relative z-10">
+                        <div className="inline-block bg-white/90 backdrop-blur-sm px-10 py-4 rounded-2xl shadow-md border border-gray-100">
 
-            {currentTeamSlide === 0 && (
-                <button onClick={nextSlide} className="absolute right-4 md:right-10 z-20 bg-white hover:bg-gray-50 p-4 rounded-full border border-gray-200 transition transform hover:scale-110 shadow-lg animate-pulse text-[#0B132B]">
-                    <ChevronRight size={32} />
-                </button>
-            )}
-
-            <div className="flex w-full h-full transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${currentTeamSlide * 100}%)` }}>
-                {/* SLIDE 1: Tim Pengembang */}
-                <div className="min-w-full w-full flex flex-col justify-center items-center px-6">
-                    <div className="w-full max-w-7xl">
-                        <div className="text-center mb-16 relative z-10">
-                            <div className="inline-block bg-white/90 backdrop-blur-sm px-10 py-4 rounded-2xl shadow-md border border-gray-100">
-
-                                <h2 className="text-4xl md:text-5xl font-bold text-[#0B132B]">ORBIT Developer Team</h2>
-                            </div>
+                            <h2 className="text-4xl md:text-5xl font-bold text-[#0B132B]">ORBIT Developer Team</h2>
                         </div>
-                        <div className="flex flex-wrap gap-8 justify-center items-center">
+                    </div>
+                    <div className="flex flex-wrap gap-8 justify-center items-center">
                             {[
 
                               {
@@ -259,52 +251,6 @@ export default function TentangOrbitPage() {
                         </div>
                     </div>
                 </div>
-
-                {/* SLIDE 2: Tim MCL */}
-                <div className="min-w-full w-full flex items-center justify-center px-6 md:px-16">
-
-                    <div className="w-full max-w-7xl bg-white rounded-[3rem] shadow-2xl p-8 md:p-16 border border-gray-200 relative overflow-hidden z-10">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-                        <div className="grid md:grid-cols-2 gap-16 items-center relative z-10">
-                            <div className="flex justify-center">
-                                <div className="w-80 h-80 rounded-full border-4 border-dashed border-[#0B132B]/10 flex items-center justify-center bg-gray-50 shadow-inner">
-                                    <ImageIcon size={100} className="text-[#0B132B]/20" />
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="inline-block bg-[#0B132B] text-white border border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] rounded-full px-4 py-1.5 text-xs font-bold mb-6 uppercase tracking-wider">
-                                    Trek Pengembangan Aplikasi Multiplatform
-                                </div>
-
-                                <h2 className="text-5xl md:text-6xl font-bold mb-8 leading-tight text-[#0B132B]">
-                                    Tim MCL
-                                </h2>
-                                <p className="text-gray-600 text-xl leading-relaxed mb-10 border-l-4 border-yellow-400 pl-6">
-                                    Mahasiswa Teknik Informatika Universitas YARSI angkatan 2023. Proyek ini dibuat
-                                    sebagai tugas dari mata kuliah Peminatan Trek Pengembangan Aplikasi Multiplatform.
-                                </p>
-
-                                <div className="flex gap-8 md:gap-12 border-t border-gray-200 pt-8">
-                                    <div>
-                                        <div className="text-4xl font-bold text-[#0B132B]">2023</div>
-                                        <div className="text-xs text-gray-500 uppercase font-bold mt-1">Angkatan</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-4xl font-bold text-[#0B132B]">TI</div>
-                                        <div className="text-xs text-gray-500 uppercase font-bold mt-1">Jurusan</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-4xl font-bold text-[#0B132B]">3</div>
-                                        <div className="text-xs text-gray-500 uppercase font-bold mt-1">Developer</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         {/* --- FOOTER --- */}

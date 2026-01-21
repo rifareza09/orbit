@@ -1,22 +1,30 @@
 import React, { useMemo } from 'react';
 import { Image as ImageIcon } from "lucide-react";
 
-// --- KONFIGURASI DATA ---
-// Ganti path ini dengan logo UKM asli Anda nanti
-const ukmLogos = [
-  '/images/Logo-Yarsi.png', 
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-  '/images/Logo-Yarsi.png',
-];
+interface Ormawa {
+  id: number;
+  name: string;
+  logo_url: string;
+}
 
-export default function OrbitAnimation() {
+interface OrbitAnimationProps {
+  ormawaList?: Ormawa[];
+}
+
+export default function OrbitAnimation({ ormawaList = [] }: OrbitAnimationProps) {
+  // Gunakan logo ormawa dari props, atau fallback ke logo YARSI
+  const ukmLogos = ormawaList.length > 0 
+    ? ormawaList.map(o => ({ url: o.logo_url, name: o.name }))
+    : [
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+      { url: '/images/Logo-Yarsi.png', name: 'YARSI' },
+    ];
   
   // Fungsi Pseudo-Random: Menghasilkan angka acak (0.0 - 1.0) yang stabil berdasarkan input
   // Kita pakai ini agar posisi tidak berubah-ubah saat re-render (menghindari glitch)
@@ -26,7 +34,7 @@ export default function OrbitAnimation() {
   };
 
   const orbitItems = useMemo(() => {
-    return ukmLogos.map((logo, index) => {
+    return ukmLogos.map((logoData, index) => {
       // Kita gunakan index sebagai "seed" untuk mengacak
       const r1 = seededRandom(index);       // Acak 1 (untuk Radius)
       const r2 = seededRandom(index + 100); // Acak 2 (untuk Durasi)
@@ -53,14 +61,15 @@ export default function OrbitAnimation() {
       const size = 40 + (seededRandom(index + 300) * 25);
 
       return {
-        logo,
+        logo: logoData.url,
+        name: logoData.name,
         radius: `${radius}px`,
         duration: `${duration}s`,
         delay: `${delay}s`,
         size: size,
       };
     });
-  }, []);
+  }, [ormawaList]);
 
   return (
     <div className="relative flex items-center justify-center w-[300px] h-[300px] md:w-[500px] md:h-[500px]">
@@ -100,7 +109,7 @@ export default function OrbitAnimation() {
           >
             {/* WRAPPER LOGO */}
             <div 
-              className="absolute bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200/50 flex items-center justify-center hover:scale-125 hover:z-50 hover:bg-white transition-all cursor-pointer pointer-events-auto p-1.5"
+              className="absolute bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center hover:scale-125 hover:z-50 hover:bg-white transition-all cursor-pointer pointer-events-auto p-2 group"
               style={{
                 width: `${item.size}px`,
                 height: `${item.size}px`,
@@ -110,10 +119,11 @@ export default function OrbitAnimation() {
                 animation: `counterRotate ${item.duration} linear infinite`,
                 animationDelay: item.delay,
               }}
+              title={item.name}
             >
                 <img 
                   src={item.logo} 
-                  alt={`UKM ${index}`}
+                  alt={item.name}
                   className="w-full h-full object-contain hover:rotate-12 transition-transform"
                   onError={(e) => e.currentTarget.style.display = 'none'} 
                 />

@@ -58,7 +58,7 @@ class NotificationService
                 $types[$status],
                 "Status Program Kerja: {$status}",
                 $messages[$status],
-                "/program-kerja/{$programKerjaId}/detail",
+                "/program-kerja/detail/{$programKerjaId}",
                 $programKerjaId,
                 'App\Models\ProgramKerja'
             );
@@ -116,7 +116,7 @@ class NotificationService
                 $types[$status],
                 "Status Pengajuan Kegiatan: {$status}",
                 $messages[$status],
-                "/pengajuan-kegiatan/{$pengajuanId}/detail",
+                "/pengajuan-kegiatan/detail/{$pengajuanId}",
                 $pengajuanId,
                 'App\Models\PengajuanKegiatan'
             );
@@ -139,7 +139,7 @@ class NotificationService
                 'pengajuan_submitted',
                 'Pengajuan Kegiatan Baru',
                 "{$ormawaName} telah mengajukan kegiatan '{$kegiatanName}'",
-                "/manajemen-kegiatan/{$pengajuanId}/detail",
+                "/manajemen-kegiatan/detail/{$pengajuanId}",
                 $pengajuanId,
                 'App\Models\PengajuanKegiatan'
             );
@@ -174,7 +174,7 @@ class NotificationService
                 $types[$status],
                 "Status Laporan Kegiatan: {$status}",
                 $messages[$status],
-                "/laporan-kegiatan/{$laporanId}/detail",
+                "/laporan-kegiatan/detail/{$laporanId}",
                 $laporanId,
                 'App\Models\LaporanKegiatan'
             );

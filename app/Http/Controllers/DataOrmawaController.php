@@ -7,11 +7,13 @@ use App\Models\ProgramKerja;
 use App\Models\PengajuanKegiatan;
 use App\Models\LaporanKegiatan;
 use App\Models\ArsipTahunan;
+use App\Models\Kepengurusan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 
 class DataOrmawaController extends Controller
@@ -203,4 +205,78 @@ class DataOrmawaController extends Controller
                 'error' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
-    }}
+    }
+
+    /**
+     * Export data ormawa ke Excel (CSV format)
+     */
+    public function export()
+    {
+        // Query data ormawa
+        $ormawaList = User::where('role', '!=', 'puskaka')
+            ->orderBy('name')
+            ->get();
+
+        // Siapkan data untuk CSV
+        $csvData = [];
+        
+        // Header
+        $csvData[] = [
+            'No',
+            'Nama Organisasi',
+            'Username',
+            'Jenis',
+            'Ketua',
+            'Jumlah Anggota',
+            'Status',
+            'Periode',
+            'Deskripsi'
+        ];
+
+        // Data rows
+        $no = 1;
+        foreach ($ormawaList as $user) {
+            // Ambil nama ketua
+            $ketuaKepengurusan = Kepengurusan::where('user_id', $user->id)
+                ->where('jabatan', 'Ketua')
+                ->first();
+            $namaKetua = $ketuaKepengurusan ? $ketuaKepengurusan->nama : '-';
+
+            // Jumlah anggota
+            $jumlahAnggota = Kepengurusan::where('user_id', $user->id)->count();
+
+            $csvData[] = [
+                $no++,
+                $user->name,
+                $user->username,
+                ucfirst($user->role),
+                $namaKetua,
+                $jumlahAnggota,
+                $user->status ?? 'Aktif',
+                $user->periode ?? '-',
+                $user->deskripsi ?? '-'
+            ];
+        }
+
+        // Generate CSV
+        $filename = 'Data_Ormawa_' . date('Y-m-d_His') . '.csv';
+        
+        $callback = function() use ($csvData) {
+            $file = fopen('php://output', 'w');
+            
+            // UTF-8 BOM untuk Excel compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            foreach ($csvData as $row) {
+                fputcsv($file, $row);
+            }
+            
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+}

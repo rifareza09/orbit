@@ -84,7 +84,11 @@ export default function NotificationsPage({ notifications }: Props) {
       markAsRead(notification.id);
     }
     if (notification.action_url) {
-      router.visit(notification.action_url);
+      try {
+        router.visit(notification.action_url);
+      } catch (error) {
+        console.error('Error navigating to:', notification.action_url, error);
+      }
     }
   };
 
