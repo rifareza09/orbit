@@ -97,7 +97,7 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
 
   return (
     <>
-      <Head title={`${ormawa.name} - ORBIT`} />
+      <Head title={`${ormawa.name}`} />
 
       <div className="min-h-screen bg-gray-50">
         {/* Navbar */}
@@ -113,7 +113,7 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
         <div className="bg-gradient-to-r from-[#0B132B] to-[#1C2541] text-white py-12 px-6 md:px-12">
           <div className="max-w-6xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-2">{ormawa.name}</h1>
-            <p className="text-gray-300 text-lg capitalize mb-3">{ormawa.role}</p>
+            <p className="text-gray-300 text-lg capitalize mb-3">{ormawa.role.toUpperCase()}</p>
           </div>
         </div>
 

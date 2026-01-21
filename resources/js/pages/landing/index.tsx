@@ -77,7 +77,7 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
             {[
               { id: 'home', label: 'Home' },
               { id: 'daftar-ormawa', label: 'Daftar Ormawa' },
-              { id: 'kegiatan', label: 'Kalender Kegiatan' }
+              { id: 'kegiatan', label: 'Kegiatan Terbaru' }
             ].map((item, idx) => (
               <motion.button
                 key={item.id}

@@ -321,11 +321,13 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 text-xs rounded-full font-semibold shadow-sm ${
-                          pk.status === 'Diajukan' ? 'bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-700' :
-                          pk.status === 'Direview' ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700' :
-                          pk.status === 'Disetujui' ? 'bg-gradient-to-r from-green-100 to-green-200 text-green-700' :
-                          pk.status === 'Ditolak' ? 'bg-gradient-to-r from-red-100 to-red-200 text-red-700' :
-                          'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700'
+                          pk.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                          pk.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25' :
+                          pk.status === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-orange-500/25' :
+                          pk.status === 'Direview' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25' :
+                          pk.status === 'Diajukan' ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-amber-500/25' :
+                          pk.status === 'Selesai' ? 'bg-gradient-to-r from-purple-400 to-violet-500 text-white shadow-purple-500/25' :
+                          'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
                         }`}>
                           {pk.status}
                         </span>

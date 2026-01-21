@@ -139,9 +139,13 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
                         <td className="px-6 py-3.5 text-gray-600">{item.tanggal_pelaksanaan}</td>
                         <td className="px-6 py-3.5">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold 
-                            ${item.status === 'Disetujui' ? 'bg-green-100 text-green-700' : 
-                              item.status === 'Ditolak' ? 'bg-red-100 text-red-700' : 
-                              'bg-yellow-100 text-yellow-700'}`}>
+                            ${item.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' : 
+                              item.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25' : 
+                              item.status === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-orange-500/25' :
+                              item.status === 'Direview' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25' :
+                              item.status === 'Diajukan' ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-amber-500/25' :
+                              item.status === 'Selesai' ? 'bg-gradient-to-r from-purple-400 to-violet-500 text-white shadow-purple-500/25' :
+                              'bg-gradient-to-r from-gray-300 to-gray-400 text-white'}`}>
                             {item.status}
                           </span>
                         </td>
