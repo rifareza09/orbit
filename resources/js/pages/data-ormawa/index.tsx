@@ -84,7 +84,7 @@ export default function DataOrmawaPage() {
     const newStatus = ormawa.status === 'Aktif' ? 'Nonaktif' : 'Aktif';
     const message = `Apakah Anda yakin ingin mengubah status ${ormawa.nama} menjadi "${newStatus}"?`;
 
-    if (!window.confirm(message)) return;
+    if (!globalThis.confirm(message)) return;
 
     setIsTogglingStatus(true);
 
@@ -245,7 +245,7 @@ export default function DataOrmawaPage() {
             </div>
 
             <button
-              onClick={() => window.location.href = '/data-ormawa/export'}
+              onClick={() => { globalThis.location.href = '/data-ormawa/export'; }}
               className="w-full bg-[#0B132B] text-white px-4 py-2 rounded-lg hover:bg-[#0A1025] transition"
             >
               Export Data
@@ -274,10 +274,11 @@ export default function DataOrmawaPage() {
               <form onSubmit={handleAddOrmawa} className="space-y-4">
                 {/* Nama Organisasi */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="nama-org" className="block text-sm font-medium text-gray-700 mb-1">
                     Nama Organisasi
                   </label>
                   <input
+                    id="nama-org"
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -289,10 +290,11 @@ export default function DataOrmawaPage() {
 
                 {/* Username */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                     Username
                   </label>
                   <input
+                    id="username"
                     type="text"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -304,10 +306,11 @@ export default function DataOrmawaPage() {
 
                 {/* Password */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                     Password
                   </label>
                   <input
+                    id="password"
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -319,10 +322,11 @@ export default function DataOrmawaPage() {
 
                 {/* Jenis Ormawa */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="jenis-ormawa" className="block text-sm font-medium text-gray-700 mb-1">
                     Jenis Ormawa
                   </label>
                   <select
+                    id="jenis-ormawa"
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B132B]"
@@ -369,10 +373,10 @@ export default function DataOrmawaPage() {
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <X size={24} />
-                </button>
+               </button>
               </div>
 
-              {!newPassword ? (
+              {newPassword ? (
                 <div>
                   <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
                     <p className="text-sm text-gray-700">
@@ -415,10 +419,11 @@ export default function DataOrmawaPage() {
                     </p>
                   </div>
 
-                  <div className="space-y-3">
+                  <div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                      <label htmlFor="reset-username" className="block text-sm font-medium text-gray-700 mb-2">Username</label>
                       <input
+                        id="reset-username"
                         type="text"
                         value={selectedOrmawaForReset.nama}
                         disabled
@@ -426,10 +431,11 @@ export default function DataOrmawaPage() {
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
+                    <div className="mt-3">
+                      <label htmlFor="reset-password" className="block text-sm font-medium text-gray-700 mb-2">Password Baru</label>
                       <div className="flex gap-2">
                         <input
+                          id="reset-password"
                           type="text"
                           value={newPassword}
                           disabled
