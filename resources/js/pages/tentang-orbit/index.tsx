@@ -49,8 +49,8 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         * { box-sizing: border-box; }
       `}</style>
 
-      <div className="min-h-screen w-full overflow-x-hidden font-sans text-[#0B132B] relative">
-        <div className="fixed inset-0 w-full h-full -z-10">
+      <div className="min-h-screen w-screen overflow-x-hidden font-sans text-[#0B132B] relative">
+        <div className="fixed inset-0 w-screen h-full -z-10">
             <div
                 className="w-full h-full"
                 style={{
@@ -63,7 +63,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         </div>
 
         {/* --- NAVBAR --- */}
-        <nav className="bg-[#0B132B] text-white py-3 px-4 sm:px-6 md:px-12 flex justify-between items-center fixed top-0 w-full z-50 shadow-md border-b border-white/10">
+        <nav className="bg-[#0B132B] text-white py-3 px-4 sm:px-6 md:px-12 flex justify-between items-center fixed top-0 w-screen left-0 z-50 shadow-md border-b border-white/10">
           <div className="flex items-center gap-3">
              <span className="font-bold text-lg sm:text-xl tracking-wider">ORBIT</span>
           </div>
@@ -175,7 +175,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         {/* --- SECTION 1: APA ITU ORBIT --- */}
         <div
             id="apa-itu-orbit"
-            className="min-h-screen w-full flex items-center justify-center text-center text-white relative z-10"
+            className="min-h-screen w-screen flex items-center justify-center text-center text-white relative z-10 overflow-hidden"
         >
           {/* Dark Overlay untuk kontras yang lebih baik */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent"></div>
@@ -203,7 +203,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         {/* --- SECTION 2: VISI MISI --- */}
         <div
             id="visi-misi"
-            className="min-h-screen w-full flex items-center justify-center px-4 py-12 sm:p-6 md:px-16 relative z-10 overflow-hidden"
+            className="min-h-screen w-screen flex items-center justify-center px-4 py-12 sm:p-6 md:px-16 relative z-10 overflow-hidden"
         >
           <div className="w-full max-w-7xl grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-20 items-center">
 
@@ -213,14 +213,14 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
             </div>
 
             {/* Visi Misi Cards */}
-            <div className="space-y-6 sm:space-y-8 order-1 md:order-2 w-full">
+            <div className="space-y-6 sm:space-y-8 order-1 md:order-2">
               {/* --- CARD VISI --- */}
-              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300 w-full">
+              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300">
                   <h3 className="text-[#0B132B] font-bold text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 flex items-center gap-3 sm:gap-4 border-b border-gray-100 pb-3 sm:pb-4">
                     <img
                         src="/images/visi.png"
                         alt="Icon Visi"
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80 flex-shrink-0"
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80"
                     />
                     Visi
                   </h3>
@@ -230,12 +230,12 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
               </div>
 
               {/* --- CARD MISI --- */}
-              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300 w-full">
+              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300">
                   <h3 className="text-[#0B132B] font-bold text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 flex items-center gap-3 sm:gap-4 border-b border-gray-100 pb-3 sm:pb-4">
                     <img
                         src="/images/misi.png"
                         alt="Icon Misi"
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80 flex-shrink-0"
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80"
                     />
                     Misi
                   </h3>
@@ -254,7 +254,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         {/* --- SECTION 3: TIM PENGEMBANG --- */}
         <div
             id="tim-section"
-            className="min-h-screen w-full relative flex items-center justify-center overflow-hidden py-12 sm:py-16 md:py-20 z-10"
+            className="min-h-screen w-screen relative flex items-center justify-center overflow-hidden py-12 sm:py-16 md:py-20 z-10"
         >
             {/* SLIDE 1: Tim Pengembang */}
             <div className="w-full flex flex-col justify-center items-center px-4 sm:px-6">
@@ -362,7 +362,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         </div>
 
         {/* --- FOOTER --- */}
-        <footer className="bg-[#0B132B] text-white py-6 sm:py-8 md:py-10 text-center text-xs sm:text-sm border-t border-gray-800 relative z-10">
+        <footer className="bg-[#0B132B] text-white py-6 sm:py-8 md:py-10 text-center text-xs sm:text-sm border-t border-gray-800 relative z-10 w-screen">
           <p className="opacity-50 px-4">
             © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
           </p>
