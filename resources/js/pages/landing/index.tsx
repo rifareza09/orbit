@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, Head } from "@inertiajs/react";
-import { Image as ImageIcon, Search, Calendar, MapPin, ChevronDown } from "lucide-react";
-import { motion } from "framer-motion";
+import { Image as ImageIcon, Search, Calendar, MapPin, ChevronDown, Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface OrmawaItem {
   id: number;
@@ -29,12 +29,25 @@ interface LandingProps {
 export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }: LandingProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   const scrollToSection = (id: string) => {
+    setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -58,7 +71,7 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-[#0B132B] text-white py-2 px-6 md:px-12 flex justify-between items-center sticky top-0 z-50 shadow-md"
+          className="bg-[#0B132B] text-white py-3 px-4 sm:px-6 md:px-12 flex justify-between items-center sticky top-0 z-50 shadow-md"
         >
           <motion.div
             className="flex items-center gap-3 cursor-pointer"
@@ -69,10 +82,11 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
             <img
               src="/images/OrbitWhite.png"
               alt="Logo ORBIT"
-              className="h-13 md:h-20 w-auto object-contain"
+              className="h-10 sm:h-13 md:h-20 w-auto object-contain"
             />
           </motion.div>
 
+          {/* Desktop Menu */}
           <div className="hidden md:flex gap-8 text-sm font-medium">
             {[
               { id: 'home', label: 'Home' },
@@ -102,7 +116,9 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
             </motion.div>
           </div>
 
+          {/* Desktop Login Button */}
           <motion.div
+            className="hidden md:block"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
@@ -117,7 +133,100 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
               </Link>
             )}
           </motion.div>
+
+          {/* Mobile Menu Button */}
+          <motion.button
+            className="md:hidden text-white p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            whileTap={{ scale: 0.95 }}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </motion.button>
         </motion.nav>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Menu Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'tween', duration: 0.3 }}
+              className="fixed top-0 right-0 h-full w-64 bg-[#0B132B] text-white z-50 shadow-2xl md:hidden"
+            >
+              <div className="flex flex-col h-full">
+                {/* Header */}
+                <div className="flex justify-between items-center p-4 border-b border-white/10">
+                  <span className="font-bold text-lg">Menu</span>
+                  <button onClick={() => setMobileMenuOpen(false)} className="p-2">
+                    <X size={24} />
+                  </button>
+                </div>
+
+                {/* Menu Items */}
+                <nav className="flex-1 overflow-y-auto p-4">
+                  <div className="space-y-2">
+                    {[
+                      { id: 'home', label: 'Home' },
+                      { id: 'daftar-ormawa', label: 'Daftar Ormawa' },
+                      { id: 'kegiatan', label: 'Kegiatan Terbaru' }
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => scrollToSection(item.id)}
+                        className="w-full text-left px-4 py-3 rounded-lg hover:bg-white/10 transition-colors"
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                    <Link
+                      href="/tentang-orbit"
+                      className="block w-full text-left px-4 py-3 rounded-lg hover:bg-white/10 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Tentang ORBIT
+                    </Link>
+                  </div>
+                </nav>
+
+                {/* Footer Login Button */}
+                <div className="p-4 border-t border-white/10">
+                  {auth?.user ? (
+                    <Link
+                      href="/dashboard"
+                      className="block w-full text-center bg-white text-[#0B132B] px-6 py-3 rounded-full text-sm font-semibold hover:bg-gray-100 transition"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/login"
+                      className="block w-full text-center bg-white text-[#0B132B] px-6 py-3 rounded-full text-sm font-semibold hover:bg-gray-100 transition"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* --- SECTION 1: HERO (FULL SCREEN) --- */}
         <div
