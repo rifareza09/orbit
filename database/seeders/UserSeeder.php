@@ -30,13 +30,6 @@ class UserSeeder extends Seeder
                 'role' => 'ukm',
             ],
             [
-                'name' => 'HIMASI',
-                'username' => 'himasi',
-                'email' => 'himasi@example.com',
-                'password' => Hash::make('himasi123'),
-                'role' => 'ukm',
-            ],
-            [
                 'name' => 'IMASI',
                 'username' => 'imasi',
                 'email' => 'imasi@example.com',
@@ -48,6 +41,20 @@ class UserSeeder extends Seeder
                 'username' => 'ybbc',
                 'email' => 'ybbc@example.com',
                 'password' => Hash::make('ybbc123'),
+                'role' => 'ukm',
+            ],
+            [
+                'name' => 'TDM',
+                'username' => 'tdm',
+                'email' => 'tdm@example.com',
+                'password' => Hash::make('tdm123'),
+                'role' => 'ukm',
+            ],
+            [
+                'name' => 'LPM',
+                'username' => 'lpm',
+                'email' => 'lpm@example.com',
+                'password' => Hash::make('lpm123'),
                 'role' => 'ukm',
             ],
             [
