@@ -488,6 +488,12 @@ Route::middleware(['auth', 'verified', 'puskaka'])->get('/data-ormawa/detail/{id
     ]);
 })->name('data.ormawa.detail');
 
+// Export Detail Organisasi ke Excel
+Route::middleware(['auth', 'verified', 'puskaka'])->get('/data-ormawa/detail/{id}/export', [
+    \App\Http\Controllers\DataOrmawaController::class,
+    'exportDetail'
+])->name('data.ormawa.detail.export');
+
 Route::middleware(['auth', 'verified', 'puskaka'])->get('/program-kerja/indexPuskaka', function () {
 
     // Fetch program kerja dengan status Diajukan, Direview, Disetujui, Ditolak

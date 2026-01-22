@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\OrmawaDetailExport;
 
 class DataOrmawaController extends Controller
 {
@@ -343,6 +345,33 @@ class DataOrmawaController extends Controller
         } catch (\Exception $e) {
             Log::error('Error updating periode: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal mengubah periode');
+        }
+    }
+
+    /**
+     * Export Detail Organisasi ke Excel
+     */
+    public function exportDetail($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Check if user is puskaka
+        if (Auth::user()->role !== 'puskaka') {
+            return response()->json([
+                'error' => 'Anda tidak memiliki izin untuk export data.'
+            ], 403);
+        }
+
+        try {
+            $filename = 'Detail_' . str_replace(' ', '_', $user->name) . '_' . date('Y-m-d_His') . '.xlsx';
+            
+            return Excel::download(
+                new OrmawaDetailExport($id),
+                $filename
+            );
+        } catch (\Exception $e) {
+            Log::error('Export detail error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengexport data: ' . $e->getMessage());
         }
     }
 }

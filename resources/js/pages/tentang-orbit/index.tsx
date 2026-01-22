@@ -45,12 +45,10 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         ::-webkit-scrollbar-track { background: #0B132B; }
         ::-webkit-scrollbar-thumb { background-color: #1C2541; border-radius: 6px; border: 2px solid #0B132B; }
         html { scroll-behavior: smooth; }
-        body { overflow-x: hidden; margin: 0; padding: 0; }
-        * { box-sizing: border-box; }
       `}</style>
 
-      <div className="min-h-screen w-screen overflow-x-hidden font-sans text-[#0B132B] relative">
-        <div className="fixed inset-0 w-screen h-full -z-10">
+      <div className="min-h-screen w-full font-sans text-[#0B132B] relative">
+        <div className="absolute top-0 left-0 w-full h-full">
             <div
                 className="w-full h-full"
                 style={{
@@ -63,7 +61,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         </div>
 
         {/* --- NAVBAR --- */}
-        <nav className="bg-[#0B132B] text-white py-3 px-4 sm:px-6 md:px-12 flex justify-between items-center fixed top-0 w-screen left-0 z-50 shadow-md border-b border-white/10">
+        <nav className="bg-[#0B132B] text-white py-3 px-4 sm:px-6 md:px-12 flex justify-between items-center fixed top-0 w-full z-50 shadow-md border-b border-white/10">
           <div className="flex items-center gap-3">
              <span className="font-bold text-lg sm:text-xl tracking-wider">ORBIT</span>
           </div>
@@ -175,7 +173,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         {/* --- SECTION 1: APA ITU ORBIT --- */}
         <div
             id="apa-itu-orbit"
-            className="min-h-screen w-screen flex items-center justify-center text-center text-white relative z-10 overflow-hidden"
+            className="min-h-screen w-full flex items-center justify-center text-center text-white relative z-10"
         >
           {/* Dark Overlay untuk kontras yang lebih baik */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent"></div>
@@ -203,7 +201,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         {/* --- SECTION 2: VISI MISI --- */}
         <div
             id="visi-misi"
-            className="min-h-screen w-screen flex items-center justify-center px-4 py-12 sm:p-6 md:px-16 relative z-10 overflow-hidden"
+            className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:px-16 relative z-10"
         >
           <div className="w-full max-w-7xl grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-20 items-center">
 
@@ -254,10 +252,10 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         {/* --- SECTION 3: TIM PENGEMBANG --- */}
         <div
             id="tim-section"
-            className="min-h-screen w-screen relative flex items-center justify-center overflow-hidden py-12 sm:py-16 md:py-20 z-10"
+            className="min-h-screen w-full relative flex items-center justify-center overflow-hidden py-12 sm:py-16 md:py-20 z-10"
         >
             {/* SLIDE 1: Tim Pengembang */}
-            <div className="w-full flex flex-col justify-center items-center px-4 sm:px-6">
+            <div className="min-w-full w-full flex flex-col justify-center items-center px-4 sm:px-6">
                 <div className="w-full max-w-7xl">
                     <div className="text-center mb-8 sm:mb-12 md:mb-16 relative z-10">
                         <div className="inline-block bg-white/90 backdrop-blur-sm px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-md border border-gray-100">
@@ -362,7 +360,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         </div>
 
         {/* --- FOOTER --- */}
-        <footer className="bg-[#0B132B] text-white py-6 sm:py-8 md:py-10 text-center text-xs sm:text-sm border-t border-gray-800 relative z-10 w-screen">
+        <footer className="bg-[#0B132B] text-white py-6 sm:py-8 md:py-10 text-center text-xs sm:text-sm border-t border-gray-800 relative z-10">
           <p className="opacity-50 px-4">
             © 2025 Pusat Kemahasiswaan Karir dan Alumni, Universitas YARSI
           </p>

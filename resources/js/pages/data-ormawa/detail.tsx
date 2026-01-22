@@ -53,10 +53,13 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
     { name: 'Revisi', value: proposals.filter(p => p.status === 'Direvisi').length, color: '#F97316' }, // Orange
   ];
 
-  // Fungsi Placeholder untuk Export
+  // Fungsi Export ke Excel
   const handleExport = () => {
-    // Nanti diganti dengan window.location.href = ...
-    alert("Fitur Export Data akan mendownload PDF profil ormawa ini.");
+    // Ambil ID dari URL atau props
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = window.location.pathname.split('/').pop();
+    
+    window.location.href = `/data-ormawa/detail/${id}/export`;
   };
 
   return (
