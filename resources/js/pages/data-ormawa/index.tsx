@@ -7,10 +7,12 @@ import axios from "@/lib/axios";
 interface Ormawa {
   id: number;
   nama: string;
+  username: string;
   jenis: string;
   ketua: string;
   anggota: number;
   status: string;
+  periode: string | null;
 }
 
 export default function DataOrmawaPage() {
@@ -25,8 +27,12 @@ export default function DataOrmawaPage() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [showEditPeriodeModal, setShowEditPeriodeModal] = useState(false);
   const [selectedOrmawaForReset, setSelectedOrmawaForReset] = useState<Ormawa | null>(null);
+  const [selectedOrmawaForEditPeriode, setSelectedOrmawaForEditPeriode] = useState<Ormawa | null>(null);
+  const [newPeriode, setNewPeriode] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [inputNewPassword, setInputNewPassword] = useState("");
   const [copied, setCopied] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [formData, setFormData] = useState({
@@ -34,6 +40,7 @@ export default function DataOrmawaPage() {
     username: '',
     password: '',
     role: 'ukm',
+    periode: '2025/2026',
   });
 
   const filtered = dataOrmawa.filter((o) =>
@@ -45,7 +52,7 @@ export default function DataOrmawaPage() {
     router.post('/ormawa/create', formData, {
       onSuccess: () => {
         setShowModal(false);
-        setFormData({ name: '', username: '', password: '', role: 'ukm' });
+        setFormData({ name: '', username: '', password: '', role: 'ukm', periode: '2025/2026' });
       },
       onError: () => {
         alert('Gagal menambah ormawa');
@@ -58,26 +65,64 @@ export default function DataOrmawaPage() {
     setShowResetModal(true);
   };
 
+  const handleEditPeriode = (ormawa: Ormawa) => {
+    setSelectedOrmawaForEditPeriode(ormawa);
+    setNewPeriode(ormawa.periode || '2025/2026');
+    setShowEditPeriodeModal(true);
+  };
+
+  const confirmEditPeriode = () => {
+    if (!selectedOrmawaForEditPeriode || !newPeriode) return;
+
+    router.post(`/ormawa/update-periode/${selectedOrmawaForEditPeriode.id}`, {
+      periode: newPeriode,
+    }, {
+      onSuccess: () => {
+        setShowEditPeriodeModal(false);
+        setSelectedOrmawaForEditPeriode(null);
+        setNewPeriode("");
+      },
+      onError: () => {
+        alert('Gagal mengubah periode');
+      }
+    });
+  };
+
   const confirmResetAkun = () => {
     if (!selectedOrmawaForReset) return;
+    
+    if (!inputNewPassword || inputNewPassword.length < 8) {
+      alert('Password harus minimal 8 karakter');
+      return;
+    }
 
-    axios.post(`/ormawa/reset-akun/${selectedOrmawaForReset.id}`, {})
+    axios.post(`/ormawa/reset-akun/${selectedOrmawaForReset.id}`, {
+      newPassword: inputNewPassword,
+    })
       .then((response) => {
         const data = response.data;
-        if (data.success && data.newPassword) {
-          setNewPassword(data.newPassword);
+        if (data.success) {
+          setNewPassword(inputNewPassword);
+          setInputNewPassword("");
         }
       })
       .catch((error) => {
         alert('Gagal mereset akun: ' + (error.response?.data?.message || error.message));
-        setShowResetModal(false);
       });
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(newPassword);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (!newPassword) return;
+    
+    navigator.clipboard.writeText(newPassword)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error('Failed to copy:', err);
+        alert('Gagal menyalin password. Silakan copy manual.');
+      });
   };
 
   const handleToggleStatus = (ormawa: Ormawa) => {
@@ -192,6 +237,13 @@ export default function DataOrmawaPage() {
                         >
                           Lihat
                         </Link>
+                        <button
+                          onClick={() => handleEditPeriode(org)}
+                          className="text-purple-600 underline text-sm hover:text-purple-800"
+                          title="Ubah periode"
+                        >
+                          Edit Periode
+                        </button>
                         <button
                           onClick={() => handleResetAkun(org)}
                           className="text-orange-600 underline text-sm hover:text-orange-800 flex items-center gap-1"
@@ -337,6 +389,31 @@ export default function DataOrmawaPage() {
                   </select>
                 </div>
 
+                {/* Periode */}
+                <div>
+                  <label htmlFor="periode" className="block text-sm font-medium text-gray-700 mb-1">
+                    Periode
+                  </label>
+                  <select
+                    id="periode"
+                    value={formData.periode}
+                    onChange={(e) => setFormData({ ...formData, periode: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B132B]"
+                  >
+                    <option value="2025/2026">2025/2026</option>
+                    <option value="2026/2027">2026/2027</option>
+                    <option value="2027/2028">2027/2028</option>
+                    <option value="2028/2029">2028/2029</option>
+                    <option value="2029/2030">2029/2030</option>
+                    <option value="2030/2031">2030/2031</option>
+                    <option value="2031/2032">2031/2032</option>
+                    <option value="2032/2033">2032/2033</option>
+                    <option value="2033/2034">2033/2034</option>
+                    <option value="2034/2035">2034/2035</option>
+                    <option value="2035/2036">2035/2036</option>
+                  </select>
+                </div>
+
                 {/* Tombol */}
                 <div className="flex gap-3 mt-6">
                   <button
@@ -354,6 +431,80 @@ export default function DataOrmawaPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL EDIT PERIODE */}
+        {showEditPeriodeModal && selectedOrmawaForEditPeriode && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold text-[#0B132B]">Edit Periode Ormawa</h2>
+                <button
+                  onClick={() => {
+                    setShowEditPeriodeModal(false);
+                    setSelectedOrmawaForEditPeriode(null);
+                    setNewPeriode("");
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-700">
+                  Anda akan mengubah periode untuk <strong>{selectedOrmawaForEditPeriode.nama}</strong>
+                </p>
+                <p className="text-xs text-gray-600 mt-2">
+                  Periode saat ini: <strong>{selectedOrmawaForEditPeriode.periode || 'Belum diatur'}</strong>
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="periode-edit" className="block text-sm font-medium text-gray-700 mb-2">
+                  Periode Baru <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="periode-edit"
+                  value={newPeriode}
+                  onChange={(e) => setNewPeriode(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B132B]"
+                  required
+                >
+                  <option value="2025/2026">2025/2026</option>
+                  <option value="2026/2027">2026/2027</option>
+                  <option value="2027/2028">2027/2028</option>
+                  <option value="2028/2029">2028/2029</option>
+                  <option value="2029/2030">2029/2030</option>
+                  <option value="2030/2031">2030/2031</option>
+                  <option value="2031/2032">2031/2032</option>
+                  <option value="2032/2033">2032/2033</option>
+                  <option value="2033/2034">2033/2034</option>
+                  <option value="2034/2035">2034/2035</option>
+                  <option value="2035/2036">2035/2036</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowEditPeriodeModal(false);
+                    setSelectedOrmawaForEditPeriode(null);
+                    setNewPeriode("");
+                  }}
+                  className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmEditPeriode}
+                  className="flex-1 bg-[#0B132B] text-white py-2 rounded-lg hover:bg-[#1C2541] transition"
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -376,7 +527,7 @@ export default function DataOrmawaPage() {
                </button>
               </div>
 
-              {newPassword ? (
+              {!newPassword ? (
                 <div>
                   <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
                     <p className="text-sm text-gray-700">
@@ -391,11 +542,28 @@ export default function DataOrmawaPage() {
                     </ul>
                   </div>
 
+                  <div className="mb-4">
+                    <label htmlFor="new-password-input" className="block text-sm font-medium text-gray-700 mb-2">
+                      Password Baru <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="new-password-input"
+                      type="text"
+                      value={inputNewPassword}
+                      onChange={(e) => setInputNewPassword(e.target.value)}
+                      placeholder="Masukkan password baru (min. 8 karakter)"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B132B]"
+                      required
+                      minLength={8}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Minimal 8 karakter</p>
+                  </div>
+
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
                         setShowResetModal(false);
-                        setNewPassword("");
+                        setInputNewPassword("");
                       }}
                       className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition"
                     >
@@ -403,7 +571,8 @@ export default function DataOrmawaPage() {
                     </button>
                     <button
                       onClick={confirmResetAkun}
-                      className="flex-1 bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition flex items-center justify-center gap-2"
+                      disabled={!inputNewPassword || inputNewPassword.length < 8}
+                      className="flex-1 bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <RotateCw size={18} />
                       Reset Akun
@@ -425,7 +594,7 @@ export default function DataOrmawaPage() {
                       <input
                         id="reset-username"
                         type="text"
-                        value={selectedOrmawaForReset.nama}
+                        value={selectedOrmawaForReset.username}
                         disabled
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 text-gray-700"
                       />

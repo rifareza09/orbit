@@ -35,20 +35,13 @@ class DataOrmawaController extends Controller
         try {
             DB::beginTransaction();
 
-            // Generate secure random password (16 chars: uppercase, lowercase, numbers, special chars)
-            $lowercase = 'abcdefghijklmnopqrstuvwxyz';
-            $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            $numbers = '0123456789';
-            $special = '!@#$%^&*()_+-=';
+            // Validasi password baru dari puskaka
+            $validated = $request->validate([
+                'newPassword' => 'required|string|min:8',
+                'catatan' => 'nullable|string',
+            ]);
 
-            $newPassword =
-                substr(str_shuffle($lowercase), 0, 4) .
-                substr(str_shuffle($uppercase), 0, 4) .
-                substr(str_shuffle($numbers), 0, 4) .
-                substr(str_shuffle($special), 0, 4);
-
-            // Shuffle the final password to make it truly random
-            $newPassword = str_shuffle($newPassword);
+            $newPassword = $validated['newPassword'];
 
             // === ARSIPKAN DATA SEBELUM DIHAPUS ===
 
@@ -278,5 +271,35 @@ class DataOrmawaController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    /**
+     * Update periode ormawa
+     */
+    public function updatePeriode(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        // Check if user is puskaka
+        if (Auth::user()->role !== 'puskaka') {
+            return response()->json([
+                'error' => 'Anda tidak memiliki izin untuk mengubah periode.'
+            ], 403);
+        }
+
+        // Validasi periode
+        $validated = $request->validate([
+            'periode' => 'required|string|max:255',
+        ]);
+
+        try {
+            $user->periode = $validated['periode'];
+            $user->save();
+
+            return redirect()->back()->with('success', 'Periode berhasil diubah');
+        } catch (\Exception $e) {
+            Log::error('Error updating periode: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengubah periode');
+        }
     }
 }

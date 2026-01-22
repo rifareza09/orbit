@@ -31,7 +31,7 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>@inertia</title>
 
         <link rel="icon" type="image/png" href="{{ asset('images/LogoOrbitWhite.png') }}">
         <link rel="icon" href="images/LogoOrbitWhite.png" sizes="any">

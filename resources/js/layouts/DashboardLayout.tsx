@@ -109,14 +109,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </motion.button>
           )}
           <motion.img
-            src="/images/Logo.png"
+            src="/images/OrbitWhite.png"
             alt="Orbit Logo"
-            animate={{
-              height: collapsed ? '2.5rem' : '3rem',
-              width: collapsed ? '2.5rem' : 'auto'
-            }}
-            transition={{ duration: 0.3 }}
-            className="object-contain max-w-[180px]"
+            className="h-20 w-auto object-contain"
           />
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -236,7 +231,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               whileHover={{ scale: 1.05, rotate: 5 }}
               src="/images/LogoYARSI.png"
               alt="Logo YARSI"
-              className="h-10 lg:h-12 object-contain cursor-pointer"
+              className="h-25 lg:h-12 object-contain cursor-pointer"
             />
           </div>
 

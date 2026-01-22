@@ -3,9 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "build:ssr": "vite build && vite build --ssr",
-        "dev": "vite",
+        "build": "set PATH=C:\\Users\\pogoi\\.config\\herd\\bin\\php82;%PATH% && vite build",
+        "build:ssr": "set PATH=C:\\Users\\pogoi\\.config\\herd\\bin\\php82;%PATH% && vite build && vite build --ssr",
+        "dev": "set PATH=C:\\Users\\pogoi\\.config\\herd\\bin\\php82;%PATH% && vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",

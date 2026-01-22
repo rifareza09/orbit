@@ -101,12 +101,12 @@ export default function OrmawaDetail({ ormawa, kegiatan = [], jadwalLatihan = []
 
       <div className="min-h-screen bg-gray-50">
         {/* Navbar */}
-        <nav className="bg-[#0B132B] text-white py-4 px-6 md:px-12 flex items-center gap-4 sticky top-0 z-50 shadow-md">
+        <nav className="bg-[#0B132B] text-white py-5 px-6 md:px-12 flex items-center gap-4 sticky top-0 z-50 shadow-md">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition">
             <ArrowLeft size={20} />
             <span className="text-sm font-medium">Kembali</span>
           </Link>
-          <img src="/images/Logo.png" alt="Logo ORBIT" className="h-10 w-auto object-contain ml-4" />
+          <img src="/images/OrbitWhite.png" alt="Logo ORBIT" className="h-12 w-auto object-contain ml-4" />
         </nav>
 
         {/* Header */}

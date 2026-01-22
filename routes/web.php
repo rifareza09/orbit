@@ -321,10 +321,12 @@ Route::middleware(['auth', 'verified', 'puskaka'])->get('/data-ormawa', function
                 return [
                     'id' => $user->id,
                     'nama' => $user->name,
+                    'username' => $user->username,
                     'jenis' => ucfirst($user->role),
                     'ketua' => $namaKetua,
                     'anggota' => \App\Models\Kepengurusan::where('user_id', $user->id)->count(),
                     'status' => $user->status ?? 'Aktif', // Ambil dari database, default Aktif
+                    'periode' => $user->periode ?? null,
                 ];
             });
 
@@ -354,6 +356,7 @@ Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/create', funct
         'username' => 'required|string|unique:users,username|max:255',
         'password' => 'required|string|min:8',
         'role' => 'required|in:ukm,bem,kongres',
+        'periode' => 'nullable|string|max:255',
     ]);
 
     \App\Models\User::create([
@@ -361,6 +364,7 @@ Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/create', funct
         'username' => $validated['username'],
         'password' => Hash::make($validated['password']),
         'role' => $validated['role'],
+        'periode' => $validated['periode'] ?? null,
     ]);
 
     return redirect()
@@ -374,6 +378,11 @@ Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/reset-akun/{us
 ])
     ->middleware('throttle:5,1')
     ->name('ormawa.reset');
+
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/update-periode/{userId}', [
+    \App\Http\Controllers\DataOrmawaController::class,
+    'updatePeriode'
+])->name('ormawa.updatePeriode');
 
 Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/toggle-status/{userId}', [
     \App\Http\Controllers\DataOrmawaController::class,

@@ -153,10 +153,13 @@ export default function EditProfileOrmawa({ user }: Props) {
                 type="text"
                 id="periode"
                 value={data.periode}
-                onChange={(e) => setData('periode', e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B132B] focus:border-transparent transition"
-                placeholder="Contoh: 2025/2026"
+                readOnly
+                disabled
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
               />
+              <p className="mt-1 text-xs text-gray-500">
+                Periode hanya dapat diubah oleh Puskaka
+              </p>
               {errors.periode && (
                 <p className="mt-1 text-sm text-red-600">{errors.periode}</p>
               )}

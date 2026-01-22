@@ -20,9 +20,9 @@ export default function AuthSimpleLayout({
                 {/* Logo */}
                 <div className="flex flex-col items-center mb-6">
                     <img
-                        src="/images/Logo.png"
+                        src="/images/OrbitWhite.png"
                         alt="Logo"
-                        className="h-16 w-auto object-contain mb-4 drop-shadow-lg"
+                        className="h-25 w-auto object-contain mb-2 drop-shadow-lg"
                     />
                     <h1 className="text-2xl font-semibold text-white">
                         {title}

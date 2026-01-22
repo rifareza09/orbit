@@ -19,6 +19,7 @@ export default defineConfig({
         tailwindcss(),
         wayfinder({
             formVariants: true,
+            phpPath: 'C:\\Users\\pogoi\\.config\\herd\\bin\\php82\\php.exe',
         }),
     ],
     server: {

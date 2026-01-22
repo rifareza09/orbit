@@ -78,26 +78,26 @@ Copy-Item .env.example .env
 
 Buka file `.env` di VS Code dan edit:
 
-**Opsi A - Gunakan SQLite (Recommended untuk Development):**
+**Opsi A - Gunakan MySQL (Recommended):**
+```env
+APP_NAME="Orbit"
+APP_URL=http://orbit.test
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=orbit
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+**Opsi B - Gunakan SQLite (Alternatif):**
 ```env
 APP_NAME="Orbit"
 APP_URL=http://orbit.test
 
 DB_CONNECTION=sqlite
 # Comment/hapus semua DB_HOST, DB_PORT, dll
-```
-
-**Opsi B - Gunakan Filess.io (Database Online):**
-```env
-APP_NAME="Orbit"
-APP_URL=http://orbit.test
-
-DB_CONNECTION=mysql
-DB_HOST=xxxxx.h.filess.io
-DB_PORT=xxxxx
-DB_DATABASE=database_name
-DB_USERNAME=username
-DB_PASSWORD=password
 ```
 
 ### 4. Generate Application Key
@@ -108,6 +108,16 @@ php artisan key:generate
 
 ### 5. Setup Database
 
+**Jika menggunakan MySQL:**
+```powershell
+# Buat database di MySQL (via phpMyAdmin atau command line)
+# Atau jalankan:
+mysql -u root -e "CREATE DATABASE orbit;"
+
+# Jalankan migration dan seeder
+php artisan migrate:fresh --seed
+```
+
 **Jika menggunakan SQLite:**
 ```powershell
 # Buat file database
@@ -116,14 +126,6 @@ New-Item -Path database\database.sqlite -ItemType File -Force
 # Jalankan migration dan seeder
 php artisan migrate:fresh --seed
 ```
-
-**Jika menggunakan Filess.io:**
-```powershell
-# Jalankan migration dan seeder
-php artisan migrate:fresh --seed
-```
-
-Jika migration timeout/gagal, buat tabel manual via web client Filess.io atau switch ke SQLite.
 
 ### 6. Link Storage (untuk upload file)
 
@@ -154,10 +156,6 @@ Herd otomatis menjalankan server PHP, tidak perlu `php artisan serve`!
 
 ## 🐛 Troubleshooting
 
-### 504 Gateway Timeout
-- Database Filess.io terlalu lambat → Switch ke SQLite
-- Clear cache: `php artisan optimize:clear`
-
 ### npm install gagal
 ```powershell
 Remove-Item -Recurse -Force node_modules
@@ -172,8 +170,8 @@ herd restart
 
 ### Database connection error
 - Pastikan kredensial `.env` benar
-- Jika pakai Filess.io, pastikan database status Active
-- Gunakan SQLite sebagai alternatif
+- Pastikan MySQL service berjalan (via Herd atau Laragon)
+- Coba gunakan SQLite sebagai alternatif
 
 ### Storage/Upload error
 ```powershell

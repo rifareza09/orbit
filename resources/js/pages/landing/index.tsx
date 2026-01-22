@@ -29,7 +29,7 @@ interface LandingProps {
 export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }: LandingProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   useEffect(() => {
     setIsVisible(true);
   }, []);
@@ -58,7 +58,7 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-[#0B132B] text-white py-4 px-6 md:px-12 flex justify-between items-center sticky top-0 z-50 shadow-md"
+          className="bg-[#0B132B] text-white py-2 px-6 md:px-12 flex justify-between items-center sticky top-0 z-50 shadow-md"
         >
           <motion.div
             className="flex items-center gap-3 cursor-pointer"
@@ -67,9 +67,9 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
             transition={{ type: "spring", stiffness: 300 }}
           >
             <img
-              src="/images/Logo.png"
+              src="/images/OrbitWhite.png"
               alt="Logo ORBIT"
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-13 md:h-20 w-auto object-contain"
             />
           </motion.div>
 
@@ -125,7 +125,7 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
             className="relative min-h-screen w-full flex items-center justify-center text-center text-white snap-start overflow-hidden"
         >
           {/* Background Image */}
-          <div 
+          <div
             className="absolute inset-0 z-0"
             style={{
               backgroundImage: 'url(/images/background.png)',
@@ -150,7 +150,7 @@ export default function LandingPage({ ormawas = [], latestKegiatan = [], auth }:
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              Selamat Datang di<br />ORBIT
+              Selamat Datang di ORBIT
             </motion.h1>
 
             <motion.p
