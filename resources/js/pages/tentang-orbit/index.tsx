@@ -55,10 +55,9 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
                 className="w-full h-full"
                 style={{
                     backgroundImage: "url('/images/Background-Full.jpg')",
-                    backgroundSize: "cover",
+                    backgroundSize: "100% auto",
                     backgroundRepeat: "no-repeat",
-                    backgroundPosition: "top center",
-                    backgroundAttachment: "scroll"
+                    backgroundPosition: "top center"
                 }}
             ></div>
         </div>
