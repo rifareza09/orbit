@@ -55,7 +55,7 @@ Route::get('/tentang-orbit', function () {
                 'logo_url' => $user->logo_url ?? '/images/Logo-Yarsi.png', // Fallback ke logo YARSI
             ];
         });
-    
+
     return Inertia::render('tentang-orbit/index', [
         'ormawaList' => $ormawaList,
     ]);
@@ -371,6 +371,13 @@ Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/create', funct
         ->route('data.ormawa')
         ->with('success', 'Ormawa baru berhasil ditambahkan');
 });
+
+Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/reset-password/{userId}', [
+    \App\Http\Controllers\DataOrmawaController::class,
+    'resetPassword'
+])
+    ->middleware('throttle:5,1')
+    ->name('ormawa.reset-password');
 
 Route::middleware(['auth', 'verified', 'puskaka'])->post('/ormawa/reset-akun/{userId}', [
     \App\Http\Controllers\DataOrmawaController::class,

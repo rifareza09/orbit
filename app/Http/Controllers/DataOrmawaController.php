@@ -19,6 +19,49 @@ use Illuminate\Support\Str;
 class DataOrmawaController extends Controller
 {
     /**
+     * Reset password ormawa saja (tanpa hapus data)
+     */
+    public function resetPassword(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        // Check if user is puskaka
+        if (Auth::user()->role !== 'puskaka') {
+            return response()->json([
+                'error' => 'Anda tidak memiliki izin untuk melakukan reset password.'
+            ], 403);
+        }
+
+        try {
+            // Validasi password baru dari puskaka
+            $validated = $request->validate([
+                'newPassword' => 'required|string|min:8',
+            ]);
+
+            $newPassword = $validated['newPassword'];
+
+            // Update password user saja
+            $user->update([
+                'password' => Hash::make($newPassword),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Password {$user->name} berhasil direset!",
+                'newPassword' => $newPassword,
+                'username' => $user->username,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Reset password error: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat reset password: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Reset akun ormawa: password baru + arsipkan & hapus data yang belum selesai
      */
     public function resetAkun(Request $request, $userId)
@@ -212,7 +255,7 @@ class DataOrmawaController extends Controller
 
         // Siapkan data untuk CSV
         $csvData = [];
-        
+
         // Header
         $csvData[] = [
             'No',
@@ -253,17 +296,17 @@ class DataOrmawaController extends Controller
 
         // Generate CSV
         $filename = 'Data_Ormawa_' . date('Y-m-d_His') . '.csv';
-        
+
         $callback = function() use ($csvData) {
             $file = fopen('php://output', 'w');
-            
+
             // UTF-8 BOM untuk Excel compatibility
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+
             foreach ($csvData as $row) {
                 fputcsv($file, $row);
             }
-            
+
             fclose($file);
         };
 
