@@ -86,8 +86,8 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.1, duration: 0.4 }}
-              whileHover={{ 
-                y: -8, 
+              whileHover={{
+                y: -8,
                 scale: 1.03,
                 transition: { duration: 0.2 }
               }}
@@ -95,8 +95,8 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
             >
               {/* Shimmer effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-              
-              <motion.h2 
+
+              <motion.h2
                 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B132B] relative z-10"
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.2 }}
@@ -106,7 +106,7 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
               <p className="text-xs sm:text-sm mt-1 sm:mt-2 text-[#0B132B]/70 font-semibold uppercase relative z-10">
                 {s.title}
               </p>
-              
+
               {/* Decorative gradient circle */}
               <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-gradient-to-br from-white/30 to-transparent rounded-full blur-xl" />
             </motion.div>
@@ -115,19 +115,19 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
 
         {/* CHARTS */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-          <motion.div 
+          <motion.div
             className="lg:col-span-7 bg-white shadow-lg rounded-xl p-4 sm:p-6 relative overflow-hidden group"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            whileHover={{ 
+            whileHover={{
               boxShadow: "0 20px 40px rgba(11, 19, 43, 0.15)",
               transition: { duration: 0.3 }
             }}
           >
             {/* Top gradient border */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0B132B] via-purple-500 to-[#0B132B]" />
-            
+
             <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 flex items-center gap-2">
               <span className="text-xl sm:text-2xl">📊</span>
               Jumlah Kegiatan per Ormawa
@@ -190,26 +190,26 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
           </motion.div>
 
           {/* PIE CHART */}
-          <motion.div 
+          <motion.div
             className="lg:col-span-5 bg-white shadow-lg rounded-xl p-4 sm:p-6 relative overflow-hidden"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.5 }}
-            whileHover={{ 
+            whileHover={{
               boxShadow: "0 20px 40px rgba(11, 19, 43, 0.15)",
               transition: { duration: 0.3 }
             }}
           >
             {/* Top gradient border */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500" />
-            
+
             <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 flex items-center gap-2">
               <span className="text-xl sm:text-2xl">🎯</span>
               Persentase Jenis Kegiatan
             </h3>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <motion.div 
+              <motion.div
                 className="w-full sm:w-40 lg:w-48 h-40 sm:h-40 lg:h-48 mx-auto sm:mx-0"
                 whileHover={{ rotate: 5, scale: 1.05 }}
                 transition={{ duration: 0.3 }}
@@ -233,8 +233,8 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
 
               <div className="space-y-1.5 sm:space-y-2 flex-1">
                 {pieData.map((item, idx) => (
-                  <motion.div 
-                    key={idx} 
+                  <motion.div
+                    key={idx}
                     className="flex items-center gap-2 text-xs sm:text-sm"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -257,14 +257,14 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
         </div>
 
         {/* TABLE PROGRAM KERJA */}
-        <motion.div 
+        <motion.div
           className="bg-white shadow-lg rounded-xl overflow-hidden"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
         >
           <div className="bg-gradient-to-r from-[#0B132B] via-[#1C2541] to-[#0B132B] text-white px-4 sm:px-6 py-3 sm:py-4 relative overflow-hidden">
-            <motion.h3 
+            <motion.h3
               className="text-base sm:text-lg font-bold flex items-center gap-2 relative z-10"
               initial={{ x: -20 }}
               animate={{ x: 0 }}
@@ -273,7 +273,7 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
               <span className="text-xl sm:text-2xl">📋</span>
               Semua Program Kerja Ormawa
             </motion.h3>
-            
+
             {/* Animated gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
           </div>
@@ -295,13 +295,13 @@ export default function PuskakaDashboard({ stats = [], barData = [], pieData = [
               <tbody className="divide-y divide-gray-100">
                 {programKerjas.length > 0 ? (
                   programKerjas.map((pk, idx) => (
-                    <motion.tr 
-                      key={pk.id} 
+                    <motion.tr
+                      key={pk.id}
                       className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 transition-all cursor-pointer group"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.6 + idx * 0.03 }}
-                      whileHover={{ 
+                      whileHover={{
                         scale: 1.01,
                         boxShadow: "0 4px 12px rgba(11, 19, 43, 0.08)",
                         transition: { duration: 0.2 }
