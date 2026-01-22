@@ -45,7 +45,8 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         ::-webkit-scrollbar-track { background: #0B132B; }
         ::-webkit-scrollbar-thumb { background-color: #1C2541; border-radius: 6px; border: 2px solid #0B132B; }
         html { scroll-behavior: smooth; }
-        body { overflow-x: hidden; }
+        body { overflow-x: hidden; margin: 0; padding: 0; }
+        * { box-sizing: border-box; }
       `}</style>
 
       <div className="min-h-screen w-full overflow-x-hidden font-sans text-[#0B132B] relative">
@@ -54,9 +55,9 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
                 className="w-full h-full"
                 style={{
                     backgroundImage: "url('/images/Background-Full.jpg')",
-                    backgroundSize: "cover",
+                    backgroundSize: "100% auto",
                     backgroundRepeat: "no-repeat",
-                    backgroundPosition: "center center"
+                    backgroundPosition: "top center"
                 }}
             ></div>
         </div>
