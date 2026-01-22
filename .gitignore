@@ -32,3 +32,6 @@ yarn-error.log
 /*.sql
 /*.txt
 /*.md
+*_backup*.tsx
+*_backup*.php
+*Debug*.php
