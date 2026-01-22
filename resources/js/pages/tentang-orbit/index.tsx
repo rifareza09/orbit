@@ -45,17 +45,18 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         ::-webkit-scrollbar-track { background: #0B132B; }
         ::-webkit-scrollbar-thumb { background-color: #1C2541; border-radius: 6px; border: 2px solid #0B132B; }
         html { scroll-behavior: smooth; }
+        body { overflow-x: hidden; }
       `}</style>
 
-      <div className="min-h-screen w-full font-sans text-[#0B132B] relative">
-        <div className="absolute top-0 left-0 w-full h-full">
+      <div className="min-h-screen w-full overflow-x-hidden font-sans text-[#0B132B] relative">
+        <div className="fixed inset-0 w-full h-full -z-10">
             <div
                 className="w-full h-full"
                 style={{
                     backgroundImage: "url('/images/Background-Full.jpg')",
-                    backgroundSize: "100% auto",
+                    backgroundSize: "cover",
                     backgroundRepeat: "no-repeat",
-                    backgroundPosition: "top center"
+                    backgroundPosition: "center center"
                 }}
             ></div>
         </div>
@@ -177,7 +178,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         >
           {/* Dark Overlay untuk kontras yang lebih baik */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-transparent"></div>
-          
+
           <div className="max-w-4xl px-4 sm:px-6 pt-20 relative z-10">
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight drop-shadow-2xl">
               Apa itu ORBIT?
@@ -201,7 +202,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
         {/* --- SECTION 2: VISI MISI --- */}
         <div
             id="visi-misi"
-            className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 md:px-16 relative z-10"
+            className="min-h-screen w-full flex items-center justify-center px-4 py-12 sm:p-6 md:px-16 relative z-10 overflow-hidden"
         >
           <div className="w-full max-w-7xl grid md:grid-cols-2 gap-8 sm:gap-12 md:gap-20 items-center">
 
@@ -211,14 +212,14 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
             </div>
 
             {/* Visi Misi Cards */}
-            <div className="space-y-6 sm:space-y-8 order-1 md:order-2">
+            <div className="space-y-6 sm:space-y-8 order-1 md:order-2 w-full">
               {/* --- CARD VISI --- */}
-              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300">
+              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300 w-full">
                   <h3 className="text-[#0B132B] font-bold text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 flex items-center gap-3 sm:gap-4 border-b border-gray-100 pb-3 sm:pb-4">
                     <img
                         src="/images/visi.png"
                         alt="Icon Visi"
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80"
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80 flex-shrink-0"
                     />
                     Visi
                   </h3>
@@ -228,12 +229,12 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
               </div>
 
               {/* --- CARD MISI --- */}
-              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300">
+              <div className="bg-white/95 backdrop-blur-sm p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl border border-gray-200 hover:-translate-y-1 transition-transform duration-300 w-full">
                   <h3 className="text-[#0B132B] font-bold text-xl sm:text-2xl md:text-3xl mb-3 sm:mb-4 flex items-center gap-3 sm:gap-4 border-b border-gray-100 pb-3 sm:pb-4">
                     <img
                         src="/images/misi.png"
                         alt="Icon Misi"
-                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80"
+                        className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 object-contain opacity-80 flex-shrink-0"
                     />
                     Misi
                   </h3>
@@ -255,7 +256,7 @@ export default function TentangOrbitPage({ ormawaList = [] }: TentangOrbitPagePr
             className="min-h-screen w-full relative flex items-center justify-center overflow-hidden py-12 sm:py-16 md:py-20 z-10"
         >
             {/* SLIDE 1: Tim Pengembang */}
-            <div className="min-w-full w-full flex flex-col justify-center items-center px-4 sm:px-6">
+            <div className="w-full flex flex-col justify-center items-center px-4 sm:px-6">
                 <div className="w-full max-w-7xl">
                     <div className="text-center mb-8 sm:mb-12 md:mb-16 relative z-10">
                         <div className="inline-block bg-white/90 backdrop-blur-sm px-6 sm:px-8 md:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl shadow-md border border-gray-100">
