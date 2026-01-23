@@ -23,7 +23,7 @@ class PrestasiController extends Controller
 
     public function create()
     {
-        return Inertia::render('prestasi/TambahPrestasi');
+        return Inertia::render('prestasi/tambahPrestasi');
     }
 
     public function store(Request $request)

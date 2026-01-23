@@ -36,7 +36,7 @@ export default function EditLaporan() {
   const [formData, setFormData] = useState({
     ringkasan: laporan.ringkasan || '',
     catatan: laporan.catatan || '',
-    anggaran_realisasi: formatCurrencyInput(pengajuan.anggaran_disetujui.toString()),
+    anggaran_realisasi: '',
     lpjFile: null as File | null,
     buktiPengeluaran: [] as File[],
     dokumentasi: [] as File[],
@@ -461,18 +461,30 @@ export default function EditLaporan() {
               </h3>
               <div className="grid grid-cols-2 gap-x-10 gap-y-6">
                 <div>
+                  <p className="font-semibold text-sm mb-1">Anggaran Disetujui</p>
+                  <input
+                    type="text"
+                    value={formatCurrency(pengajuan.anggaran_disetujui)}
+                    className="w-full p-2 rounded-md border border-gray-300 bg-gray-50"
+                    readOnly
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Anggaran yang sudah disetujui oleh Puskaka
+                  </p>
+                </div>
+                <div>
                   <p className="font-semibold text-sm mb-1">Dana Digunakan*</p>
                   <input
                     type="text"
                     name="anggaran_realisasi"
                     value={formData.anggaran_realisasi}
                     onChange={handleInputChange}
-                    placeholder="0"
+                    placeholder="Masukkan jumlah dana yang digunakan"
                     className="w-full p-2 rounded-md border border-gray-300"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Rp {formData.anggaran_realisasi}
+                    {formData.anggaran_realisasi ? `Rp ${formData.anggaran_realisasi}` : 'Belum diisi'}
                   </p>
                 </div>
               </div>

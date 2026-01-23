@@ -186,10 +186,26 @@ export default function BuatProposal() {
             errors.tanggal_pelaksanaan = 'Tanggal Pelaksanaan wajib diisi';
         }
 
-        // Pengajuan Dana tidak wajib diisi - validasi hanya jika ada item yang diisi
-        const filledItems = items.filter(item => item.nama_item.trim() !== '');
-        if (filledItems.length > 0 && filledItems.some(item => item.quantity < 0 || item.harga_satuan < 0)) {
-            errors.items = 'Item pengajuan dana harus lengkap dengan quantity dan harga satuan yang valid (tidak boleh negatif)';
+        // Pengajuan Dana OPSIONAL - validasi hanya item yang diisi
+        // Filter item yang ada isinya
+        const filledItems = items.filter(item => 
+            item.nama_item.trim() !== '' || 
+            item.deskripsi_item.trim() !== '' || 
+            item.quantity > 0 || 
+            item.harga_satuan > 0
+        );
+        
+        // Jika ada item yang diisi, validasi kelengkapannya
+        if (filledItems.length > 0) {
+            const incompleteItems = filledItems.filter(item => 
+                item.nama_item.trim() === '' || 
+                item.quantity <= 0 || 
+                item.harga_satuan <= 0
+            );
+            
+            if (incompleteItems.length > 0) {
+                errors.items = 'Item pengajuan dana yang diisi harus lengkap (Nama Item, Quantity > 0, dan Harga Satuan > 0). Kosongkan semua field jika tidak ingin mengisi item tersebut.';
+            }
         }
 
         setValidationErrors(errors);
@@ -223,8 +239,15 @@ export default function BuatProposal() {
             formDataToSend.append('proposal', proposalFile);
         }
 
-        // Add items as JSON
-        formDataToSend.append('items', JSON.stringify(items));
+        // Filter dan hanya kirim item yang lengkap terisi
+        const validItems = items.filter(item => 
+            item.nama_item.trim() !== '' && 
+            item.quantity > 0 && 
+            item.harga_satuan > 0
+        );
+        
+        // Add items as JSON (bisa kosong array jika tidak ada item)
+        formDataToSend.append('items', JSON.stringify(validItems));
 
         if (isEdit && pengajuan) {
             formDataToSend.append('_method', 'PUT');
@@ -489,8 +512,11 @@ export default function BuatProposal() {
 
                         {/* Item Pengajuan Dana */}
                         <div className="mt-8">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-semibold text-[#0B132B]">Pengajuan Dana (Opsional)</h3>
+                            <div className="flex justify-between items-center mb-2">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-[#0B132B]">Pengajuan Dana (Opsional)</h3>
+                                    <p className="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada pengajuan dana untuk kegiatan ini</p>
+                                </div>
                                 <button
                                     type="button"
                                     onClick={addItem}
@@ -499,6 +525,12 @@ export default function BuatProposal() {
                                     <Plus size={16} /> Tambah Item
                                 </button>
                             </div>
+
+                            {validationErrors.items && (
+                                <div className="mb-4 p-3 bg-red-50 border border-red-300 rounded-md">
+                                    <p className="text-sm text-red-700 font-medium">⚠️ {validationErrors.items}</p>
+                                </div>
+                            )}
 
                             <div className="space-y-4">
                                 {items.map((item, index) => (

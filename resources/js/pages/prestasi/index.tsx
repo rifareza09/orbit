@@ -39,9 +39,9 @@ export default function PrestasiPage({ prestasis }: Props) {
 
   return (
     <DashboardLayout>
-      <div className="p-8 relative">
+      <div className="p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8 relative z-40">
+        <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-[#0B132B] flex items-center gap-2">
               <Award size={32} />
@@ -51,8 +51,7 @@ export default function PrestasiPage({ prestasis }: Props) {
           </div>
           <Link
             href="/prestasi/tambah"
-            className="bg-[#0B132B] text-white px-6 py-3 rounded-lg hover:bg-[#1C2541] transition font-medium flex items-center gap-2 relative z-50"
-            style={{ pointerEvents: 'auto' }}
+            className="bg-[#0B132B] text-white px-6 py-3 rounded-lg hover:bg-[#1C2541] transition font-medium flex items-center gap-2"
           >
             <Plus size={20} />
             Tambah Prestasi
@@ -61,14 +60,13 @@ export default function PrestasiPage({ prestasis }: Props) {
 
         {/* Empty State */}
         {prestasis.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-16 text-center relative z-10">
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-16 text-center">
             <Award size={48} className="mx-auto mb-4 text-gray-400" />
             <h3 className="text-xl font-semibold text-gray-800 mb-2">Belum ada prestasi</h3>
             <p className="text-gray-500 mb-6">Mulai tambahkan prestasi organisasi Anda untuk membangun reputasi</p>
             <Link
               href="/prestasi/tambah"
-              className="inline-block bg-[#0B132B] text-white px-8 py-3 rounded-lg hover:bg-[#1C2541] transition font-medium relative z-50"
-              style={{ pointerEvents: 'auto' }}
+              className="inline-block bg-[#0B132B] text-white px-8 py-3 rounded-lg hover:bg-[#1C2541] transition font-medium"
             >
               Tambah Prestasi Pertama
             </Link>
