@@ -57,6 +57,7 @@ export default function BuatProposal() {
     const [proposalFile, setProposalFile] = useState<File | null>(null);
     const [fileError, setFileError] = useState<string>("");
     const [fileSuccess, setFileSuccess] = useState<string>("");
+    const [validationErrors, setValidationErrors] = useState<{[key: string]: string}>({});
 
     // Konstanta batas ukuran file (5MB)
     const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB dalam bytes
@@ -158,15 +159,49 @@ export default function BuatProposal() {
     };
 
     const validateForm = () => {
-        if (!form.program_kerja_id || !form.ketua_pelaksana || !form.tempat_pelaksanaan || form.jumlah_peserta < 0 || !form.tanggal_pelaksanaan) {
-            alert('Mohon lengkapi semua field yang wajib diisi');
-            return false;
+        const errors: {[key: string]: string} = {};
+
+        // Validasi Program Kerja
+        if (!form.program_kerja_id) {
+            errors.program_kerja_id = 'Program Kerja wajib dipilih';
+        }
+
+        // Validasi Ketua Pelaksana
+        if (!form.ketua_pelaksana || form.ketua_pelaksana.trim() === '') {
+            errors.ketua_pelaksana = 'Ketua Pelaksana wajib diisi';
+        }
+
+        // Validasi Tempat Pelaksanaan
+        if (!form.tempat_pelaksanaan || form.tempat_pelaksanaan.trim() === '') {
+            errors.tempat_pelaksanaan = 'Tempat Pelaksanaan wajib diisi';
+        }
+
+        // Validasi Jumlah Peserta
+        if (!form.jumlah_peserta || form.jumlah_peserta <= 0) {
+            errors.jumlah_peserta = 'Jumlah Peserta harus diisi dan lebih dari 0';
+        }
+
+        // Validasi Tanggal Pelaksanaan
+        if (!form.tanggal_pelaksanaan) {
+            errors.tanggal_pelaksanaan = 'Tanggal Pelaksanaan wajib diisi';
         }
 
         // Pengajuan Dana tidak wajib diisi - validasi hanya jika ada item yang diisi
         const filledItems = items.filter(item => item.nama_item.trim() !== '');
         if (filledItems.length > 0 && filledItems.some(item => item.quantity < 0 || item.harga_satuan < 0)) {
-            alert('Mohon lengkapi semua item pengajuan dana dengan benar (quantity dan harga satuan tidak boleh negatif)');
+            errors.items = 'Item pengajuan dana harus lengkap dengan quantity dan harga satuan yang valid (tidak boleh negatif)';
+        }
+
+        setValidationErrors(errors);
+
+        if (Object.keys(errors).length > 0) {
+            // Scroll ke error pertama
+            const firstErrorField = Object.keys(errors)[0];
+            const errorElement = document.getElementsByName(firstErrorField)[0];
+            if (errorElement) {
+                errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                errorElement.focus();
+            }
             return false;
         }
 
@@ -279,8 +314,18 @@ export default function BuatProposal() {
                                         })()
                                     }
                                     readOnly
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-gray-50"
+                                    className={`w-full p-2 rounded-md border ${
+                                        validationErrors.program_kerja_id
+                                            ? 'border-red-500 bg-red-50'
+                                            : 'border-gray-300 bg-gray-50'
+                                    }`}
+                                    placeholder="Program kerja harus dipilih terlebih dahulu"
                                 />
+                                {validationErrors.program_kerja_id && (
+                                    <p className="text-red-600 text-xs mt-1 font-medium">
+                                        ⚠️ {validationErrors.program_kerja_id}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Nama Kegiatan (Read Only) */}
@@ -305,9 +350,19 @@ export default function BuatProposal() {
                                     name="ketua_pelaksana"
                                     value={form.ketua_pelaksana}
                                     onChange={handleFormChange}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                                    className={`w-full p-2 rounded-md border ${
+                                        validationErrors.ketua_pelaksana
+                                            ? 'border-red-500 bg-red-50'
+                                            : 'border-gray-300 bg-white'
+                                    }`}
+                                    placeholder="Nama ketua pelaksana"
                                     required
                                 />
+                                {validationErrors.ketua_pelaksana && (
+                                    <p className="text-red-600 text-xs mt-1 font-medium">
+                                        ⚠️ {validationErrors.ketua_pelaksana}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Tempat Pelaksanaan */}
@@ -318,9 +373,19 @@ export default function BuatProposal() {
                                     name="tempat_pelaksanaan"
                                     value={form.tempat_pelaksanaan}
                                     onChange={handleFormChange}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                                    className={`w-full p-2 rounded-md border ${
+                                        validationErrors.tempat_pelaksanaan
+                                            ? 'border-red-500 bg-red-50'
+                                            : 'border-gray-300 bg-white'
+                                    }`}
+                                    placeholder="Lokasi pelaksanaan kegiatan"
                                     required
                                 />
+                                {validationErrors.tempat_pelaksanaan && (
+                                    <p className="text-red-600 text-xs mt-1 font-medium">
+                                        ⚠️ {validationErrors.tempat_pelaksanaan}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Jumlah Peserta */}
@@ -336,11 +401,28 @@ export default function BuatProposal() {
                                             ...prev,
                                             jumlah_peserta: value === '' ? 0 : Number.parseInt(value)
                                         }));
+                                        // Clear error ketika user mulai mengisi
+                                        if (validationErrors.jumlah_peserta) {
+                                            setValidationErrors(prev => {
+                                                const newErrors = { ...prev };
+                                                delete newErrors.jumlah_peserta;
+                                                return newErrors;
+                                            });
+                                        }
                                     }}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
-                                    placeholder="0"
+                                    className={`w-full p-2 rounded-md border ${
+                                        validationErrors.jumlah_peserta
+                                            ? 'border-red-500 bg-red-50'
+                                            : 'border-gray-300 bg-white'
+                                    }`}
+                                    placeholder="Contoh: 50"
                                     required
                                 />
+                                {validationErrors.jumlah_peserta && (
+                                    <p className="text-red-600 text-xs mt-1 font-medium">
+                                        ⚠️ {validationErrors.jumlah_peserta}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Tanggal Pelaksanaan */}
@@ -351,9 +433,18 @@ export default function BuatProposal() {
                                     name="tanggal_pelaksanaan"
                                     value={form.tanggal_pelaksanaan}
                                     onChange={handleFormChange}
-                                    className="w-full p-2 rounded-md border border-gray-300 bg-white"
+                                    className={`w-full p-2 rounded-md border ${
+                                        validationErrors.tanggal_pelaksanaan
+                                            ? 'border-red-500 bg-red-50'
+                                            : 'border-gray-300 bg-white'
+                                    }`}
                                     required
                                 />
+                                {validationErrors.tanggal_pelaksanaan && (
+                                    <p className="text-red-600 text-xs mt-1 font-medium">
+                                        ⚠️ {validationErrors.tanggal_pelaksanaan}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Proposal PDF Upload */}

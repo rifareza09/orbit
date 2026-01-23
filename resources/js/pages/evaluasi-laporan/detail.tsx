@@ -60,6 +60,12 @@ export default function EvaluasiLaporanDetail() {
       router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
         status: 'Disetujui',
         catatan_puskaka: data.catatan_puskaka,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => {
+          router.visit('/evaluasi-laporan');
+        },
+        onFinish: () => setIsLoading(false),
       });
     });
   };
@@ -74,6 +80,12 @@ export default function EvaluasiLaporanDetail() {
       router.post(`/evaluasi-laporan/${laporan.id}/update-status`, {
         status: 'Direvisi',
         catatan_puskaka: data.catatan_puskaka,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => {
+          router.visit('/evaluasi-laporan');
+        },
+        onFinish: () => setIsLoading(false),
       });
     });
   };

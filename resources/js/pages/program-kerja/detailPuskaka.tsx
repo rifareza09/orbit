@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/layouts/DashboardLayout";
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { Link, useForm, usePage, router } from "@inertiajs/react";
 
 interface ProgramKerja {
   id: number;
@@ -54,7 +54,10 @@ export default function DetailPuskaka({ programKerja }: Props) {
   const handleApprove = () => {
     openConfirmation('Apakah Anda yakin ingin menyetujui program kerja ini?', () => {
       setIsLoading(true);
-      post(`/program-kerja/${programKerja.id}/update-status`, {
+      router.post(`/program-kerja/${programKerja.id}/update-status`, {
+        status: 'Disetujui',
+        catatan_puskaka: data.catatan_puskaka,
+      }, {
         preserveScroll: true,
         onFinish: () => setIsLoading(false),
       });
@@ -67,9 +70,11 @@ export default function DetailPuskaka({ programKerja }: Props) {
       return;
     }
     openConfirmation('Apakah Anda yakin ingin menolak program kerja ini?', () => {
-      setData('status', 'Ditolak');
       setIsLoading(true);
-      post(`/program-kerja/${programKerja.id}/update-status`, {
+      router.post(`/program-kerja/${programKerja.id}/update-status`, {
+        status: 'Ditolak',
+        catatan_puskaka: data.catatan_puskaka,
+      }, {
         preserveScroll: true,
         onFinish: () => setIsLoading(false),
       });
@@ -82,9 +87,11 @@ export default function DetailPuskaka({ programKerja }: Props) {
       return;
     }
     openConfirmation('Apakah Anda yakin ingin meminta revisi program kerja ini?', () => {
-      setData('status', 'Direvisi');
       setIsLoading(true);
-      post(`/program-kerja/${programKerja.id}/update-status`, {
+      router.post(`/program-kerja/${programKerja.id}/update-status`, {
+        status: 'Direvisi',
+        catatan_puskaka: data.catatan_puskaka,
+      }, {
         preserveScroll: true,
         onFinish: () => setIsLoading(false),
       });
@@ -271,10 +278,7 @@ export default function DetailPuskaka({ programKerja }: Props) {
               </Link>
               <button
                 type="button"
-                onClick={() => {
-                  setData('status', 'Direvisi');
-                  handleRevise();
-                }}
+                onClick={handleRevise}
                 disabled={isLoading || programKerja.status === 'Disetujui'}
                 className="px-8 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold transition-colors text-sm shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -282,10 +286,7 @@ export default function DetailPuskaka({ programKerja }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setData('status', 'Ditolak');
-                  handleReject();
-                }}
+                onClick={handleReject}
                 disabled={isLoading || programKerja.status === 'Disetujui'}
                 className="px-8 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors text-sm shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -293,10 +294,7 @@ export default function DetailPuskaka({ programKerja }: Props) {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setData('status', 'Disetujui');
-                  handleApprove();
-                }}
+                onClick={handleApprove}
                 disabled={isLoading || programKerja.status === 'Disetujui'}
                 className="px-8 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-colors text-sm shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
