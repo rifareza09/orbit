@@ -21,6 +21,7 @@ interface Pengajuan {
   jumlah_peserta: number;
   tanggal_pelaksanaan: string;
   deskripsi: string;
+  estimasi_anggaran: string;
   total_anggaran: string;
   status_review: string;
   catatan_puskaka: string | null;
@@ -274,6 +275,21 @@ export default function ManajemenKegiatanDetail({ pengajuan }: Props) {
                     className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
                   />
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Estimasi Anggaran Section */}
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-[#0B132B] text-white px-6 py-3 font-semibold">
+              <h2 className="font-bold text-white text-lg">Estimasi Anggaran</h2>
+            </div>
+            <div className="p-6">
+              <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <span className="text-gray-700 font-semibold">Total Estimasi Anggaran:</span>
+                <span className="text-2xl font-bold text-[#0B132B] font-mono">
+                  Rp {parseInt(pengajuan.estimasi_anggaran).toLocaleString('id-ID')}
+                </span>
               </div>
             </div>
           </div>

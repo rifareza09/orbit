@@ -177,13 +177,12 @@ export default function DetailPuskaka({ programKerja }: Props) {
                   <label className="text-sm font-semibold text-gray-700 block mb-2">
                     Organisasi
                   </label>
-                  <select
+                  <input
+                    type="text"
                     value={programKerja.ormawa}
-                    disabled
+                    readOnly
                     className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
-                  >
-                    <option value={programKerja.ormawa}>{programKerja.ormawa}</option>
-                  </select>
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-semibold text-gray-700 block mb-2">
@@ -216,6 +215,17 @@ export default function DetailPuskaka({ programKerja }: Props) {
                     readOnly
                     rows={3}
                     className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm"
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-sm font-semibold text-gray-700 block mb-2">
+                    Estimasi Anggaran
+                  </label>
+                  <input
+                    type="text"
+                    value={`Rp ${parseInt(programKerja.estimasi_anggaran).toLocaleString('id-ID')}`}
+                    readOnly
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded text-gray-700 text-sm font-semibold"
                   />
                 </div>
               </div>

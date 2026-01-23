@@ -133,6 +133,7 @@ class ManajemenKegiatanController extends Controller
                 'jumlah_peserta' => $pengajuan->jumlah_peserta,
                 'tanggal_pelaksanaan' => is_string($pengajuan->tanggal_pelaksanaan) ? $pengajuan->tanggal_pelaksanaan : $pengajuan->tanggal_pelaksanaan->format('d/m/Y'),
                 'deskripsi' => $pengajuan->deskripsi,
+                'estimasi_anggaran' => $pengajuan->programKerja->estimasi_anggaran ?? '0',
                 'total_anggaran' => $pengajuan->total_anggaran,
                 'status_review' => $pengajuan->status_review,
                 'catatan_puskaka' => $pengajuan->catatan_puskaka,
