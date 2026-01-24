@@ -16,12 +16,34 @@ interface Props {
 }
 
 export default function EditKepengurusan({ kepengurusan }: Props) {
+  const predefinedJabatan = ['Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Koordinator Divisi', 'Anggota Divisi', 'Anggota'];
+  const isCustomJabatan = !predefinedJabatan.includes(kepengurusan.jabatan);
+
   const { data, setData, put, processing, errors } = useForm({
     jabatan: kepengurusan.jabatan,
     nama: kepengurusan.nama,
     prodi: kepengurusan.prodi,
     npm: kepengurusan.npm,
   });
+
+  const [showCustomJabatan, setShowCustomJabatan] = React.useState(isCustomJabatan);
+  const [customJabatan, setCustomJabatan] = React.useState(isCustomJabatan ? kepengurusan.jabatan : '');
+
+  const handleJabatanChange = (value: string) => {
+    if (value === 'Lainnya') {
+      setShowCustomJabatan(true);
+      setData('jabatan', customJabatan);
+    } else {
+      setShowCustomJabatan(false);
+      setCustomJabatan('');
+      setData('jabatan', value);
+    }
+  };
+
+  const handleCustomJabatanChange = (value: string) => {
+    setCustomJabatan(value);
+    setData('jabatan', value);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,10 +76,10 @@ export default function EditKepengurusan({ kepengurusan }: Props) {
               </label>
               <select
                 id="jabatan"
-                value={data.jabatan}
-                onChange={(e) => setData('jabatan', e.target.value)}
+                value={showCustomJabatan ? 'Lainnya' : data.jabatan}
+                onChange={(e) => handleJabatanChange(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B132B] focus:border-transparent transition"
-                required
+                required={!showCustomJabatan}
               >
                 <option value="">Pilih Jabatan</option>
                 <option value="Ketua">Ketua</option>
@@ -67,11 +89,30 @@ export default function EditKepengurusan({ kepengurusan }: Props) {
                 <option value="Koordinator Divisi">Koordinator Divisi</option>
                 <option value="Anggota Divisi">Anggota Divisi</option>
                 <option value="Anggota">Anggota</option>
+                <option value="Lainnya">Lainnya</option>
               </select>
               {errors.jabatan && (
                 <p className="mt-1 text-sm text-red-600">{errors.jabatan}</p>
               )}
             </div>
+
+            {/* Custom Jabatan Input */}
+            {showCustomJabatan && (
+              <div>
+                <label htmlFor="customJabatan" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Jabatan Lainnya <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="customJabatan"
+                  value={customJabatan}
+                  onChange={(e) => handleCustomJabatanChange(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B132B] focus:border-transparent transition"
+                  placeholder="Ketik jabatan Anda"
+                  required
+                />
+              </div>
+            )}
 
             {/* Nama */}
             <div>

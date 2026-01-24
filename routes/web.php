@@ -268,9 +268,23 @@ Route::middleware(['auth'])->group(function () {
         $isPuskaka = $user->role === 'puskaka';
 
         // Get kepengurusan dari database (hanya untuk ormawa)
+        // Custom sorting: Ketua -> Wakil -> Sekretaris -> Bendahara -> Koordinator -> Anggota Divisi -> Anggota -> Lainnya
         $kepengurusan = $isPuskaka ? collect([]) : \App\Models\Kepengurusan::where('user_id', Auth::id())
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->get()
+            ->sortBy(function ($item) {
+                $jabatanOrder = [
+                    'Ketua' => 1,
+                    'Wakil Ketua' => 2,
+                    'Sekretaris' => 3,
+                    'Bendahara' => 4,
+                    'Koordinator Divisi' => 5,
+                    'Anggota Divisi' => 6,
+                    'Anggota' => 7,
+                ];
+                // Jika jabatan ada di list, return ordernya, kalau tidak (Lainnya) return 8
+                return $jabatanOrder[$item->jabatan] ?? 8;
+            })
+            ->values();
 
         // Get jadwal latihan dari database (hanya untuk ormawa)
         $jadwal = $isPuskaka ? collect([]) : \App\Models\JadwalLatihan::where('user_id', Auth::id())
