@@ -27,10 +27,12 @@ export default function LaporanKegiatan() {
     switch(status) {
       case 'Disetujui':
         return 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25';
-      case 'Diajukan':
+      case 'Ditolak':
+        return 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25';
+      case 'Direview':
         return 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25';
-      case 'Selesai':
-        return 'bg-gradient-to-r from-purple-400 to-violet-500 text-white shadow-purple-500/25';
+      case 'Diajukan':
+        return 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-amber-500/25';
       case 'Direvisi':
         return 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-orange-500/25';
       default:
