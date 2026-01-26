@@ -268,11 +268,13 @@ export default function DashboardPage() {
                             {activity.type === 'pengajuan' ? '📋 Pengajuan' : '📝 Laporan'}
                           </motion.span>
                           <motion.span
-                            className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                              activity.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
-                              activity.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
-                              activity.status === 'Direvisi' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-gray-100 text-gray-700'
+                            className={`text-xs font-bold px-3 py-1 rounded-full shadow-sm ${
+                              activity.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                              activity.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25' :
+                              activity.status === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-orange-500/25' :
+                              activity.status === 'Direview' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25' :
+                              activity.status === 'Diajukan' ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-amber-500/25' :
+                              'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
                             }`}
                             whileHover={{ scale: 1.1 }}
                           >

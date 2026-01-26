@@ -280,8 +280,8 @@ export default function DetailPengajuanKegiatan() {
                         Kembali
                     </button>
 
-                    {/* Tombol Edit untuk status Belum Diajukan atau Ditolak */}
-                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status === 'Ditolak') && (
+                    {/* Tombol Edit hanya untuk status Belum Diajukan */}
+                    {pengajuan.status === 'Belum Diajukan' && (
                         <button
                           onClick={() => router.visit(`/pengajuan-kegiatan/edit/${pengajuan.id}`)}
                           className="bg-blue-500 text-white px-8 py-2 rounded-lg shadow hover:bg-blue-600 transition"
@@ -300,8 +300,8 @@ export default function DetailPengajuanKegiatan() {
                         </button>
                     )}
 
-                    {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak, dan harus ada proposal */}
-                    {(pengajuan.status === 'Belum Diajukan' || pengajuan.status === 'Ditolak') && (
+                    {/* Tombol Ajukan hanya untuk status Belum Diajukan, dan harus ada proposal */}
+                    {pengajuan.status === 'Belum Diajukan' && (
                         <button
                           onClick={() => setShowConfirmModal(true)}
                           disabled={!pengajuan.proposal_path}

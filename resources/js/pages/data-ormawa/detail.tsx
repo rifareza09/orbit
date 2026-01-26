@@ -5,34 +5,34 @@ import { Image as ImageIcon, ArrowLeft, PieChart as PieIcon, Download } from 'lu
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 // --- TIPE DATA ---
-interface UnitInfo { 
-  nama: string; 
-  periode: string; 
-  logo_url?: string | null; 
+interface UnitInfo {
+  nama: string;
+  periode: string;
+  logo_url?: string | null;
 }
 
-interface Pengurus { 
-  id: number; 
-  jabatan: string; 
-  nama: string; 
-  prodi: string; 
-  npm: string; 
+interface Pengurus {
+  id: number;
+  jabatan: string;
+  nama: string;
+  prodi: string;
+  npm: string;
 }
 
-interface Jadwal { 
-  id: number; 
-  divisi: string; 
-  hari: string; 
-  tempat: string; 
-  pukul: string; 
+interface Jadwal {
+  id: number;
+  divisi: string;
+  hari: string;
+  tempat: string;
+  pukul: string;
 }
 
-interface Proposal { 
-  id: number; 
-  nama_kegiatan: string; 
-  program_kerja: string; 
-  tanggal_pelaksanaan: string; 
-  status: string; 
+interface Proposal {
+  id: number;
+  nama_kegiatan: string;
+  program_kerja: string;
+  tanggal_pelaksanaan: string;
+  status: string;
 }
 
 interface DetailProps {
@@ -44,7 +44,7 @@ interface DetailProps {
 }
 
 export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal, proposals = [] }: DetailProps) {
-  
+
   // --- LOGIKA HITUNG STATISTIK UNTUK PIE CHART ---
   const stats = [
     { name: 'Diajukan', value: proposals.filter(p => p.status === 'Diajukan' || p.status === 'Direview').length, color: '#FBBF24' }, // Kuning
@@ -58,16 +58,16 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
     // Ambil ID dari URL atau props
     const urlParams = new URLSearchParams(window.location.search);
     const id = window.location.pathname.split('/').pop();
-    
+
     window.location.href = `/data-ormawa/detail/${id}/export`;
   };
 
   return (
     <DashboardLayout>
       <Head title={`Detail - ${unit?.nama}`} />
-      
+
       <div className="p-6 md:p-10 bg-[#F5F6FA] min-h-screen font-sans text-[#0B132B]">
-        
+
         {/* HEADER CARD */}
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex items-center justify-between relative overflow-hidden mb-8">
           <div className="flex items-center gap-6 z-10">
@@ -88,7 +88,7 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
           {/* BUTTON GROUP (EXPORT & KEMBALI) */}
           <div className="z-10 flex items-center gap-3">
             {/* Tombol Export */}
-            <button 
+            <button
                 onClick={handleExport}
                 className="bg-green-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-green-700 transition flex items-center gap-2 shadow-sm"
             >
@@ -97,8 +97,8 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
             </button>
 
             {/* Tombol Kembali */}
-            <Link 
-                href="/data-ormawa" 
+            <Link
+                href="/data-ormawa"
                 className="bg-white border border-gray-300 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center gap-2 shadow-sm"
             >
                 <ArrowLeft size={16} />
@@ -109,10 +109,10 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
 
         {/* --- LAYOUT UTAMA (GRID 2 KOLOM) --- */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          
+
           {/* KOLOM KIRI (CONTENT UTAMA) - Lebar 2/3 */}
           <div className="xl:col-span-2 space-y-8">
-            
+
             {/* 1. Deskripsi */}
             <section>
               <div className="bg-[#0B132B] text-white px-6 py-3 rounded-t-xl font-bold text-base shadow-sm">Deskripsi</div>
@@ -141,9 +141,9 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
                         <td className="px-6 py-3.5 font-medium">{item.nama_kegiatan}</td>
                         <td className="px-6 py-3.5 text-gray-600">{item.tanggal_pelaksanaan}</td>
                         <td className="px-6 py-3.5">
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold 
-                            ${item.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' : 
-                              item.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25' : 
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold
+                            ${item.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                              item.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25' :
                               item.status === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-orange-500/25' :
                               item.status === 'Direview' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25' :
                               item.status === 'Diajukan' ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-amber-500/25' :
@@ -216,13 +216,13 @@ export default function DetailDataOrmawa({ unit, deskripsi, kepengurusan, jadwal
 
           {/* KOLOM KANAN (SIDEBAR STATISTIK) - Lebar 1/3 */}
           <div className="xl:col-span-1 space-y-6">
-            
+
             {/* PIE CHART SECTION */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-6">
               <h3 className="font-bold text-[#0B132B] mb-6 flex items-center gap-2 border-b pb-4">
                 <PieIcon size={20} /> Statistik Pengajuan
               </h3>
-              
+
               <div className="h-64 w-full">
                 {stats.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">

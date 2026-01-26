@@ -129,8 +129,8 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                         Kembali
                     </Link>
 
-                   {/* Tombol Edit untuk status Belum Diajukan atau Ditolak */}
-                   {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
+                   {/* Tombol Edit hanya untuk status Belum Diajukan */}
+                   {item.status === 'Belum Diajukan' && (
                      <Link
                        href={`/program-kerja/edit/${item.id}`}
                        className="group flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 font-medium transform hover:-translate-y-0.5"
@@ -151,8 +151,8 @@ export default function DetailProgramKerja({ item }: { item: ProgramKerjaItem })
                      </Link>
                    )}
 
-                   {/* Tombol Ajukan hanya untuk status Belum Diajukan atau Ditolak */}
-                   {(item.status === 'Belum Diajukan' || item.status === 'Ditolak') && (
+                   {/* Tombol Ajukan hanya untuk status Belum Diajukan */}
+                   {item.status === 'Belum Diajukan' && (
                      <button
                        onClick={() => setShowConfirmModal(true)}
                        className="group flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-amber-500/25 transition-all duration-300 font-semibold transform hover:-translate-y-0.5"
