@@ -36,7 +36,7 @@ export default function EditLaporan() {
   const [formData, setFormData] = useState({
     ringkasan: laporan.ringkasan || '',
     catatan: laporan.catatan || '',
-    anggaran_realisasi: '',
+    anggaran_realisasi: formatCurrencyInput(pengajuan.anggaran_disetujui.toString()),
     lpjFile: null as File | null,
     buktiPengeluaran: [] as File[],
     dokumentasi: [] as File[],
@@ -47,34 +47,17 @@ export default function EditLaporan() {
   const [buktiPreviews, setBuktiPreviews] = useState<string[]>([]);
   const [dokPreviews, setDokPreviews] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showValidationError, setShowValidationError] = useState(false);
-  const [notifications, setNotifications] = useState<Array<{id: string, type: 'error'|'success'|'info', message: string}>>([]);
+  const [notifications, setNotifications] = useState<Array<{id: string, type: 'error'|'success', message: string}>>([]);
 
   const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB per file
   const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB total
 
-  const showNotification = (type: 'error' | 'success' | 'info', message: string) => {
+  const showNotification = (type: 'error' | 'success', message: string) => {
     const id = Date.now().toString();
     setNotifications(prev => [...prev, {id, type, message}]);
     setTimeout(() => {
       setNotifications(prev => prev.filter(n => n.id !== id));
     }, 5000);
-  };
-
-  // Validasi form untuk menunjukkan field mana yang belum lengkap
-  const validateForm = (): string[] => {
-    const issues: string[] = [];
-
-    if (!formData.ringkasan?.trim()) issues.push('Ringkasan Pelaksanaan Kegiatan');
-    if (!formData.anggaran_realisasi?.replace(/\D/g, '')) issues.push('Dana Digunakan');
-    if (laporan.dokumentasi.length === 0 && formData.dokumentasi.length === 0) {
-      issues.push('Dokumentasi (minimal 1 file foto)');
-    }
-    if (laporan.bukti_pengeluaran.length === 0 && formData.buktiPengeluaran.length === 0) {
-      issues.push('Bukti Pengeluaran (minimal 1 nota/kwitansi)');
-    }
-
-    return issues;
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -232,15 +215,6 @@ export default function EditLaporan() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Validasi form
-    const issues = validateForm();
-    if (issues.length > 0) {
-      setShowValidationError(true);
-      return;
-    }
-
-    setShowValidationError(false);
     setIsSubmitting(true);
 
     // Convert formatted string back to number
@@ -365,32 +339,6 @@ export default function EditLaporan() {
 
           {/* FORM CONTENT */}
           <form onSubmit={handleSubmit} className="p-8">
-            {/* Validation Error Alert */}
-            {showValidationError && validateForm().length > 0 && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <svg className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-11-1a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
-                  </svg>
-                  <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-red-900">❌ Field yang Harus Diisi:</h3>
-                    <ul className="mt-2 text-sm text-red-800 list-disc list-inside">
-                      {validateForm().map((field, idx) => (
-                        <li key={idx}>{field}</li>
-                      ))}
-                    </ul>
-                    <button
-                      type="button"
-                      onClick={() => setShowValidationError(false)}
-                      className="mt-3 text-sm text-red-600 hover:text-red-700 font-semibold"
-                    >
-                      ✕ Tutup
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Info Kegiatan (Read-only) */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-[#0B132B] mb-6">
@@ -461,30 +409,18 @@ export default function EditLaporan() {
               </h3>
               <div className="grid grid-cols-2 gap-x-10 gap-y-6">
                 <div>
-                  <p className="font-semibold text-sm mb-1">Anggaran Disetujui</p>
-                  <input
-                    type="text"
-                    value={formatCurrency(pengajuan.anggaran_disetujui)}
-                    className="w-full p-2 rounded-md border border-gray-300 bg-gray-50"
-                    readOnly
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Anggaran yang sudah disetujui oleh Puskaka
-                  </p>
-                </div>
-                <div>
                   <p className="font-semibold text-sm mb-1">Dana Digunakan*</p>
                   <input
                     type="text"
                     name="anggaran_realisasi"
                     value={formData.anggaran_realisasi}
                     onChange={handleInputChange}
-                    placeholder="Masukkan jumlah dana yang digunakan"
+                    placeholder="0"
                     className="w-full p-2 rounded-md border border-gray-300"
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    {formData.anggaran_realisasi ? `Rp ${formData.anggaran_realisasi}` : 'Belum diisi'}
+                    Rp {formData.anggaran_realisasi}
                   </p>
                 </div>
               </div>
