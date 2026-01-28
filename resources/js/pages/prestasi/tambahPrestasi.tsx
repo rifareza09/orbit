@@ -1,33 +1,29 @@
 import React, { useState, FormEvent } from 'react';
 import DashboardLayout from '@/layouts/DashboardLayout';
-import { Link, router } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Upload, FileText } from 'lucide-react';
 
 export default function TambahPrestasiPage() {
-  const [formData, setFormData] = useState({
+  const { data, setData, post, processing, errors } = useForm({
     nama_prestasi: '',
     jenis_prestasi: 'Akademik',
     tingkat_kejuaraan: 'Lokal',
     nama_peraih: '',
     tanggal_perolehan: '',
+    bukti: null as File | null,
   });
 
-  const [buktiFile, setBuktiFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setData(e.target.name as any, e.target.value);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type === 'application/pdf') {
-        setBuktiFile(file);
+        setData('bukti', file);
         setFileName(file.name);
       } else {
         alert('File harus berformat PDF');
@@ -38,22 +34,7 @@ export default function TambahPrestasiPage() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    const data = new FormData();
-    data.append('nama_prestasi', formData.nama_prestasi);
-    data.append('jenis_prestasi', formData.jenis_prestasi);
-    data.append('tingkat_kejuaraan', formData.tingkat_kejuaraan);
-    data.append('nama_peraih', formData.nama_peraih);
-    data.append('tanggal_perolehan', formData.tanggal_perolehan);
-
-    if (buktiFile) {
-      data.append('bukti', buktiFile);
-    }
-
-    router.post('/prestasi', data, {
-      onFinish: () => setIsSubmitting(false),
-    });
+    post('/prestasi');
   };
 
   return (
@@ -88,12 +69,15 @@ export default function TambahPrestasiPage() {
               <input
                 type="text"
                 name="nama_prestasi"
-                value={formData.nama_prestasi}
+                value={data.nama_prestasi}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
                 placeholder="Contoh: Juara 1 Lomba Karya Tulis Ilmiah Nasional"
               />
+              {errors.nama_prestasi && (
+                <p className="text-red-600 text-sm mt-1">{errors.nama_prestasi}</p>
+              )}
             </div>
 
             {/* Row 2: Jenis & Tingkat */}
@@ -104,7 +88,7 @@ export default function TambahPrestasiPage() {
                 </label>
                 <select
                   name="jenis_prestasi"
-                  value={formData.jenis_prestasi}
+                  value={data.jenis_prestasi}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
                 >
@@ -114,6 +98,9 @@ export default function TambahPrestasiPage() {
                   <option value="Sosial">Sosial</option>
                   <option value="Lainnya">Lainnya</option>
                 </select>
+                {errors.jenis_prestasi && (
+                  <p className="text-red-600 text-sm mt-1">{errors.jenis_prestasi}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -121,7 +108,7 @@ export default function TambahPrestasiPage() {
                 </label>
                 <select
                   name="tingkat_kejuaraan"
-                  value={formData.tingkat_kejuaraan}
+                  value={data.tingkat_kejuaraan}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
                 >
@@ -130,6 +117,9 @@ export default function TambahPrestasiPage() {
                   <option value="Nasional">Nasional</option>
                   <option value="Internasional">Internasional</option>
                 </select>
+                {errors.tingkat_kejuaraan && (
+                  <p className="text-red-600 text-sm mt-1">{errors.tingkat_kejuaraan}</p>
+                )}
               </div>
             </div>
 
@@ -141,12 +131,15 @@ export default function TambahPrestasiPage() {
               <input
                 type="text"
                 name="nama_peraih"
-                value={formData.nama_peraih}
+                value={data.nama_peraih}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
                 placeholder="Contoh: Ahmad Dahlan, Tim Futsal A"
               />
+              {errors.nama_peraih && (
+                <p className="text-red-600 text-sm mt-1">{errors.nama_peraih}</p>
+              )}
             </div>
 
             {/* Row 4: Tanggal Perolehan */}
@@ -157,11 +150,14 @@ export default function TambahPrestasiPage() {
               <input
                 type="date"
                 name="tanggal_perolehan"
-                value={formData.tanggal_perolehan}
+                value={data.tanggal_perolehan}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B132B] focus:border-transparent"
               />
+              {errors.tanggal_perolehan && (
+                <p className="text-red-600 text-sm mt-1">{errors.tanggal_perolehan}</p>
+              )}
             </div>
 
             {/* Row 5: Upload Bukti */}
@@ -190,7 +186,7 @@ export default function TambahPrestasiPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setBuktiFile(null);
+                      setData('bukti', null);
                       setFileName('');
                     }}
                     className="ml-auto text-green-600 hover:text-green-800 text-sm font-semibold"
@@ -211,10 +207,10 @@ export default function TambahPrestasiPage() {
               </Link>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={processing}
                 className="flex-1 bg-[#0B132B] text-white px-6 py-3 rounded-lg hover:bg-[#1C2541] transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Prestasi'}
+                {processing ? 'Menyimpan...' : 'Simpan Prestasi'}
               </button>
             </div>
           </form>

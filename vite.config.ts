@@ -4,6 +4,39 @@ import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
+// Custom plugin to fix wayfinder naming conflicts
+function fixWayfinderConflicts() {
+    return {
+        name: 'fix-wayfinder-conflicts',
+        enforce: 'pre', // Run before other plugins
+        transform(code, id) {
+            // Only fix route index files
+            if (!id.includes('/routes/') || !id.endsWith('/index.ts')) {
+                return null;
+            }
+            
+            const conflicts = [
+                {import: 'import ormawa from', rename: 'import ormawaPage from'},
+                {import: 'import detail from', rename: 'import detailPage from'},
+                {import: 'import confirm from', rename: 'import confirmPage from'},
+                {import: 'import login from', rename: 'import loginPage from'}
+            ];
+            
+            let fixedCode = code;
+            let hasChanges = false;
+            
+            conflicts.forEach(({import: oldImport, rename}) => {
+                if (fixedCode.includes(oldImport)) {
+                    fixedCode = fixedCode.replace(oldImport, rename);
+                    hasChanges = true;
+                }
+            });
+            
+            return hasChanges ? { code: fixedCode, map: null } : null;
+        }
+    };
+}
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -17,10 +50,12 @@ export default defineConfig({
             },
         }),
         tailwindcss(),
-        wayfinder({
-            formVariants: true,
-            phpPath: 'C:\\Users\\pogoi\\.config\\herd\\bin\\php82\\php.exe',
-        }),
+        // Wayfinder disabled for build - generate manually before build
+        //wayfinder({
+        //    formVariants: true,
+        //    phpPath: 'C:\\Users\\pogoi\\.config\\herd\\bin\\php82\\php.exe',
+        //}),
+        fixWayfinderConflicts(), // Fix naming conflicts after wayfinder generates
     ],
     server: {
         host: 'localhost',

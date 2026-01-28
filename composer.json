@@ -13,7 +13,7 @@
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/fortify": "^1.30",
         "laravel/framework": "^11.0",
-        "laravel/tinker": "^2.10.1",
+        "laravel/tinker": "^2.10",
         "laravel/wayfinder": "^0.1.9",
         "maatwebsite/excel": "^3.1"
     },
@@ -22,8 +22,8 @@
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
-        "pestphp/pest": "^3.8",
-        "pestphp/pest-plugin-laravel": "^3.2"
+        "pestphp/pest": "^2.35",
+        "pestphp/pest-plugin-laravel": "^2.4"
     },
     "autoload": {
         "psr-4": {

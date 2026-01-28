@@ -3,8 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "prebuild": "php artisan wayfinder:generate --with-form && powershell -File fix-wayfinder-conflicts.ps1",
         "build": "set PATH=C:\\Users\\pogoi\\.config\\herd\\bin\\php82;%PATH% && vite build",
-        "build:ssr": "set PATH=C:\\Users\\pogoi\\.config\\herd\\bin\\php82;%PATH% && vite build && vite build --ssr",
+        "build:ssr": "npm run prebuild && set PATH=C:\\Users\\pogoi\\.config\\herd\\bin\\php82;%PATH% && vite build && vite build --ssr",
         "dev": "set PATH=C:\\Users\\pogoi\\.config\\herd\\bin\\php82;%PATH% && vite",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",

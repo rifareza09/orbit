@@ -13,6 +13,7 @@ interface LaporanKegiatanItem {
   tanggalPelaksanaan: string;
   jumlahPeserta: number;
   estimasiAnggaran: number;
+  anggaranDisetujui: number;
   anggaranRealisasi: number;
   ringkasan: string;
   catatan: string | null;
@@ -100,7 +101,7 @@ export default function DetailLaporanKegiatan() {
 
               <div>
                 <p className="text-sm font-semibold text-gray-700">Anggaran Disetujui (dari Pengajuan)</p>
-                <p className="mt-2 text-green-600 font-semibold">{formatCurrency(item.estimasiAnggaran)}</p>
+                <p className="mt-2 text-green-600 font-semibold">{formatCurrency(item.anggaranDisetujui)}</p>
               </div>
 
               <div>
