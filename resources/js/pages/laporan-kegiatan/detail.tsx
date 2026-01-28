@@ -218,11 +218,12 @@ export default function DetailLaporanKegiatan() {
             <div className="mb-8">
               <p className="text-sm font-semibold text-gray-700 mb-2">Status</p>
               <span className={`inline-block text-sm font-medium px-4 py-2 rounded-full ${
-                item.status === 'Belum Diajukan' ? 'bg-gray-200 text-gray-800' :
-                item.status === 'Diajukan' ? 'bg-blue-200 text-blue-800' :
-                item.status === 'Disetujui' ? 'bg-green-200 text-green-800' :
-                item.status === 'Selesai' ? 'bg-purple-200 text-purple-800' :
-                'bg-red-200 text-red-800'
+                item.status === 'Diajukan' ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-white shadow-amber-500/25' :
+                item.status === 'Ditolak' ? 'bg-gradient-to-r from-red-400 to-rose-500 text-white shadow-red-500/25':
+                item.status === 'Disetujui' ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white shadow-green-500/25' :
+                item.status === 'Direvisi' ? 'bg-gradient-to-r from-orange-400 to-amber-500 text-white shadow-orange-500/25' :
+                item.status === 'Direview' ? 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white shadow-blue-500/25' :
+                'bg-gradient-to-r from-gray-300 to-gray-400 text-white'
               }`}>
                 {item.status}
               </span>
